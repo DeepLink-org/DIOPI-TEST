@@ -1,0 +1,3 @@
+[submodule "diopirt"]
+	path = diopirt
+	url = git@github.com:OpenComputeLab/DIOPI.git
