@@ -2625,6 +2625,36 @@ diopi_configs = {
         ),
     ),
 
+    'index_put_acc_one_indices': dict(
+        name=['index_put'],
+        interface=['CustomizedTest'],
+        is_inplace=True,
+        para=dict(
+            accumulate=[True, True]
+        ),
+        tensor_para=dict(
+            gen_fn=Genfunc.randn,
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((16, 4, 4), (64, 4, 14, 14)),
+                    "dtype": [Dtype.float32, Dtype.float64],
+                },
+                {
+                    "ins": ['indices1'],
+                    "shape": ((16,), (64,)),
+                    "dtype": [Dtype.int64],
+                    "gen_fn": dict(fn=Genfunc.randint, low=0, high=4),
+                },
+                {
+                    "ins": ['values'],
+                    "shape": ((16, 4, 4), (64, 4, 14, 14)),
+                    "dtype": [Dtype.float32, Dtype.float64],
+                },
+            ]
+        ),
+    ),
+
     'index_put': dict(
         name=['index_put'],
         interface=['CustomizedTest'],
@@ -2643,6 +2673,38 @@ diopi_configs = {
                 {
                     "ins": ['indices1', 'indices2'],
                     "shape": ((16, 4), (64, 4)),
+                    "dtype": [Dtype.int64],
+                    "gen_fn": dict(fn=Genfunc.randint, low=0, high=4),
+                },
+                {
+                    "ins": ['values'],
+                    "shape": ((16, 4, 4), (64, 4, 14, 14)),
+                    "dtype": [Dtype.float32, Dtype.float64],
+                    # sample test for index_put when acc is False
+                    "gen_fn": Genfunc.ones,
+                },
+            ]
+        ),
+    ),
+
+    'index_put_one_indices': dict(
+        name=['index_put'],
+        interface=['CustomizedTest'],
+        is_inplace=True,
+        para=dict(
+            accumulate=[True, False]
+        ),
+        tensor_para=dict(
+            gen_fn=Genfunc.randn,
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((16, 4, 4), (64, 4, 14, 14)),
+                    "dtype": [Dtype.float32, Dtype.float64],
+                },
+                {
+                    "ins": ['indices1'],
+                    "shape": ((16,), (64,)),
                     "dtype": [Dtype.int64],
                     "gen_fn": dict(fn=Genfunc.randint, low=0, high=4),
                 },

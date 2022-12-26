@@ -2865,8 +2865,13 @@ def ctc_loss_backward(log_probs, grad_outputs, targets, input_lengths, target_le
     return {"log_probs": grad_input}
 
 
-def index_put(input, indices1, indices2, values, accumulate=False, inplace=False):
-    c_tensors = [indices1.tensor_handle, indices2.tensor_handle]
+def index_put(input, values, indices1, indices2=None, accumulate=False, inplace=False):
+    if indices2 is not None:
+        c_tensors = [indices1.tensor_handle, indices2.tensor_handle]
+        indices_counts = 2
+    else:
+        c_tensors = [indices1.tensor_handle]
+        indices_counts = 1
     c_tensors = (c_void_p * 2)(*c_tensors)
     call = "diopiIndexPut"
     out = raw_like(input)
@@ -2875,11 +2880,11 @@ def index_put(input, indices1, indices2, values, accumulate=False, inplace=False
         out = input
         func = check_function(call)
         ret = func(input.context_handle, input.tensor_handle, values.tensor_handle,
-                pointer(c_tensors), c_bool(accumulate))
+                pointer(c_tensors), c_int64(indices_counts), c_bool(accumulate))
     else:
         func = check_function(call)
         ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, values.tensor_handle,
-                pointer(c_tensors), c_bool(accumulate))
+                pointer(c_tensors), c_int64(indices_counts), c_bool(accumulate))
     check_returncode(ret)
     return out
 

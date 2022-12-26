@@ -442,9 +442,13 @@ class CustomizedTest(object):
                                          weight_decay=weight_decay)
         return param, param_grad, square_avg, acc_delta
 
-    def index_put(input, indices1, indices2, values, accumulate):
+    def index_put(input,  values, indices1, indices2=None, accumulate=False):
         import torch
-        return torch.index_put(input, (indices1, indices2), values, accumulate)
+        if indices2 is not None:
+            indices = [indices1, indices2]
+        else:
+            indices = [indices1]
+        return torch.index_put(input, indices, values, accumulate)
 
 
 def transfer_tensor_to_device(function_paras: dict):
