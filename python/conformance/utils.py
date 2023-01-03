@@ -138,6 +138,7 @@ class Log(object):
 def wrap_logger_error(func):
     def inner(*args, **kwargs):
         if args[0].startswith("NotImplemented") or \
+            args[0].startswith("Skipped") or \
              args[0].startswith("AttributeError"):
             return func(*args, **kwargs)
         global error_counter

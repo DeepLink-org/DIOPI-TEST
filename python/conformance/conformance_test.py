@@ -20,7 +20,7 @@ def convert_input_tensors(function_paras: dict, nhwc_list=[], dtype_list=[]):
             ndim = tensor.ndim
             if glob_vars.nhwc and (para in nhwc_list):
                 if ndim < glob_vars.nhwc_min_dim or ndim > 5:
-                   raise DiopiException(f"{ndim}-dim Tensor skipped for nhwc test")
+                   raise DiopiException(f"Skipped: {ndim}-dim Tensor skipped for nhwc test")
                 tensor_nchw = tensor
                 ndim = tensor_nchw.ndim
                 if ndim == 3:
@@ -200,7 +200,7 @@ class ConformanceTest(object):
                     logger.error(f"AttributeError: {e}")
                     continue
                 except Exception as e:
-                    logger.error(f"Failed: {e}")
+                    logger.error(f"{e}")
                     continue
 
                 write_precision(data["cfg"], cfg_func_name, passed)
