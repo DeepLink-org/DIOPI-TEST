@@ -216,40 +216,40 @@ def erf(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiErf')
 
 
-def add(input, other, alpha=1) -> Tensor:
-    return binary_op_scalar(input, other, False, 'diopiAdd', alpha=alpha)
+def add(input, other, inplace=False, alpha=1) -> Tensor:
+    return binary_op_scalar(input, other, inplace, 'diopiAdd', alpha=alpha)
 
 
-def sub(input, other, alpha=1.0) -> Tensor:
-    return binary_op_scalar(input, other, False, 'diopiSub', alpha=alpha)
+def sub(input, other, inplace=False, alpha=1.0) -> Tensor:
+    return binary_op_scalar(input, other, inplace, 'diopiSub', alpha=alpha)
 
 
-def eq(input, other) -> Tensor:
-    return binary_op_scalar(input, other, False, 'diopiEq', dtype=Dtype.bool)
+def eq(input, other, inplace=False) -> Tensor:
+    return binary_op_scalar(input, other, inplace, 'diopiEq', dtype=Dtype.bool)
 
 
-def ne(input, other) -> Tensor:
-    return binary_op_scalar(input, other, False, 'diopiNe', dtype=Dtype.bool)
+def ne(input, other, inplace=False) -> Tensor:
+    return binary_op_scalar(input, other, inplace, 'diopiNe', dtype=Dtype.bool)
 
 
-def ge(input, other) -> Tensor:
-    return binary_op_scalar(input, other, False, 'diopiGe', dtype=Dtype.bool)
+def ge(input, other, inplace=False) -> Tensor:
+    return binary_op_scalar(input, other, inplace, 'diopiGe', dtype=Dtype.bool)
 
 
-def gt(input, other) -> Tensor:
-    return binary_op_scalar(input, other, False, 'diopiGt', dtype=Dtype.bool)
+def gt(input, other, inplace=False) -> Tensor:
+    return binary_op_scalar(input, other, inplace, 'diopiGt', dtype=Dtype.bool)
 
 
-def le(input, other) -> Tensor:
-    return binary_op_scalar(input, other, False, 'diopiLe', dtype=Dtype.bool)
+def le(input, other, inplace=False) -> Tensor:
+    return binary_op_scalar(input, other, inplace, 'diopiLe', dtype=Dtype.bool)
 
 
-def lt(input, other) -> Tensor:
-    return binary_op_scalar(input, other, False, 'diopiLt', dtype=Dtype.bool)
+def lt(input, other, inplace=False) -> Tensor:
+    return binary_op_scalar(input, other, inplace, 'diopiLt', dtype=Dtype.bool)
 
 
-def mul(input, other) -> Tensor:
-    return binary_op_scalar(input, other, False, 'diopiMul')
+def mul(input, other, inplace=False) -> Tensor:
+    return binary_op_scalar(input, other, inplace, 'diopiMul')
 
 
 def div(input, other, rounding_mode=None) -> Tensor:
