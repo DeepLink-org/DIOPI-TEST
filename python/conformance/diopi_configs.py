@@ -484,9 +484,10 @@ diopi_configs = {
     ),
 
     'pointwise_binary': dict(
-        name=['sub', 'mul', 'div', 'eq', 'ne', 'le',
+        name=['add', 'sub', 'mul', 'div', 'eq', 'ne', 'le',
               'lt', 'gt', 'ge', 'logical_and', 'logical_or'],
         interface=['torch'],
+        is_inplace=True,
         dtype=[Dtype.float32],
         tensor_para=dict(
             gen_fn=Genfunc.randn,
