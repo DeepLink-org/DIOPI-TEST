@@ -253,21 +253,30 @@ def mul(input, other, inplace=False) -> Tensor:
     return binary_op_scalar(input, other, inplace, 'diopiMul')
 
 
-def div(input, other, rounding_mode=None) -> Tensor:
+def div(input, other, inplace=False, rounding_mode=None) -> Tensor:
     call = "diopiDiv"
-    args = "input.context_handle, out.tensor_handle, input.tensor_handle, "
+    args = "input.context_handle, "
     sizeI = input.size()
     rounding_mode = convert_round_mode(rounding_mode)
+    
+    if inplace:
+        call = call + "inp"
+        out = input
+    else:
+        if not isinstance(other, Tensor):
+            out = Tensor(sizeI, input.get_dtype())
+        else:
+            sizeO = other.size()
+            outsize = broadcast_out_size(list(sizeI), list(sizeO))
+            out = Tensor(outsize, input.get_dtype())
+        args = args + "out.tensor_handle, "
+
     if not isinstance(other, Tensor):
-        out = Tensor(sizeI, input.get_dtype())
         call = call + "Scalar"
         other = Scalar(other)
-        args = args + "byref(other)"
+        args = args + "input.tensor_handle, byref(other)"
     else:
-        sizeO = other.size()
-        outsize = broadcast_out_size(list(sizeI), list(sizeO))
-        out = Tensor(outsize, input.get_dtype())
-        args = args + "other.tensor_handle"
+        args = args + "input.tensor_handle, other.tensor_handle"
 
     func = check_function(call)
     ret = eval(f'func({args}, rounding_mode)')
@@ -276,11 +285,11 @@ def div(input, other, rounding_mode=None) -> Tensor:
     return out
 
 
-def logical_and(input, other) -> Tensor:
+def logical_and(input, other, inplace=False) -> Tensor:
     return binary_op_scalar(input, other, False, 'diopiBitwiseAnd', dtype=Dtype.bool)
 
 
-def logical_or(input, other) -> Tensor:
+def logical_or(input, other, inplace=False) -> Tensor:
     return binary_op_scalar(input, other, False, 'diopiBitwiseOr', dtype=Dtype.bool)
 
 
