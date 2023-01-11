@@ -111,6 +111,7 @@ def binary_op_scalar(input, other, inplace, call, alpha=None, dtype=None) -> Ten
         dtype = input.get_dtype()
 
     if inplace:
+        call = call + "Inp"
         out = input
     else:
         sizeI = input.size()
