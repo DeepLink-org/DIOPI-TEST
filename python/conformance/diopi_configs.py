@@ -69,6 +69,21 @@ diopi_configs = {
         ),
     ),
 
+    'relu_empty': dict(
+        name=["relu"],
+        is_inplace=True,
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((0, ), ),
+                    "dtype": [Dtype.float32, Dtype.float64],
+                    "gen_fn": Genfunc.randn,
+                },
+            ],
+        ),
+    ),
+
     'relu': dict(
         name=["relu"],
         is_inplace=True,
