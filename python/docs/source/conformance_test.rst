@@ -79,10 +79,58 @@ DIOPI 测例说明
 可选测试模式
 ------------------------
 * fname: 指定算子测试
+    fname 为函数名字选项，如果指定函数名字（配置文件中测例的 name）则会对该算子进行基准数据生成和测试，
+    不指定默认对所有算子生成基准数据和测试。
+    fname 默认值为 all。
+
+.. code-block:: shell
+
+    # 只测试 relu
+    python main.py --mode gen_data --fname relu
+    python main.py --mode run_test --fname relu
+
+    # 测试所有算子
+    python main.py --mode gen_data
+    python main.py --mode run_test
+
+    # 测试所有算子
+    python main.py --mode gen_data --fname all
+    python main.py --mode run_test --fname all
+
+
 * filter_dtype: 过滤指定数据类型的测试
+    当前测试方案中，会在配置文件中配置算子支持的多个数据类型，比如：int32, int64, float32, float64。
+    默认的测试行为会对所有配置的数据类型都进行测试，但是可能存在某些硬件并不支持所有配置的数据类型，
+    比如不支持 float64，那么可以通过设置 filter_dtype 为 float64 来过滤掉对于 float64 的测试。
+
+.. code-block:: shell
+
+    python main.py --mode gen_data --fname relu --filter_dtype float64
+    python main.py --mode run_test --fname relu --filter_dtype float64
+
 * nhwc: 使用NHWC格式的张量测试
+    目前，模型中使用到的数据格式主要为 nchw 和 nhwc。当前测试默认支持的是 nchw 数据格式。
+    如果需要测试 nhwc 格式，可以通过设置 nhwc 来生效。
+
+.. code-block:: shell
+
+    python main.py --mode gen_data --fname relu --nhwc
+    python main.py --mode run_test --fname relu --nhwc
+
 * four_bytes: 使用int32代替int64测试
+
+.. code-block:: shell
+
+    python main.py --mode gen_data --fname relu --four_bytes
+    python main.py --mode run_test --fname relu --four_bytes
+
 * model_name: 指定模型相关算子测试
+    为了简化模型相关的算子测试，可以通过设置 model_name 来测试指定模型的所有算子。
+
+.. code-block:: shell
+
+    python main.py --mode gen_data --model_name ResNet50
+    python main.py --mode run_test --model_name ResNet50
 
 反向测试规则
 ------------------------
