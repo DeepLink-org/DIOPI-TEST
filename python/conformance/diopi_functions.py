@@ -259,7 +259,7 @@ def div(input, other, inplace=False, rounding_mode=None) -> Tensor:
     sizeI = input.size()
     rounding_mode = convert_round_mode(rounding_mode)
     if inplace:
-        call = call + "inp"
+        call = call + "Inp"
         out = input
     else:
         if not isinstance(other, Tensor):
