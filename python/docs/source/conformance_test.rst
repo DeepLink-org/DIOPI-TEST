@@ -3,134 +3,240 @@ DIOPI 测例说明
 
 配置文件规则
 ------------------------
+
+所有算子测例配置文件位于 python/conformance/diopi_configs.py 中。
+以 group_norm 算子测例配置为例来阐释说明测例生成。
+
 .. code-block:: python
 
-    'conv_2d': dict(
-        name=["conv2d"],
-        atol=1e-3,
-        rtol=1e-3,
-        dtype=[Dtype.float32, Dtype.float16],
+    'group_norm': dict(
+        name=['group_norm'],
+        interface=['torch'],
+        atol=1e-4,
+        rtol=1e-5,
         para=dict(
-            stride=[2, 1, 1],
-            padding=[0, 12, 0],
-            dilation=[1, 12, 1],
-            groups=[1, 2048, 1],
+            num_groups=[32, 32, 32, 32],
+            eps=[1e-05, 1e-05, 1e-05, 1e-05]
         ),
         tensor_para=dict(
             args=[
                 {
                     "ins": ["input"],
                     "requires_grad": [True],
-                    "shape": ((2, 256, 200, 304), (2, 2048, 64, 64), (2, 2048, 1, 1)),
+                    "shape": ((2, 256, 100, 152), (2, 256, 7, 10),
+                              (2, 256, 24, 24), (2, 256, 12, 12)),
+                    "dtype": [Dtype.float32, Dtype.float64],
                 },
                 {
-                    "ins": ["weight"],
+                    "ins": ["weight", "bias"],
                     "requires_grad": [True],
-                    "shape": ((12, 256, 1, 1), (2048, 1, 3, 3), (512, 2048, 1, 1)),
-                },
-                {
-                    "ins": ["bias"],
-                    "requires_grad": [True],
-                    "shape": ((12, ), None, None),
+                    "shape": ((256,), (256,),
+                              (256,), (256,)),
+                    "dtype": [Dtype.float32, Dtype.float64],
                 },
             ]
         ),
     ),
 
 * name: *list*
-    函数名字。如conv2d 在生成基准数据中使用到的函数名字：
+    函数名字。
 
-    torch.nn.functional.conv2d(*input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1*) -> Tensor
+    如在测试 DIOPI 算子时使用到的 python 函数名字：
+    
+    .. code-block:: python
 
-    在测试算子适配中使用到的 python 函数名字：
+        diopi_funtions.group_norm(**kwargs) 
 
-    diopi_funtions.conv2d(*input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1*) -> Tensor
+* interface: *list*
+
+    在生成基准数据中使用模块名, 若不指定, 默认为 torch.nn.functional。
+    如在生成基准数据时调用的 pytorch 函数:
+
+    .. code-block:: python
+    
+        torch.group_norm(**kwargs)
 
 * atol: *float*
-    用于结果验证的绝对误差参数。
-* rtol: *float*
-    用于结果验证的相对误差参数。
-    结果验证使用此函数检查 input 和 other 是否满足条件：
+    用于结果验证的绝对误差参数, 默认值为 1e-8。
 
-    \|input - other\| ≤ atol + rtol x \|other\|
-* dtype: *list*
-    函数张量参数的数据类型。
+* rtol: *float*
+    用于结果验证的相对误差参数, 默认值为 1e-5。
+    结果验证使用此函数检查输出 out  和参考输出 out_ref 是否满足条件：
+    \|out - out_ref\| ≤ atol + rtol x \|out_ref\|
+
+* para: *dict*
+    函数非张量参数（比如 num_groups, eps 等）。
+
 * tensor_para: *dict*
     函数张量参数（比如 input, weight, bias 等）。
+
     args 中：
-    ins: *list* 张量参数的名字。
 
-    shape: *tuple* 张量参数的形状。
+        - ins (*list*): 张量参数的名字, 默认为 ["input"]。
+        - shape (*tuple*): 张量参数的形状。
+        - gen_fn (*builtin_function*): 数据生成器, 默认为 numpy.random.randn。
+          若在 args 外部制定, 则应用于 args 内所有张量参数。
+        - requires_grad (*list*): 是否反向计算梯度, 默认为 [Fasle]。
+        - dtype (*list*): 张量的数据类型, 若在 args 外部制定, 则应用于 args 内所有张量参数。
 
-    gen_fn (缺省): *builtin_function*
-    数据生成器，使用了 numpy.random.randn 作为默认生成器。
-    
-    args 中包含`多组`测试用例张量, shape 元素个数代表张量组数，每个 ins 的 shape 都是`一一对应`的。
-    conv_2d 中描述了三组输入张量测试用例：
+    args 中包含 **多组** 测试用例张量, shape 元素个数代表张量组数, 每个 ins 的 shape 都是 **一一对应** 的。
+    该数量于 **para** 每个非张量参数的数量也 **一一对应**。
+    group_norm 中描述了四组输入张量测试用例, 以下四组测例分别为不同数据类型，此测例配置为 float32, float64
+    各生成一次基准输入输出数据:
 
-    第一组：`group0 = {"input": tensor(2, 256, 200, 304), "weight": tensor(12, 256, 1, 1), "bias": tensor(12),}`
+    第一组: `group0 = {"num_group": 32, "eps" : 1e-05, "input": tensor(2, 256, 100, 152), "weight": tensor(256), "bias": tensor(256)}`
     
-    第二组：`group1 = {"input": tensor(2, 2048, 64, 64), "weight": tensor(2048, 1, 3, 3), "bias": None,}`
+    第二组: `group1 = {"num_group": 32, "eps" : 1e-05, "input": tensor(2, 256, 7, 10), "weight": tensor(256), "bias": tensor(256)}`
     
-    第三组：`group2 = {"input": tensor(2, 2048, 1, 1), "weight": tensor(512, 2048, 1, 1), "bias": None,}`
-* para: *dict*
+    第三组: `group2 = {"num_group": 32, "eps" : 1e-05, "input": tensor(2, 256, 24, 24), "weight": tensor(256), "bias": tensor(256)}`
+
+    第四组: `group3 = {"num_group": 32, "eps" : 1e-05, "input": tensor(2, 256, 12, 12), "weight": tensor(256), "bias": tensor(256)}`
+
+* 其他配置参数：
+    * atol_half: *float*
+        用于 half 数据类型测试结果验证的绝对误差参数, 默认值为 1e-4。
+    * rtol_half: *float*
+        用于 half 数据类型测试结果验证的相对误差参数, 默认值为 5e-3。
+    * is_inplace: *bool*
+        是否复用基准输入输出数据做 inplace 版本算子测试。默认为 Fasle。
+    * no_out_ref: *bool*
+        常见于随机数算子测试中，用以表明该算子测试无基准输出数据。
+    * saved_args: *dict*
+        指定输出结果作为反向计算的输入参数。具体细节见 :ref:`反向测试说明 <反向测试基准数据生成说明>`。
+    * seq_name: *str* 和 gen_num_range : *list*
+        见于cat、stack算子的测例配置, 组合使用。gen_num_range 表示在指定的范围内产生随机数个 args 中的张量。
+        seq_name 指示将这些放入列表中的张量列表名字。
 
 
 可选测试模式
 ------------------------
 * fname: 指定算子测试
-    fname 为函数名字选项，如果指定函数名字（配置文件中测例的 name）则会对该算子进行基准数据生成和测试，
-    不指定默认对所有算子生成基准数据和测试。
-    fname 默认值为 all。
+    fname 为函数名字选项, 如果指定函数名字 (测例配置文件中测例的 name) 则会对该算子进行基准数据生成和测试,
+    不指定默认对所有算子生成基准数据和测试。fname 默认值为 all。
 
-.. code-block:: shell
+    .. code-block:: shell
 
-    # 只测试 relu
-    python main.py --mode gen_data --fname relu
-    python main.py --mode run_test --fname relu
+        # 只测试 relu
+        python main.py --mode gen_data --fname relu
+        python main.py --mode run_test --fname relu
 
-    # 测试所有算子
-    python main.py --mode gen_data
-    python main.py --mode run_test
+        # 测试所有算子
+        python main.py --mode gen_data
+        python main.py --mode run_test
 
-    # 测试所有算子
-    python main.py --mode gen_data --fname all
-    python main.py --mode run_test --fname all
+        # 测试所有算子
+        python main.py --mode gen_data --fname all
+        python main.py --mode run_test --fname all
 
 
 * filter_dtype: 过滤指定数据类型的测试
-    当前测试方案中，会在配置文件中配置算子支持的多个数据类型，比如：int32, int64, float32, float64。
+    当前测试方案中, 会在配置文件中配置算子支持的多个数据类型, 比如: int32, int64, float32, float64。
     默认的测试行为会对所有配置的数据类型都进行测试，但是可能存在某些硬件并不支持所有配置的数据类型，
-    比如不支持 float64，那么可以通过设置 filter_dtype 为 float64 来过滤掉对于 float64 的测试。
+    比如不支持 float64, 那么可以通过设置 filter_dtype 为 float64 来过滤掉对于 float64 的测试。
 
-.. code-block:: shell
+    .. code-block:: shell
 
-    python main.py --mode gen_data --fname relu --filter_dtype float64
-    python main.py --mode run_test --fname relu --filter_dtype float64
+        python main.py --mode gen_data --fname relu --filter_dtype float64
+        python main.py --mode run_test --fname relu --filter_dtype float64
 
-* nhwc: 使用NHWC格式的张量测试
-    目前，模型中使用到的数据格式主要为 nchw 和 nhwc。当前测试默认支持的是 nchw 数据格式。
-    如果需要测试 nhwc 格式，可以通过设置 nhwc 来生效。
+        # 可叠加不支持的数据类型
+        python main.py --mode run_test --fname relu --filter_dtype float64  --filter_dtype int64
 
-.. code-block:: shell
+* nhwc : 使用 channel_last 格式的张量测试
+    目前，模型中使用到的数据格式主要为 nchw/nhwc 和 ncdhw/ndhwc。当前测试默认支持的是 nchw/ncdhw 数据格式。
+    如果需要测试 nhwc/ndhwc 格式，可以通过设置 nhwc 来生效。
 
-    python main.py --mode gen_data --fname relu --nhwc
-    python main.py --mode run_test --fname relu --nhwc
+    channel_last 测试只对部分算子有效, 请参考 python/conformance/utils.py 中 nhwc_op 字典。
+    其中, key 为需要使用 channel last 数据格式的算子名称, value 的第一个参数表示 2d/3d 数据。
+    如果没有显式指明，如 interpolate 算子, 则对 4 维以下的张量按照 2d 数据处理, 5 维张量按照
+    3d 数据处理, 目前不支持 5 维以上输入。value 后续元素代表算子需要转换为 channel last 数据格式的
+    参数。
+
+    .. code-block:: python
+
+        nhwc_op = { 'conv2d':["2d", "input", 'weight'],
+                    'conv3d':["3d", "input", 'weight'],
+                    'batch_norm':['input'],
+                    'adaptive_avg_pool2d':["2d", 'input'],
+                    'adaptive_max_pool2d':["2d", 'input'],
+                    'adaptive_avg_pool3d':["3d", 'input'],
+                    'adaptive_max_pool3d':["3d", 'input'],
+                    'avg_pool2d':["2d", 'input'],
+                    'max_pool2d':["2d", 'input'], 
+                    'max_pool3d':["3d", 'input'], 
+                    'interpolate':['input'],
+                    'pad':['input'],
+                    'roi_align':['input']
+                  }
+
+    出于统一管理基准输入输出数据的目的, 且数据格式是否为 channel last 并不影响最终计算结果。
+    故数据格式的转换仅发生在 run_test 阶段。
+    
+    .. code-block:: shell
+
+        # --nhwc 仅对在 nhwc_op 字典中的算子有效
+        python main.py --mode run_test --fname relu --nhwc
+    
+
 
 * four_bytes: 使用int32代替int64测试
+    pytorch 需要索引张量的算子 (max_pool, sort等), 基本采用 int64 作为默认数据格式。
+    而很多国产 AI 芯片并不支持该数据类型运算, 在底层核函数中使用 int32 数据类型代替 int64 计算。
+    为了支持国产 AI 芯片这一特性, 一致性测试框架允许使用 int32 数据类型进行测试。
 
-.. code-block:: shell
+    该设置只对部分算子有效, 请参考 python/conformance/utils.py 中 dtype_op 字典。
+    其中, key 为使用 int32 代替 int64 的算子名称, value 中为使用 int32 
+    数据类型的输入变量或输出变量。
 
-    python main.py --mode gen_data --fname relu --four_bytes
-    python main.py --mode run_test --fname relu --four_bytes
+    .. code-block:: python
+
+        dtype_op = { # 输入使用 int32 的算子及变量名
+                    'nll_loss' : ['target'],
+                    'cross_entropy' : ['target'],
+                    'index_select' : ['index'],
+                    'index_put' : ['indices1', 'indices2'],
+                    'binary_cross_entropy_with_logits' : ['pos_weight'],
+                    'gather' : ['index'],
+                    'scatter' : ['index'],
+                    'embedding' : ['input'],
+                    'index' : ['idx1', 'idx2'],
+                    'ctc_loss' : ['targets', 'input_lengths', 'target_lengths'],
+                    'index_fill' : ['index'],
+                    'one_hot' : ['input'],
+                }
+    
+        dtype_out_op = { # 输出使用 int32 的算子及变量名
+                'max_pool2d' : ['indices'], 
+                'max_pool3d' : ['indices'],
+                'adaptive_max_pool2d' : ['indices'],
+                'adaptive_max_pool3d' : ['indices'],
+                'max' : ['indices'],
+                'min' : ['indices'],
+                'sort' : ['indices'],
+                'topk' : ['indices'],
+                'unique' : ['indices'],
+                'one_hot' : ['out'],
+                'arange' : ['out'],
+                'randperm' : ['out'],
+                'argmax' : ['out']
+            }
+
+    出于统一管理基准输入输出数据的目的, 且均是整型数据类型, 对于精度不会产生明显影响。
+    故数据类型的转换仅发生在 run_test 阶段。
+
+    .. code-block:: shell
+
+        # --four_bytes 仅对在 dtype_op/dtype_out_op 字典中的算子有效
+        python main.py --mode run_test --fname relu --four_bytes
 
 * model_name: 指定模型相关算子测试
     为了简化模型相关的算子测试，可以通过设置 model_name 来测试指定模型的所有算子。
+    该设置会屏蔽对于 fname 的制定。
 
-.. code-block:: shell
+    .. code-block:: shell
 
-    python main.py --mode gen_data --model_name ResNet50
-    python main.py --mode run_test --model_name ResNet50
+        python main.py --mode gen_data --model_name ResNet50
+        python main.py --mode run_test --model_name ResNet50
 
 反向测试规则
 ------------------------
@@ -168,6 +274,8 @@ DIOPI 测例说明
                 ],
             ),
         ),
+
+.. _反向测试基准数据生成说明:
 
 2. 反向测试基准数据
 ~~~~~~~~~~~~~~~~~~~~~~~~
