@@ -1094,7 +1094,7 @@ def split(tensor, split_size_or_sections, dim=0):
     return outs
 
 
-def pow(input, exponent) -> Tensor:
+def pow(input, exponent, inplace = False) -> Tensor:
     if not isinstance(input, Tensor):
         assert isinstance(exponent, Tensor),\
             "exponent must be tensor when input is scalar"
@@ -1106,19 +1106,30 @@ def pow(input, exponent) -> Tensor:
     elif not isinstance(exponent, Tensor):
         assert isinstance(input, Tensor),\
             "input must be tensor when exponent is scalar"
-        func = check_function("diopiPow")
-        out = raw_like(input)
-        exponent = byref(Scalar(exponent))
-        ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, exponent)
+        if inplace!=True:
+            func = check_function("diopiPow")
+            out = raw_like(input)
+            exponent = byref(Scalar(exponent))
+            ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, exponent)
+        else:
+            func = check_function("diopiPowInp")
+            out = input
+            exponent = byref(Scalar(exponent))
+            ret = func(input.context_handle, input.tensor_handle, exponent)
     else:
         sizeI = list(input.size())
         sizeE = list(exponent.size())
         sizeO = broadcast_out_size(sizeI, sizeE)
-        out = Tensor(sizeO, input.get_dtype())
+        if inplace!=True:
+            out = Tensor(sizeO, input.get_dtype())
+            func = check_function("diopiPowTensor")
+            ret = func(input.context_handle, out.tensor_handle,
+                    input.tensor_handle, exponent.tensor_handle)
+        else:
+            out = input
+            func = check_function("diopiPowInpTensor")
+            ret = func(input.context_handle, input.tensor_handle, exponent.tensor_handle)
 
-        func = check_function("diopiPowTensor")
-        ret = func(input.context_handle, out.tensor_handle,
-                   input.tensor_handle, exponent.tensor_handle)
     check_returncode(ret)
     return out
 
