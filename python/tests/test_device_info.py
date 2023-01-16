@@ -33,4 +33,3 @@ class TestDeviceInfo(object):
         assert diopi_version in impl_version
 
         logger.info(f"Impl_version is {impl_version}.")
- 

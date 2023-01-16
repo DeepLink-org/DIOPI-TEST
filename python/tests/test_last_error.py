@@ -32,6 +32,6 @@ class TestGetLastError(object):
     def test_diopirt_get_last_error(self):
         assert isinstance(self.init_last_error , str), "no error return"
 
-        self.cat()
+        # test_device_impl_get_last_error has called before cat() to upate error. 
         last_error_str  = get_last_error()
         assert self.init_last_error != last_error_str
