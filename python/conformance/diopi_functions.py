@@ -1125,6 +1125,8 @@ def pow(input, exponent, inplace = False) -> Tensor:
         func = check_function("diopiPowTensor")
         ret = func(input.context_handle, out.tensor_handle,
                 input.tensor_handle, exponent.tensor_handle)
+    if inplace:
+        out = input
 
     check_returncode(ret)
     return out
