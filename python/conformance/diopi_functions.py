@@ -1106,29 +1106,25 @@ def pow(input, exponent, inplace = False) -> Tensor:
     elif not isinstance(exponent, Tensor):
         assert isinstance(input, Tensor),\
             "input must be tensor when exponent is scalar"
-        if inplace!=True:
+        exponent = byref(Scalar(exponent))
+        if inplace:
+            func = check_function("diopiPowInp")
+            ret = func(input.context_handle, input.tensor_handle, exponent)
+        else:
             func = check_function("diopiPow")
             out = raw_like(input)
-            exponent = byref(Scalar(exponent))
             ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, exponent)
-        else:
-            func = check_function("diopiPowInp")
-            out = input
-            exponent = byref(Scalar(exponent))
-            ret = func(input.context_handle, input.tensor_handle, exponent)
+    elif inplace:
+        func = check_function("diopiPowInpTensor")
+        ret = func(input.context_handle, input.tensor_handle, exponent.tensor_handle)
     else:
         sizeI = list(input.size())
         sizeE = list(exponent.size())
         sizeO = broadcast_out_size(sizeI, sizeE)
-        if inplace!=True:
-            out = Tensor(sizeO, input.get_dtype())
-            func = check_function("diopiPowTensor")
-            ret = func(input.context_handle, out.tensor_handle,
-                    input.tensor_handle, exponent.tensor_handle)
-        else:
-            out = input
-            func = check_function("diopiPowInpTensor")
-            ret = func(input.context_handle, input.tensor_handle, exponent.tensor_handle)
+        out = Tensor(sizeO, input.get_dtype())
+        func = check_function("diopiPowTensor")
+        ret = func(input.context_handle, out.tensor_handle,
+                input.tensor_handle, exponent.tensor_handle)
 
     check_returncode(ret)
     return out
