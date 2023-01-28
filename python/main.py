@@ -60,12 +60,12 @@ if __name__ == "__main__":
     if args.mode == 'gen_data':
         if args.model_name != '':
             logger.info(f"Now, fname will be disabled, and all {args.model_name}'s ops will be processed.")
-        cf.GenInputData.run(args.fname, args.model_name, args.filter_dtype)
-        cf.GenOutputData.run(args.fname, args.model_name, args.filter_dtype)
+        cf.GenInputData.run(args.fname, args.model_name.lower(), args.filter_dtype)
+        cf.GenOutputData.run(args.fname, args.model_name.lower(), args.filter_dtype)
     elif args.mode == 'run_test':
         if args.model_name != '':
             logger.info(f"Now, fname will be disabled, and all {args.model_name}'s ops will be processed.")
-        cf.ConformanceTest.run(args.fname, args.model_name, args.filter_dtype)
+        cf.ConformanceTest.run(args.fname, args.model_name.lower(), args.filter_dtype)
     elif args.mode == 'utest':
         call = "python3 -m pytest -vx tests"
         subprocess.call(shlex.split(call))  # nosec

@@ -10,11 +10,10 @@ from .utils import need_process_func
 from .config import Genfunc, dict_elem_length, Config
 from . import diopi_configs
 from .dtype import Dtype, from_dtype_str
+from .model_config import *
 
 
 _cur_dir = os.path.dirname(os.path.abspath(__file__))
-inputs_dir_path = os.path.join(_cur_dir, "../data/inputs")
-outputs_dir_path = os.path.join(_cur_dir, "../data/outputs")
 cfg_file_name = "test_config.cfg"
 
 
@@ -287,7 +286,7 @@ def gen_and_dump_data(dir_path: str, cfg_name: str, cfg_expand_list: list, cfg_s
         function_paras["requires_grad"] = {}
 
 
-def get_saved_pth_list() -> list:
+def get_saved_pth_list(inputs_dir_path) -> list:
     with open(os.path.join(inputs_dir_path, cfg_file_name), "rb") as f:
         cfg_dict = pickle.load(f)
 
@@ -317,10 +316,16 @@ class GenInputData(object):
 
     @staticmethod
     def run(func_name, model_name, filter_dtype_str_list):
+       
+        if model_name !=  "":
+            diopi_config = model_name + "_config"
+            configs = Config.process_configs(eval(diopi_config))
+        else:
+            configs = Config.process_configs(diopi_configs)
+
+        inputs_dir_path = os.path.join(_cur_dir, "../data/" + model_name + "/inputs")
         if not os.path.exists(inputs_dir_path):
             os.makedirs(inputs_dir_path)
-
-        configs = Config.process_configs(diopi_configs)
 
         cfg_counter = 0
         cfg_save_dict = {}
@@ -524,6 +529,9 @@ class GenOutputData(object):
     def run(func_name, model_name, filter_dtype_str_list):
         import torch
         import torchvision
+
+        inputs_dir_path = os.path.join(_cur_dir, "../data/" + model_name + "/inputs")
+        outputs_dir_path = os.path.join(_cur_dir, "../data/" + model_name + "/outputs")
         if not os.path.exists(inputs_dir_path):
             logger.error("Input data is not generated!")
             sys.exit(0)
@@ -533,7 +541,7 @@ class GenOutputData(object):
 
         gen_counter = 0
         func_name_list = []  # make the info log once
-        saved_pth_list = get_saved_pth_list()
+        saved_pth_list = get_saved_pth_list(inputs_dir_path)
         for saved_pth in saved_pth_list:
             cfg_func_name = saved_pth.split("::")[1].rsplit("_", 1)[0]
             if not need_process_func(cfg_func_name, func_name, model_name):
