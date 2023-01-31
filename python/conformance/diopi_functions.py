@@ -3254,3 +3254,28 @@ def triangular_solve_backward(input, grad_outputs, output, A, upper=True, transp
                grad_cloned_mat, output.tensor_handle, input.tensor_handle, A.tensor_handle, c_bool(upper), c_bool(transpose), c_bool(unitriangular))
     check_returncode(ret)
     return {"input": grad_input, "A": grad_A}
+
+
+def repeat(input, repeats_size) -> Tensor:
+    sizeI = list(input.size())
+    lenSizeI = len(sizeI)
+    repeats_size = list(repeats_size)
+    lenRepeatsSize = len(repeats_size)
+
+    assert lenSizeI <= lenRepeatsSize, f'lenSizeI ({lenSizeI}) should <= lenRepeatsSize ({lenRepeatsSize})'
+    
+    output_size = []
+    for i in range(lenRepeatsSize):
+        k = repeats_size[i]
+        if lenSizeI + i >= lenRepeatsSize:
+            k *= sizeI[lenSizeI + i - lenRepeatsSize]
+        output_size.append(k)
+    sizeO = Sizes(output_size)
+
+    repeats_size = Sizes(repeats_size)
+
+    out = Tensor(output_size, input.get_dtype())
+    func = check_function("diopiRepeat")
+    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, repeats_size)
+    check_returncode(ret)
+    return out

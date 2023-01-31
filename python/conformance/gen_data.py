@@ -463,6 +463,10 @@ class CustomizedTest(object):
         import torch
         return torch.nn.Fold(output_size, kernel_size, dilation, padding, stride)(input)
 
+    def repeat(input, repeats_size):
+        import torch
+        return input.repeat(repeats_size)
+
 
 def transfer_tensor_to_device(function_paras: dict):
     import torch

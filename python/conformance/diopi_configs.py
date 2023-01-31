@@ -3002,4 +3002,26 @@ diopi_configs = {
         saved_args=dict(output=0),
     ),
 
+    'repeat' : dict(
+        name=["repeat"],
+        interface=['CustomizedTest'],
+        para=dict(
+            repeats_size=[(4, 2), (4, 2, 1),
+                          (4, 2), (4, 2, 1),
+                          (4, 2, 1)],
+        ),
+        tensor_para=dict(
+            gen_fn=Genfunc.randn,
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((3, ), (3, ),
+                              (1, 2), (1, 2),
+                              (1, 2, 3)),
+                    "dtype": [Dtype.float32, Dtype.float64],
+                },
+            ]
+        ),
+    ),
+
 }
