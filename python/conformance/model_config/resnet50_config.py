@@ -1,6 +1,7 @@
 from ..config import Genfunc
 from ..dtype import Dtype
 
+# source resnet50_8xb32_in1k.py
 resnet50_config = {
     'conv_2d': dict(
         name=["conv2d"],
@@ -250,19 +251,55 @@ resnet50_config = {
         ),
     ),
 
-    'binary_op_scalar': dict(
-        name=['add', 'mul', 'div'],
+    'add_4': dict(
+        name=['add'],
         interface=['torch'],
         dtype=[Dtype.float32],
         para=dict(
-            other=[0, 1.0, 32],
+            other=[0],
         ),
         tensor_para=dict(
             gen_fn=Genfunc.randn,
             args=[
                 {
                     "ins": ['input'],
-                    "shape": ((1,), (1,), (1,),),
+                    "shape": ((1,)),
+                },
+            ],
+        ),
+    ),
+
+    'mul': dict(
+        name=['mul'],
+        interface=['torch'],
+        dtype=[Dtype.float32],
+        para=dict(
+            other=[1.0],
+        ),
+        tensor_para=dict(
+            gen_fn=Genfunc.randn,
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((1,)),
+                },
+            ],
+        ),
+    ),
+
+    'div': dict(
+        name=['div'],
+        interface=['torch'],
+        dtype=[Dtype.float32],
+        para=dict(
+            other=[32],
+        ),
+        tensor_para=dict(
+            gen_fn=Genfunc.randn,
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((1,)),
                 },
             ],
         ),
