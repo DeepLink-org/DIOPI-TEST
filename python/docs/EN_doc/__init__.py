@@ -1318,7 +1318,7 @@ add_docstr("log_softmax", r"""
         - Input: :math:`(*)` where `*` means, any number of additional
           dimensions
         - Output: :math:`(*)`, same shape as the input
- 
+
     Returns:
         a Tensor of the same dimension and shape as the input with
         values in the range [-inf, 0)
@@ -1451,7 +1451,7 @@ add_docstr("leaky_relu",     r"""Applies the element-wise function:
         \text{negative_slope} \times x, & \text{ otherwise }
         \end{cases}
 
-    Args: 
+    Args:
         input (Tensor): input
         negative_slope: Controls the angle of the negative slope. Default: 1e-2
         inplace: can optionally do the operation in-place. Default: ``False``
@@ -2771,7 +2771,7 @@ add_docstr("bernoulli",     r"""
                 [ 0.,  0.,  0.]])
     """)
 
- 
+
 add_docstr("masked_fill",   r"""
     Fills elements of :attr:`self` tensor with :attr:`value` where :attr:`mask` is
     True. The shape of :attr:`mask` must be
@@ -2975,7 +2975,7 @@ add_docstr("conv_transpose2d",  r"""
         >>> weights = randn(4, 8, 3, 3)
         >>> F.conv_transpose2d(inputs, weights, padding=1)
     """)
- 
+
 
 add_docstr("cumsum",    r"""
     Returns the cumulative sum of elements of :attr:`input` in the dimension
@@ -4161,7 +4161,7 @@ add_docstr('scatter',   r"""
 
 
 add_docstr("interpolate",   r"""
-    Down/up samples the input to either the given :attr:`size` 
+    Down/up samples the input to either the given :attr:`size`
 
     The algorithm used for interpolation is determined by :attr:`mode`.
 
