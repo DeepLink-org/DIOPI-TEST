@@ -9,7 +9,7 @@ from .utils import logger
 from .utils import need_process_func
 from .config import Genfunc, dict_elem_length, Config
 from . import diopi_configs
-from .dtype import Dtype, from_dtype_str
+from .dtype import from_dtype_str
 
 
 _cur_dir = os.path.dirname(os.path.abspath(__file__))

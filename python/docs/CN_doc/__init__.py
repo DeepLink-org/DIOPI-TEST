@@ -1,18 +1,18 @@
 import conformance.diopi_functions as F
-from conformance.diopi_functions import abs, cos, erf, exp, floor, log, log2, log10, neg, nonzero,\
-                                        sign, sin, sqrt, add, bmm, div, eq, fill_, ge, gt, le, lt,\
-                                        logical_and, logical_or, matmul, mul, ne, pow, sub, binary_cross_entropy_with_logits,\
-                                        cross_entropy, mse_loss, nll_loss, leaky_relu, relu, sigmoid, hardtanh, threshold,\
-                                        gelu, tanh, softmax, log_softmax, mean, min, max, std, sum, all, any, addcdiv, addcmul,\
-                                        addmm, adaptive_avg_pool2d, avg_pool2d, max_pool2d, adaptive_max_pool2d, batch_norm,\
-                                        cat, clamp, clip_grad_norm_, conv2d, dropout, embedding, index_select, masked_scatter,\
-                                        linear, one_hot, select, sort, split, stack, topk, transpose, tril, where
+from conformance.diopi_functions import (abs, cos, erf, exp, floor, log, log2, log10, neg, nonzero,
+                                         sign, sin, sqrt, add, bmm, div, eq, fill_, ge, gt, le, lt,
+                                         logical_and, logical_or, matmul, mul, ne, pow, sub, binary_cross_entropy_with_logits,
+                                         cross_entropy, mse_loss, nll_loss, leaky_relu, relu, sigmoid, hardtanh, threshold,
+                                         gelu, tanh, softmax, log_softmax, mean, min, max, std, sum, all, any, addcdiv, addcmul,
+                                         addmm, adaptive_avg_pool2d, avg_pool2d, max_pool2d, adaptive_max_pool2d, batch_norm,
+                                         cat, clamp, clip_grad_norm_, conv2d, dropout, embedding, index_select, masked_scatter,
+                                         linear, one_hot, select, sort, split, stack, topk, transpose, tril, where)
 from conformance.diopi_functions import sigmoid_focal_loss, nms, slice_op, index, sgd, roi_align
-from conformance.diopi_functions import arange, randperm, uniform, random, bernoulli, masked_fill, adamw, adam, adadelta, conv_transpose2d, \
-                                        cumsum, cdist, reciprocal, bitwise_not, argmax, smooth_l1_loss, maximum, minimum, mm, conv3d, \
-                                        expand, unfold, masked_select, index_fill, linspace, roll, norm, group_norm, layer_norm,\
-                                        adaptive_avg_pool3d, adaptive_max_pool3d, max_pool3d, permute, copy_, gather, remainder,\
-                                        ctc_loss, index_put, scatter, interpolate, pad, unique, prod
+from conformance.diopi_functions import (arange, randperm, uniform, random, bernoulli, masked_fill, adamw, adam, adadelta, conv_transpose2d,
+                                         cumsum, cdist, reciprocal, bitwise_not, argmax, smooth_l1_loss, maximum, minimum, mm, conv3d,
+                                         expand, unfold, masked_select, index_fill, linspace, roll, norm, group_norm, layer_norm,
+                                         adaptive_avg_pool3d, adaptive_max_pool3d, max_pool3d, permute, copy_, gather, remainder,
+                                         ctc_loss, index_put, scatter, interpolate, pad, unique, prod)
 from conformance.diopi_functions import erfinv, im2col, col2im, flip, cholesky_ex, triangular_solve
 
 
@@ -21,8 +21,8 @@ def add_docstr(attr, docstr):
     fuc = getattr(F, attr)
     fuc.__doc__ = docstr
 
-add_docstr("fill_",
-    r"""
+
+add_docstr("fill_", r"""
     释义
         使用指定值填充 *tensor* 张量。
     参数
@@ -32,8 +32,7 @@ add_docstr("fill_",
         :guilabel:`diopiFill`
     """)
 
-add_docstr("softmax",
-    r"""
+add_docstr("softmax", r"""
     释义
         对输入张量应用 *softmax* 函数, 使得输出张量中元素值在范围 [0,1] 之间, 且元素总和为 1。
         相应公式如下:
@@ -49,8 +48,7 @@ add_docstr("softmax",
     """)
 
 
-add_docstr("relu",
-    r"""
+add_docstr("relu", r"""
     释义
         对输入 *input* 张量逐元素做 *relu* 整流线性变换:
 
@@ -63,8 +61,7 @@ add_docstr("relu",
     """)
 
 
-add_docstr("abs",
-    r"""
+add_docstr("abs", r"""
     释义
         对输入张量逐元素计算绝对值:
 
@@ -78,8 +75,7 @@ add_docstr("abs",
     """)
 
 
-add_docstr("floor",
-    r"""
+add_docstr("floor", r"""
     释义
         对输入张量逐元素做向下取整:
 
@@ -93,8 +89,7 @@ add_docstr("floor",
     """)
 
 
-add_docstr("sign",
-    r"""
+add_docstr("sign", r"""
     释义
         对输入张量 *input* 逐元素计算符号函数 *Sgn* 值:
 
@@ -107,8 +102,7 @@ add_docstr("sign",
     """)
 
 
-add_docstr("sigmoid",
-    r"""
+add_docstr("sigmoid", r"""
     释义
         对输入张量 *input* 逐元素做 *sigmoid* 变换:
 
@@ -122,8 +116,7 @@ add_docstr("sigmoid",
     """)
 
 
-add_docstr("sqrt",
-    r"""
+add_docstr("sqrt", r"""
     释义
         对输入张量 *input* 逐元素开方:
 
@@ -136,8 +129,7 @@ add_docstr("sqrt",
         :guilabel:`diopiSqrt` :guilabel:`diopiSqrtInp`
     """)
 
-add_docstr("neg",
-    r"""
+add_docstr("neg", r"""
     释义
         对输入张量 *input* 逐元素取相反数:
 
@@ -151,8 +143,7 @@ add_docstr("neg",
     """)
 
 
-add_docstr("sin",
-    r"""
+add_docstr("sin", r"""
     释义
         对输入张量 *input* 逐元素计算三角函数sin值:
 
@@ -166,8 +157,7 @@ add_docstr("sin",
     """)
 
 
-add_docstr("cos",
-    r"""
+add_docstr("cos", r"""
     释义
         对输入张量 *input* 逐元素计算其三角函数cos值:
 
@@ -181,8 +171,7 @@ add_docstr("cos",
     """)
 
 
-add_docstr("tanh",
-    r"""
+add_docstr("tanh", r"""
     释义
         对输入张量 *input* 逐元素计算其双曲正切函数值:
 
@@ -196,8 +185,7 @@ add_docstr("tanh",
     """)
 
 
-add_docstr("exp",
-    r"""
+add_docstr("exp", r"""
     释义
         对输入张量 *input* 逐元素计算其以 *e* 为底的指数函数值:
 
@@ -211,8 +199,7 @@ add_docstr("exp",
     """)
 
 
-add_docstr("log",
-    r"""
+add_docstr("log", r"""
     释义
         对输入张量 *input* 逐元素计算其自然对数:
 
@@ -226,8 +213,7 @@ add_docstr("log",
     """)
 
 
-add_docstr("log2",
-    r"""
+add_docstr("log2", r"""
     释义
         对输入张量 *input* 逐元素计算其以2为底的对数值:
 
@@ -241,8 +227,7 @@ add_docstr("log2",
     """)
 
 
-add_docstr("log10",
-    r"""
+add_docstr("log10", r"""
     释义
         对输入张量 *input* 逐元素计算其以10为底的对数值:
 
@@ -256,8 +241,7 @@ add_docstr("log10",
     """)
 
 
-add_docstr("erf",
-    r"""
+add_docstr("erf", r"""
     释义
         计算输入张量 *input* 的误差函数, 误差函数如下:
 
@@ -271,8 +255,7 @@ add_docstr("erf",
     """)
 
 
-add_docstr("add",
-    r"""
+add_docstr("add", r"""
     释义
         将 *other* 乘以 *alpha* 后再加至张量 *input* 上:
 
@@ -289,8 +272,7 @@ add_docstr("add",
     """)
 
 
-add_docstr("sub",
-    r"""
+add_docstr("sub", r"""
     释义
         张量 *input* 减去 *other*, 减数通过与 *alpha* 相乘进行缩放:
 
@@ -305,8 +287,7 @@ add_docstr("sub",
     """)
 
 
-add_docstr("eq",
-    r"""
+add_docstr("eq", r"""
     释义
         将张量 *input* 与 *other* 比较, 逐元素判断是否相等。
         *other* 可以是一个数字或张量, 如为张量, 其形状和 *input* 须可广播。
@@ -320,8 +301,7 @@ add_docstr("eq",
     """)
 
 
-add_docstr("ne",
-    r"""
+add_docstr("ne", r"""
     释义
         逐元素计算 :math:`\text{input} \neq \text{other}`。
         *other* 可以是一个数字或张量, 如为张量, 其形状和 *input* 须可广播。
@@ -335,8 +315,7 @@ add_docstr("ne",
     """)
 
 
-add_docstr("ge",
-    r"""
+add_docstr("ge", r"""
     释义
         张量比较, 逐元素计算 :math:`\text{input} \geq \text{other}`。
         *other* 可以是一个数字或张量, 如为张量, 其形状和 *input* 须可广播。
@@ -348,8 +327,7 @@ add_docstr("ge",
     """)
 
 
-add_docstr("gt",
-    r"""
+add_docstr("gt", r"""
     释义
         张量比较, 逐元素计算 :math:`\text{input} > \text{other}`。
         *other* 可以是一个数字或张量, 如为张量, 其形状和 *input* 须可广播。
@@ -361,8 +339,7 @@ add_docstr("gt",
     """)
 
 
-add_docstr("le",
-    r"""
+add_docstr("le", r"""
     释义
         张量比较, 逐元素计算 :math:`\text{input} \leq \text{other}`。
         *other* 可以是一个数字或张量, 如为张量, 其形状和 *input* 须可广播。
@@ -374,8 +351,7 @@ add_docstr("le",
     """)
 
 
-add_docstr("lt",
-    r"""
+add_docstr("lt", r"""
     释义
         张量比较, 逐元素计算 :math:`\text{input} < \text{other}`。
         *other* 可以是一个数字或张量, 如为张量, 其形状和 *input* 须可广播。
@@ -387,8 +363,7 @@ add_docstr("lt",
     """)
 
 
-add_docstr("mul",
-    r"""
+add_docstr("mul", r"""
     释义
         张量 *input* 与 *other* 相乘(矩阵乘):
 
@@ -403,8 +378,7 @@ add_docstr("mul",
         :guilabel:`diopiMul` :guilabel:`diopiMulScalar`
     """)
 
-add_docstr("div",
-    r"""
+add_docstr("div", r"""
     释义
         张量除, 输入张量 *input* 每个元素都除以 *other* 中与之对应的元素:
 
@@ -420,8 +394,7 @@ add_docstr("div",
     """)
 
 
-add_docstr("logical_and",
-    r"""
+add_docstr("logical_and", r"""
     释义
         张量逻辑与, 对应元素进行逻辑与操作, 对于张量中的每个元素, 零元素视为False, 非零元素视为True。
     参数
@@ -432,8 +405,7 @@ add_docstr("logical_and",
     """)
 
 
-add_docstr("logical_or",
-    r"""
+add_docstr("logical_or", r"""
     释义
         张量逻辑或, 对应元素进行逻辑或操作, 对于张量中的每个元素, 零元素视为False, 非零元素视为True。
     参数
@@ -444,8 +416,7 @@ add_docstr("logical_or",
     """)
 
 
-add_docstr("leaky_relu",
-    r"""
+add_docstr("leaky_relu", r"""
     释义
         对张量 *input* 逐元素做 *leaky_relu* :
 
@@ -460,8 +431,7 @@ add_docstr("leaky_relu",
     """)
 
 
-add_docstr("bmm",
-    r"""
+add_docstr("bmm", r"""
     释义
         批处理张量乘法(矩阵乘), 其中输入张量 *input* 与 *mat2* 张量均为三维张量:
 
@@ -479,8 +449,7 @@ add_docstr("bmm",
     """)
 
 
-add_docstr("addcmul",
-    r"""
+add_docstr("addcmul", r"""
     释义
         执行 *tensor1* 与 *tensor2* 的逐元素乘法, 将结果乘以标量值 *value* 后再加至输入张量 *input* :
 
@@ -496,8 +465,7 @@ add_docstr("addcmul",
     """)
 
 
-add_docstr("matmul",
-    r"""
+add_docstr("matmul", r"""
     释义
         张量乘法, 依据输入张量维度的不同, 乘法规则不同:
             - 如果两个张量都是一维的, 则返回点积（标量）。
@@ -522,8 +490,7 @@ add_docstr("matmul",
     """)
 
 
-add_docstr("clamp",
-    r"""
+add_docstr("clamp", r"""
     释义
         将 *input* 中的所有元素限制在 [ min, max ] 范围内。返回值如下:
 
@@ -548,8 +515,7 @@ add_docstr("clamp",
     """)
 
 
-add_docstr("mean",
-    r"""
+add_docstr("mean", r"""
     释义
         返回给定维度 *dim* 中输入张量的每一行的平均值。 如果 *dim* 是维度列表, 则对列表中所有维度进行归约。
         如果 dim 等于 ``None``, 将对所有元素计算均值。
@@ -566,8 +532,7 @@ add_docstr("mean",
     """)
 
 
-add_docstr("std",
-    r"""
+add_docstr("std", r"""
     释义
         如果 *unbiased* 为 ``True``, 则将使用 *Bessel* 校正。 否则, 将直接计算样本偏差, 而不进行任何校正。
         如果 *dim* 等于 ``None``, 将对所有元素计算标准差。
@@ -581,8 +546,7 @@ add_docstr("std",
     """)
 
 
-add_docstr("min",
-    r"""
+add_docstr("min", r"""
     释义
         返回给定维度 *dim* 中输入张量的每一行的最小值。
 
@@ -597,8 +561,7 @@ add_docstr("min",
     """)
 
 
-add_docstr("binary_cross_entropy_with_logits",
-    r"""
+add_docstr("binary_cross_entropy_with_logits", r"""
     释义
         计算目标 *target* 和输入 *input* 之间的二值交叉函数:
         这种损失将 *Sigmoid* 层和 *BCELoss* 组合在一个函数中, 若 *reduction* 为 *none* :
@@ -641,8 +604,7 @@ add_docstr("binary_cross_entropy_with_logits",
     """)
 
 
-add_docstr("cross_entropy",
-    r"""
+add_docstr("cross_entropy", r"""
     释义
         计算目标和输入 *logits* 之间的交叉熵损失, 由于该方法能够手动设置各个类别的权重, 常用于具有 *C* 类的多类别任务的训练。
 
@@ -700,8 +662,7 @@ add_docstr("cross_entropy",
     """)
 
 
-add_docstr("mse_loss",
-    r"""
+add_docstr("mse_loss", r"""
     释义
         计算输入张量 *input* 与 目标张量 *target* 之间每个对应元素的均方误差。
         当 *reduction* 为 *none* 时, 损失函数描述为:
@@ -730,8 +691,7 @@ add_docstr("mse_loss",
     """)
 
 
-add_docstr("conv2d",
-    r"""
+add_docstr("conv2d", r"""
     释义
         对输入张量 *input* 应用2D卷积操作。该操作定义为:
 
@@ -753,8 +713,7 @@ add_docstr("conv2d",
         :guilabel:`diopiConvolution2d`
     """)
 
-add_docstr("avg_pool2d",
-    r"""
+add_docstr("avg_pool2d", r"""
     释义
         在 :math:`(kH, kW)` 区域中按步长 :math:`(sH, sW)` 步长应用 2D 平均池化操作。 输出张量的通道数与输入张量的通道数相同。
         其操作描述为:
@@ -775,8 +734,7 @@ add_docstr("avg_pool2d",
     """)
 
 
-add_docstr("max_pool2d",
-    r"""
+add_docstr("max_pool2d", r"""
     释义
         对输入张量 *input* 应用2D 最大值池化。
         若输入张量的维度为 :math:`(N, C, H, W)` , 输出张量的维度为 :math:`(N, C, H_{out}, W_{out})` ,
@@ -804,8 +762,7 @@ add_docstr("max_pool2d",
     """)
 
 
-add_docstr("adaptive_avg_pool2d",
-    r"""
+add_docstr("adaptive_avg_pool2d", r"""
     释义
         对输入张量 *input* 做 2D 自适应平均池化。对于任意大小的 *input*,
         其输出张量大小为 *output_size* 。此外, 输出张量的通道数与输入张量相同。
@@ -822,8 +779,7 @@ add_docstr("adaptive_avg_pool2d",
     """)
 
 
-add_docstr("adaptive_max_pool2d",
-    r"""
+add_docstr("adaptive_max_pool2d", r"""
     释义
         对输入张量 *input* 做 2D 自适应最大值池化。对于任意大小的 *input*,
         其输出张量大小为 *output_size* 。此外, 输出张量的通道数与输入张量相同。
@@ -841,8 +797,7 @@ add_docstr("adaptive_max_pool2d",
     """)
 
 
-add_docstr("dropout",
-    r"""
+add_docstr("dropout", r"""
     释义
         在训练模式下,  基于伯努利分布抽样, 以概率 p 对输入张量 *input* 的值随机置零。
         此外在训练过程中, 输出张量将以因子 :math:`\frac{1}{1-p}` 进行缩放。
@@ -856,8 +811,7 @@ add_docstr("dropout",
     """)
 
 
-add_docstr("index_select",
-    r"""
+add_docstr("index_select", r"""
     释义
         使用索引 *index* 中的条目, 沿着维度 *dim* 的方向, 对输入张量 *input* 进行数据索引,
         将索引到的数据作为一个新的 *tensor* 进行返回。其中, 返回张量与输入张量有相同的维数,
@@ -871,8 +825,7 @@ add_docstr("index_select",
     """)
 
 
-add_docstr("select",
-    r"""
+add_docstr("select", r"""
     释义
         在给定索引 *index* 处沿选定维度 *dim* 对输入张量 *input* 进行切片, 并返回切片到的数据。
     参数
@@ -884,8 +837,7 @@ add_docstr("select",
     """)
 
 
-add_docstr("masked_scatter",
-    r"""
+add_docstr("masked_scatter", r"""
     释义
         在掩码 *mask* 为 True 的位置将元素从 *source* 复制到 *input* 。
         掩码的形状与张量 *input* 必须是可广播的。*source* 中的元素至少应与掩码中的元素数量一样多。
@@ -898,8 +850,7 @@ add_docstr("masked_scatter",
     """)
 
 
-add_docstr("nonzero",
-    r"""
+add_docstr("nonzero", r"""
     释义
         返回一个二维张量, 其中每一行代表 *input* 中一个非零元素的索引坐标。
         如果 *input* 有 :math:`n` 维, 那么输出索引张量的形状为
@@ -911,8 +862,7 @@ add_docstr("nonzero",
     """)
 
 
-add_docstr("linear",
-    r"""
+add_docstr("linear", r"""
     释义
         对 *input* 应用如下线性变换。:math:`y = x A^T + b`。
     参数
@@ -926,8 +876,7 @@ add_docstr("linear",
     """)
 
 
-add_docstr("embedding",
-    r"""
+add_docstr("embedding", r"""
     释义
         一个简单的查找表, 用于在固定的字典查找固定大小的嵌入向量表示。
 
@@ -951,8 +900,7 @@ add_docstr("embedding",
     """)
 
 
-add_docstr("tril",
-    r"""
+add_docstr("tril", r"""
     释义
         返回输入矩阵（二维张量）或批处理矩阵 ( *batch of matrices*) 的下三角部分, 输出的结果张量其他元素设置为 0。
 
@@ -969,8 +917,7 @@ add_docstr("tril",
         :guilabel:`diopiETril`
     """)
 
-add_docstr("cat",
-    r"""
+add_docstr("cat", r"""
     释义
         沿给定的维度 *dim* 拼接序列 *tensors* 中的张量。
 
@@ -983,8 +930,7 @@ add_docstr("cat",
     """)
 
 
-add_docstr("stack",
-    r"""
+add_docstr("stack", r"""
     释义
         沿给定的维度 *dim* 拼接序列 *tensors* 中的张量。
 
@@ -997,8 +943,7 @@ add_docstr("stack",
     """)
 
 
-add_docstr("sort",
-    r"""
+add_docstr("sort", r"""
     释义
         对 *input* 沿给定的维度 *dim* 上的元素进行升序排序。
 
@@ -1020,8 +965,7 @@ add_docstr("sort",
     """)
 
 
-add_docstr("topk",
-    r"""
+add_docstr("topk", r"""
     释义
         返回 *input* 沿给定的维度 *dim* 的前 *k* 个最大的值。
 
@@ -1044,8 +988,7 @@ add_docstr("topk",
     """)
 
 
-add_docstr("transpose",
-    r"""
+add_docstr("transpose", r"""
     释义
         返回 *input* 的转置版本, 在给定的维度 *dim0* 和 *dim1* 上交换。
     参数
@@ -1059,8 +1002,7 @@ add_docstr("transpose",
     """)
 
 
-add_docstr("one_hot",
-    r"""
+add_docstr("one_hot", r"""
     释义
         对于输入形状为 *(\#)* 的长整型张量, 将返回形状为 (\#, num_classes) 的张量。
         返回张量在最后一个维度上和输入类别值对应位置的值为1, 其余均为0。
@@ -1074,8 +1016,7 @@ add_docstr("one_hot",
     """)
 
 
-add_docstr("split",
-    r"""
+add_docstr("split", r"""
     释义
         将张量拆分为块。每个块都是原始张量的拷贝。
 
@@ -1093,8 +1034,7 @@ add_docstr("split",
     """)
 
 
-add_docstr("pow",
-    r"""
+add_docstr("pow", r"""
     释义
         对 *input* 中每一个元素进行指数为 *exponent* 的幂运算。
         *exponent* 可以是一个浮点数或者是一个与 *input* 拥有相同元素个数的张量。
@@ -1118,8 +1058,7 @@ add_docstr("pow",
     """)
 
 
-add_docstr("where",
-    r"""
+add_docstr("where", r"""
     释义
         依据条件 *condition* 返回包含 *input* 或者 *other* 元素的张量 *output* , 其大小由 *condition* 、 *input* 及 *other* 广播得到:
 
@@ -1137,8 +1076,7 @@ add_docstr("where",
     """)
 
 
-add_docstr("clip_grad_norm_",
-    r"""
+add_docstr("clip_grad_norm_", r"""
     释义
         裁剪可迭代参数 *parameters* 中的梯度范数。在所有的梯度上计算范数, 如同将所有 *parameters* 中的梯度拼接成单个向量来计算。
         原梯度将被覆盖。
@@ -1153,8 +1091,7 @@ add_docstr("clip_grad_norm_",
     """)
 
 
-add_docstr("batch_norm",
-    r"""
+add_docstr("batch_norm", r"""
     释义
         对输入张量 *input* 的每个特征通道 *channel* 做批量标准化, 其操作描述如下:
 
@@ -1181,8 +1118,7 @@ add_docstr("batch_norm",
     """)
 
 
-add_docstr("log_softmax",
-    r"""
+add_docstr("log_softmax", r"""
     释义
         对输入张量逐元素进行 *softmax* 操作之后再计算其对数值。相应公式如下:
 
@@ -1199,8 +1135,7 @@ add_docstr("log_softmax",
     """)
 
 
-add_docstr("hardtanh",
-    r"""
+add_docstr("hardtanh", r"""
     释义
         对输入 *input* 张量逐元素做如下变换:
 
@@ -1220,8 +1155,7 @@ add_docstr("hardtanh",
     """)
 
 
-add_docstr("threshold",
-    r"""
+add_docstr("threshold", r"""
     释义
         对输入 *input* 张量逐元素做如下变换:
 
@@ -1240,8 +1174,7 @@ add_docstr("threshold",
     """)
 
 
-add_docstr("gelu",
-    r"""
+add_docstr("gelu", r"""
     释义
         对输入张量逐元素应用如下变换:
 
@@ -1264,8 +1197,7 @@ add_docstr("gelu",
     """)
 
 
-add_docstr("addcdiv",
-    r"""
+add_docstr("addcdiv", r"""
     释义
         执行 *tensor1* 与 *tensor2* 的逐元素除法, 将结果乘以标量值 *value* 后再加至输入张量 *input* :
 
@@ -1281,8 +1213,7 @@ add_docstr("addcdiv",
     """)
 
 
-add_docstr("addmm",
-    r"""
+add_docstr("addmm", r"""
     释义
         执行 *mat1* 与 *mat2* 的矩阵乘法, 将结果乘以标量值 *alpha* 后再加至输入张量 *beta* x *input*。
 
@@ -1304,8 +1235,7 @@ add_docstr("addmm",
     """)
 
 
-add_docstr("sum",
-    r"""
+add_docstr("sum", r"""
     释义
         返回给定维度 *dim* 中输入张量的每一行的和。 如果 *dim* 是维度列表, 则对所有维度进行归约。
         如果 dim 等于 ``None``, 将对所有元素求和。
@@ -1322,8 +1252,7 @@ add_docstr("sum",
     """)
 
 
-add_docstr("max",
-    r"""
+add_docstr("max", r"""
     释义
         返回给定维度 *dim* 中输入张量的每一行的最大值。
 
@@ -1338,8 +1267,7 @@ add_docstr("max",
     """)
 
 
-add_docstr("any",
-    r"""
+add_docstr("any", r"""
     释义
         判定输入张量在给定维度 *dim* 上的每一行是否有任一元素为 True。
 
@@ -1354,8 +1282,7 @@ add_docstr("any",
     """)
 
 
-add_docstr("all",
-    r"""
+add_docstr("all", r"""
     释义
         判定输入张量在给定维度 *dim* 上的每一行是否所有元素均为 True。
 
@@ -1370,8 +1297,7 @@ add_docstr("all",
     """)
 
 
-add_docstr("nll_loss",
-    r"""
+add_docstr("nll_loss", r"""
     释义
         负对数似然损失。常用于 *C* 类训练分类任务。
 
@@ -1415,7 +1341,7 @@ add_docstr("nll_loss",
     """)
 
 
-add_docstr("sigmoid_focal_loss",  r"""
+add_docstr("sigmoid_focal_loss", r"""
     释义
         Focal loss 用于解决分类任务中的前景类-背景类数量不均衡的问题。
         该算子通过下式计算focal loss:
@@ -2355,7 +2281,7 @@ add_docstr("prod", r"""
 """)
 
 
-add_docstr("erfinv",   r"""
+add_docstr("erfinv", r"""
     释义
         计算 :attr:`input` 的逆误差。
         在定义域 :math:`(-1, 1)` 该函数定义如下:
@@ -2370,7 +2296,7 @@ add_docstr("erfinv",   r"""
     """)
 
 
-add_docstr("im2col",   r"""
+add_docstr("im2col", r"""
     释义
         将一个大的张量分解为局部块。
 
@@ -2400,7 +2326,7 @@ add_docstr("im2col",   r"""
     """)
 
 
-add_docstr("col2im",   r"""
+add_docstr("col2im", r"""
     释义
         将一个滑动局部块组合成一个大的张量。用于批处理二维图像张量,
         通过对所有包含块的值求和来计算结果中的每个大张量的组合值。
@@ -2432,7 +2358,7 @@ add_docstr("col2im",   r"""
     """)
 
 
-add_docstr("flip",   r"""
+add_docstr("flip", r"""
     释义
         沿指定轴反转 n 维 Tensor。
     参数
@@ -2443,7 +2369,7 @@ add_docstr("flip",   r"""
     """)
 
 
-add_docstr("cholesky_ex",   r"""
+add_docstr("cholesky_ex", r"""
     释义
         计算一个对称正定矩阵或一批对称正定矩阵的 Cholesky 分解。
 
@@ -2463,7 +2389,7 @@ add_docstr("cholesky_ex",   r"""
     """)
 
 
-add_docstr("triangular_solve",   r"""
+add_docstr("triangular_solve", r"""
     释义
         计算具有唯一解的线性方程组解，其中系数矩阵 :math:`A` 是上(下)三角系数矩阵, :math:`b` 是方程右边。
         `b, A` 可以是批矩阵, 在该情况下, 返回结果也为批矩阵。

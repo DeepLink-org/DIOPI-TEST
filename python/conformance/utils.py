@@ -1,7 +1,7 @@
 import logging
 from . import diopi_runtime
-from .diopi_runtime import device_impl_lib, get_last_error
-from .model_list import model_list, model_op_list
+from .diopi_runtime import get_last_error
+from .model_list import model_op_list
 from .dtype import Dtype
 import os
 import numpy as np
