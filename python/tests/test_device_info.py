@@ -1,6 +1,7 @@
 from conformance.utils import check_function, logger
 from ctypes import c_char_p, c_char, cast, POINTER
 
+
 class TestDeviceInfo(object):
 
     def test_vendor_name(self):
@@ -15,7 +16,6 @@ class TestDeviceInfo(object):
 
         logger.info(f"Vendor name is {vendor_name}.")
 
-
     def test_impl_version(self):
         func = check_function("diopiGetImplVersion")
         diopirt_func = check_function("diopiGetVersion")
@@ -24,7 +24,7 @@ class TestDeviceInfo(object):
         impl_version_str = func()
         diopi_verison_str = diopirt_func()
         impl_version_str = cast(impl_version_str, c_char_p)
-        diopi_version_str = cast(diopi_verison_str , c_char_p)
+        diopi_version_str = cast(diopi_verison_str, c_char_p)
 
         assert impl_version_str.value is not None, "no return value"
         assert diopi_version_str.value is not None, "no return value"

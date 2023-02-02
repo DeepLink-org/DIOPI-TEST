@@ -8,14 +8,14 @@ from ctypes import c_int32
 
 class TestStream(object):
     # To do stream tests, the following workflow is used:
-    # begin = time.time() 
+    # begin = time.time()
     # for i in range(nums):
     #   y = mat1 @ mat2
     #   mat1 = y
-    # Using Tensor.numpy() to sync stream, 'sum' is helpful to reduce the cost of memcpy 
+    # Using Tensor.numpy() to sync stream, 'sum' is helpful to reduce the cost of memcpy
     # res = sum(mat1)
     # res_ndarray = Tensor.numpy(res)
-    # end = time.time() 
+    # end = time.time()
     context = Context()
     context1 = Context()
     stream = context.get_handle()
@@ -24,12 +24,11 @@ class TestStream(object):
     bmm_func = check_function("diopiMatmul")
     sum_func = check_function("diopiSum")
 
-
     @classmethod
     def setup_class(self):
         # generate numpy data
         mat1_shape = (2, 32, 1024)
-        mat2_shape = (2, 1024, 1024) 
+        mat2_shape = (2, 1024, 1024)
         self.mat1_ndarray = np.random.randn(*mat1_shape).astype(np.float32)
         self.mat2_ndarray = np.random.randn(*mat2_shape).astype(np.float32)
 
@@ -38,19 +37,17 @@ class TestStream(object):
             out_ndarray = np.matmul(out_ndarray, self.mat2_ndarray)
         self.out_ref_ndarry = np.sum(out_ndarray)
 
-
     def gen_device_data(self, stream):
         # from_numpy call cudaMalloc which can not be concurrent with other missions on stream
         mat1_tensor = Tensor.from_numpy(self.mat1_ndarray, context_handle=stream)
         mat2_tensor = Tensor.from_numpy(self.mat2_ndarray, context_handle=stream)
         out_tensor = Tensor.raw_like(mat1_tensor)
-        res_tensor =  Tensor([], mat1_tensor.get_dtype(), context_handle=stream)
+        res_tensor = Tensor([], mat1_tensor.get_dtype(), context_handle=stream)
         return mat1_tensor, mat2_tensor, out_tensor, res_tensor
-
 
     def call_func(self, stream):
         mat1, mat2, out, res = self.gen_device_data(stream)
-        # Allocate all the device memory in advance, 
+        # Allocate all the device memory in advance,
         # so we can assure that stream will not be interrupted by device api like xxxmalloc()
         begin = time.time()
         for i in range(self.nums):
@@ -64,19 +61,17 @@ class TestStream(object):
         self.sum_func(stream, res.tensor_handle, mat1.tensor_handle, dim, c_int32(dtype.value))
         out_ndarray = Tensor.numpy(res)
         end = time.time()
-                
+
         assert np.allclose(out_ndarray, self.out_ref_ndarry, 1e-2, 1e-1, True)
         return end - begin
-
 
     def test_stream(self):
         # warm up
         cost = self.call_func(self.stream)
         logger.info(f"warming-up costs: {cost}s")
 
-
     def test_multi_stream(self):
-        mat1, mat2, out, res= self.gen_device_data(self.stream)
+        mat1, mat2, out, res = self.gen_device_data(self.stream)
         mat1_s1, mat2_s1, out_s1, res_s1 = self.gen_device_data(self.stream1)
 
         baseline = self.call_func(self.stream)
@@ -91,8 +86,8 @@ class TestStream(object):
             out_s1 = mat1_s1
             mat1 = tmp
             mat1_s1 = tmp_s1
-    
-        dim1 = Sizes((0,1,2))
+
+        dim1 = Sizes((0, 1, 2))
         dtype = res.get_dtype()
         self.sum_func(self.stream, res.tensor_handle, mat1.tensor_handle, dim1, c_int32(dtype.value))
         self.sum_func(self.stream1, res_s1.tensor_handle, mat1_s1.tensor_handle, dim1, c_int32(dtype.value))
@@ -104,7 +99,6 @@ class TestStream(object):
         assert (end - begin) < 1.8 * baseline, "don't improve 20% performance by concurrent stream"
         assert np.allclose(out_ndarray, self.out_ref_ndarry, 1e-2, 1e-1, True)
         assert np.allclose(out_s1_ndarray, self.out_ref_ndarry, 1e-2, 1e-1, True)
-
 
     def test_multi_thread_multi_stream(self):
         thread_1 = Thread(target=self.call_func, args=(self.stream, ))
