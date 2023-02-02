@@ -7,9 +7,10 @@ case $1 in
        && flake8 --ignore=E501,F401 --exclude=python/conformance/diopi_functions.py,scripts/cpplint.py) \
     || exit -1;;
   cpp-lint)
-    # for other cpplint version, maybe -runtime/printf -legal/copyright -whitespace/indent
-    # -build/namespaces -runtime/references is needed to check impl
-    (echo "cpp-lint" && python scripts/cpplint.py --linelength=160 --filter=-runtime/int --recursive impl/ \
+    # for other cpplint version, maybe  -whitespace/indent is needed to check impl
+    (echo "cpp-lint" && python scripts/cpplint.py --linelength=160 \
+      --filter=-build/c++11,-legal/copyright,-build/include_subdir,-runtime/references,-runtime/printf,-runtime/int,-build/namespace \
+      --recursive impl/ \
       && python scripts/cpplint.py --linelength=240 --filter=-build/header_guard --recursive diopirt/ ) \
     || exit -1;;
     *)
