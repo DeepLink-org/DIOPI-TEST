@@ -190,11 +190,14 @@ def gen_tensor(arg: dict) -> np.ndarray:
 
     if arg["shape"] is None:
         return None
-
     try:
         shape = arg["shape"]
+        if shape == ():
+            shape = (1,)
         if isinstance(arg["gen_fn"], int):
             gen_fn = arg["gen_fn"]
+            low=0
+            high=10
         else:
             gen_fn = arg["gen_fn"]["fn"]
             assert (gen_fn == Genfunc.randint), "only randint needs args"
@@ -252,7 +255,13 @@ def gen_and_dump_data(dir_path: str, cfg_name: str, cfg_expand_list: list, cfg_s
         for arg in tensor_para_args_list:
             name = arg["ins"]
             # length of gen_num_range must be 2, otherwise ignore gen_num_range
-            if len(arg["gen_num_range"]) != 2:
+            if name == 'tensors':
+                for idx in range(len(arg['shape'])):
+                    new_arg = copy.deepcopy(arg)
+                    new_arg['shape'] = arg['shape'][idx]
+                    value = gen_tensor(new_arg)
+                    tensor_list.append(value)
+            elif len(arg["gen_num_range"]) != 2:
                 value = gen_tensor(arg)
                 function_paras["kwargs"][name] = value
                 if arg["requires_grad"] == [True] and arg["shape"] is not None:
