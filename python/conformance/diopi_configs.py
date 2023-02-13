@@ -3001,5 +3001,24 @@ diopi_configs = {
         ),
         saved_args=dict(output=0),
     ),
+    
+    'permute': dict(
+        name=['permute'],
+        interface=['torch'],
+        atol=1e-4,
+        rtol=1e-5,
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((2, 2, 2), (3, 3), (7, 6, 5), (7, 2, 1)),
+                    "dtype": [Dtype.float32],
+                }
+            ],
+        ),
+        para=dict(
+            dims=[(0,2,1), (1,0), (2,1,0), (2,0,1)],
+        ),
+    ),
 
 }
