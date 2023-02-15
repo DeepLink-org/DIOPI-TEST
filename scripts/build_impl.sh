@@ -8,7 +8,7 @@ case $1 in
     || exit -1;;
   torch)
     (rm -rf build && mkdir build && cd build \
-      && cmake .. -DIMPL_OPT=TORCH \
+      && cmake .. -DIMPL_OPT=TORCH -DCMAKE_DISABLE_FIND_PACKAGE_MKL=TRUE\
       -DCMAKE_PREFIX_PATH=`python -c 'import torch;print(torch.utils.cmake_prefix_path)'` \
       && make -j4) \
     || exit -1;;
@@ -20,7 +20,7 @@ case $1 in
     || exit -1;;
   torch_no_runtime)
     (rm -rf build && mkdir build && cd build \
-      && cmake .. -DIMPL_OPT=TORCH -DRUNTIME=OFF \
+      && cmake .. -DIMPL_OPT=TORCH -DRUNTIME=OFF -DCMAKE_DISABLE_FIND_PACKAGE_MKL=TRUE\
       -DCMAKE_PREFIX_PATH=`python -c 'import torch;print(torch.utils.cmake_prefix_path)'` \
       && make -j4) \
     || exit -1;;
