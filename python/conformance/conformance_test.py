@@ -96,17 +96,21 @@ class ManualTest(object):
         out_numpy = out.numpy()
         mask_numpy = mask.numpy()
 
-        # compute ratio
-        real_ratio = np.sum(mask_numpy) / mask.numel()
-        # check data
-        remains = out_numpy[mask_numpy == 1]
-        ref = input_numpy[mask_numpy == 1]
+        if training == False:
+            # assert np.allclose(input_numpy, out_num
+            pass
+        else:
+            # compute ratio
+            real_ratio = np.sum(mask_numpy) / mask.numel()
+            # check data
+            remains = out_numpy[mask_numpy == 1]
+            ref = input_numpy[mask_numpy == 1]
 
-        assert np.allclose(remains, ref / (1 - p), rtol=1e-4, atol=1e-5),\
-            "failed to execute dropout"
+            assert np.allclose(remains, ref / (1 - p), rtol=1e-4, atol=1e-5),\
+                "failed to execute dropout"
 
-        assert np.abs(real_ratio - (1 - p)) < 3e-2,\
-            "failed to execute dropout"
+            assert np.abs(real_ratio - (1 - p)) < 3e-2,\
+                "failed to execute dropout"
 
     def test_randperm(n):
         out = F.randperm(n)

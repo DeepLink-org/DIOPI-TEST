@@ -221,7 +221,7 @@ def add(input, other, inplace=False, alpha=1) -> Tensor:
     return binary_op_scalar(input, other, inplace, 'diopiAdd', alpha=alpha)
 
 
-def sub(input, other, inplace=False, alpha=1.0) -> Tensor:
+def sub(input, other, inplace=False, alpha=1) -> Tensor:
     return binary_op_scalar(input, other, inplace, 'diopiSub', alpha=alpha)
 
 
@@ -262,12 +262,16 @@ def div(input, other, inplace=False, rounding_mode=None) -> Tensor:
         call = call + "Inp"
         out = input
     else:
+        need_promote_types = [Dtype.int8, Dtype.int16, Dtype.int32, Dtype.int64,
+                              Dtype.uint8, Dtype.uint16, Dtype.uint32, Dtype.uint64, Dtype.bool]
         if not isinstance(other, Tensor):
-            out = Tensor(sizeI, input.get_dtype())
+            out = Tensor(sizeI, input.get_dtype()
+                                    if input.get_dtype() not in need_promote_types else Dtype.float32)
         else:
             sizeO = other.size()
             outsize = broadcast_out_size(list(sizeI), list(sizeO))
-            out = Tensor(outsize, input.get_dtype())
+            out = Tensor(outsize, input.get_dtype() 
+                                    if input.get_dtype() not in need_promote_types else Dtype.float32)
         args = args + "out.tensor_handle, "
 
     if not isinstance(other, Tensor):
