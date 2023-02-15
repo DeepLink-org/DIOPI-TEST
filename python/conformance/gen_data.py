@@ -9,7 +9,7 @@ from .utils import logger
 from .utils import need_process_func
 from .config import Genfunc, dict_elem_length, Config
 from . import diopi_configs
-from .dtype import Dtype, from_dtype_str
+from .dtype import from_dtype_str
 from .model_config import *
 
 
@@ -190,11 +190,14 @@ def gen_tensor(arg: dict) -> np.ndarray:
 
     if arg["shape"] is None:
         return None
-
     try:
         shape = arg["shape"]
+        if shape == ():
+            shape = (1,)
         if isinstance(arg["gen_fn"], int):
             gen_fn = arg["gen_fn"]
+            low=0
+            high=10
         else:
             gen_fn = arg["gen_fn"]["fn"]
             assert (gen_fn == Genfunc.randint), "only randint needs args"
@@ -216,13 +219,18 @@ def gen_tensor(arg: dict) -> np.ndarray:
             value = np.random.randint(low=low, high=high, size=shape, dtype=dtype)
         elif gen_fn == Genfunc.empty:
             value = np.empty(shape, dtype=dtype)
+        elif gen_fn == Genfunc.positive:
+            value = np.abs(np.random.randn(*shape).astype(dtype))
+        elif gen_fn == Genfunc.sym_mat:
+            axis = (0, 2, 1) if len(shape) == 3 else (0, 1)
+            mat = np.random.randn(*shape).astype(dtype)
+            value = mat @ mat.transpose(axis)
         else:
             value = np.random.randn(*shape).astype(dtype)
 
         if "no_contiguous" in arg:
             value = value.transpose()
-        if "abs_input" in arg:
-            value = np.abs(value)
+
     except BaseException as e:
         logger.error(e, exc_info=True)
         logger.error(arg)
@@ -247,7 +255,13 @@ def gen_and_dump_data(dir_path: str, cfg_name: str, cfg_expand_list: list, cfg_s
         for arg in tensor_para_args_list:
             name = arg["ins"]
             # length of gen_num_range must be 2, otherwise ignore gen_num_range
-            if len(arg["gen_num_range"]) != 2:
+            if name == 'tensors':
+                for idx in range(len(arg['shape'])):
+                    new_arg = copy.deepcopy(arg)
+                    new_arg['shape'] = arg['shape'][idx]
+                    value = gen_tensor(new_arg)
+                    tensor_list.append(value)
+            elif len(arg["gen_num_range"]) != 2:
                 value = gen_tensor(arg)
                 function_paras["kwargs"][name] = value
                 if arg["requires_grad"] == [True] and arg["shape"] is not None:
@@ -316,7 +330,7 @@ class GenInputData(object):
 
     @staticmethod
     def run(func_name, model_name, filter_dtype_str_list):
-       
+
         if model_name !=  "":
             diopi_config = model_name + "_config"
             configs = Config.process_configs(eval(diopi_config))
@@ -344,8 +358,8 @@ class GenInputData(object):
 
         logger.info(f"Generate test cases number for input data: {cfg_counter}")
         if cfg_counter == 0:
-            logger.warn(f"No benchmark input data is generated, \"--fname {func_name}\" may not be in the diopi-config, " \
-                f"check the arguments --fname")
+            logger.warn(f"No benchmark input data is generated, \"--fname {func_name}\" may not be in the diopi-config, "
+                        f"check the arguments --fname")
         else:
             logger.info("Generate benchmark input data done!")
 
@@ -381,7 +395,7 @@ class CustomizedTest(object):
         optimizer.step()
         return param, buf
 
-    def adam(param, param_grad, exp_avg, exp_avg_sq, max_exp_avg_sq, lr,  beta1, beta2, eps, weight_decay, step, amsgrad):
+    def adam(param, param_grad, exp_avg, exp_avg_sq, max_exp_avg_sq, lr, beta1, beta2, eps, weight_decay, step, amsgrad):
         import torch
 
         params_with_grad = [param]
@@ -392,20 +406,20 @@ class CustomizedTest(object):
         state_steps = [step]
 
         torch.optim._functional.adam(params_with_grad,
-                                      grads,
-                                      exp_avgs,
-                                      exp_avg_sqs,
-                                      max_exp_avg_sqs,
-                                      state_steps,
-                                      amsgrad=amsgrad,
-                                      beta1=beta1,
-                                      beta2=beta2,
-                                      lr=lr,
-                                      weight_decay=weight_decay,
-                                      eps=eps)
+                                     grads,
+                                     exp_avgs,
+                                     exp_avg_sqs,
+                                     max_exp_avg_sqs,
+                                     state_steps,
+                                     amsgrad=amsgrad,
+                                     beta1=beta1,
+                                     beta2=beta2,
+                                     lr=lr,
+                                     weight_decay=weight_decay,
+                                     eps=eps)
         return param, param_grad, exp_avg, exp_avg_sq, max_exp_avg_sq
 
-    def adamw(param, param_grad, exp_avg, exp_avg_sq, max_exp_avg_sq, lr,  beta1, beta2, eps, step, weight_decay, amsgrad):
+    def adamw(param, param_grad, exp_avg, exp_avg_sq, max_exp_avg_sq, lr, beta1, beta2, eps, step, weight_decay, amsgrad):
         import torch
 
         params_with_grad = [param]
@@ -414,7 +428,7 @@ class CustomizedTest(object):
         exp_avg_sqs = [exp_avg_sq]
         max_exp_avg_sqs = [max_exp_avg_sq]
         state_steps = [step]
-        
+
         torch.optim._functional.adamw(params_with_grad,
                                       grads,
                                       exp_avgs,
@@ -447,18 +461,18 @@ class CustomizedTest(object):
                                          weight_decay=weight_decay)
         return param, param_grad, square_avg, acc_delta
 
-    def index_put(input,  values, indices1, indices2=None, accumulate=False):
+    def index_put(input, values, indices1, indices2=None, accumulate=False):
         import torch
         if indices2 is not None:
             indices = [indices1, indices2]
         else:
             indices = [indices1]
         return torch.index_put(input, indices, values, accumulate)
-    
+
     def im2col(input, kernel_size, dilation=1, padding=0, stride=1):
         import torch
         return torch.nn.Unfold(kernel_size, dilation, padding, stride)(input)
-    
+
     def col2im(input, output_size, kernel_size, dilation=1, padding=0, stride=1):
         import torch
         return torch.nn.Fold(output_size, kernel_size, dilation, padding, stride)(input)
@@ -603,10 +617,9 @@ class GenOutputData(object):
                 logger.info(f"Generate benchmark {logger_str} data for {func_signature}")
                 func_name_list.append(cfg_func_name)
 
-
         logger.info(f"Generate test cases number for output data: {gen_counter}")
         if gen_counter == 0:
-            logger.info(f"No benchmark output data is generated, \"--fname {func_name}\" may not be in the diopi-config, " \
-                f"or \"{func_name}\" doesn't need output data")
+            logger.info(f"No benchmark output data is generated, \"--fname {func_name}\" may not be in the diopi-config, "
+                        f"or \"{func_name}\" doesn't need output data")
         else:
             logger.info("Generate benchmark output and backward data done!")

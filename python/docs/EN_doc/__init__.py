@@ -1,20 +1,21 @@
 import conformance.diopi_functions as F
 import re
-from conformance.diopi_functions import abs, cos, erf, exp, floor, log, log2, log10, neg, nonzero,\
-                                        sign, sin, sqrt, add, bmm, div, eq, fill_, ge, gt, le, lt,\
-                                        logical_and, logical_or, matmul, mul, ne, pow, sub, binary_cross_entropy_with_logits,\
-                                        cross_entropy, mse_loss, nll_loss, leaky_relu, relu, sigmoid, hardtanh, threshold,\
-                                        gelu, tanh, softmax, log_softmax, mean, min, max, std, sum, all, any, addcdiv, addcmul,\
-                                        addmm, adaptive_avg_pool2d, avg_pool2d, max_pool2d, adaptive_max_pool2d, batch_norm,\
-                                        cat, clamp, clip_grad_norm_, conv2d, dropout, embedding, index_select, masked_scatter,\
-                                        linear, one_hot, select, sort, split, stack, topk, transpose, tril, where
+from conformance.diopi_functions import (abs, cos, erf, exp, floor, log, log2, log10, neg, nonzero,
+                                         sign, sin, sqrt, add, bmm, div, eq, fill_, ge, gt, le, lt,
+                                         logical_and, logical_or, matmul, mul, ne, pow, sub, binary_cross_entropy_with_logits,
+                                         cross_entropy, mse_loss, nll_loss, leaky_relu, relu, sigmoid, hardtanh, threshold,
+                                         gelu, tanh, softmax, log_softmax, mean, min, max, std, sum, all, any, addcdiv, addcmul,
+                                         addmm, adaptive_avg_pool2d, avg_pool2d, max_pool2d, adaptive_max_pool2d, batch_norm,
+                                         cat, clamp, clip_grad_norm_, conv2d, dropout, embedding, index_select, masked_scatter,
+                                         linear, one_hot, select, sort, split, stack, topk, transpose, tril, where)
+from conformance.diopi_functions import sigmoid_focal_loss, nms, slice_op, index, sgd, roi_align  # TODO(ht): add slice_op and index doc
+from conformance.diopi_functions import (arange, randperm, uniform, random, bernoulli, masked_fill, adamw, adam, adadelta, conv_transpose2d,
+                                         cumsum, cdist, reciprocal, bitwise_not, argmax, smooth_l1_loss, maximum, minimum, mm, conv3d,
+                                         expand, unfold, masked_select, index_fill, linspace, roll, norm, group_norm, layer_norm,
+                                         adaptive_avg_pool3d, adaptive_max_pool3d, max_pool3d, permute, copy_, gather, remainder,
+                                         ctc_loss, index_put, scatter, interpolate, pad, unique, prod)
+from conformance.diopi_functions import erfinv, im2col, col2im, flip, cholesky_ex, triangular_solve
 
-from conformance.diopi_functions import sigmoid_focal_loss, nms, slice_op, index, sgd, roi_align #TODO(ht): add slice_op and index doc
-from conformance.diopi_functions import arange, randperm, uniform, random, bernoulli, masked_fill, adamw, adam, adadelta, conv_transpose2d, \
-                                        cumsum, cdist, reciprocal, bitwise_not, argmax, smooth_l1_loss, maximum, minimum, mm, conv3d, \
-                                        expand, unfold, masked_select, index_fill, linspace, roll, norm, group_norm, layer_norm,\
-                                        adaptive_avg_pool3d, adaptive_max_pool3d, max_pool3d, permute, copy_, gather, remainder,\
-                                        ctc_loss, index_put, scatter, interpolate, pad, unique, prod
 
 def parse_kwargs(desc):
     """Maps a description of args to a dictionary of {argname: description}.
@@ -68,6 +69,7 @@ as :attr:`input` except in the dimension :attr:`dim` where it is of size 1.
 Otherwise, :attr:`dim` is squeezed, resulting in
 the output tensor having 1 fewer dimension than :attr:`input`."""})
 
+
 def add_docstr(attr, docstr):
     assert hasattr(F, attr)
     fuc = getattr(F, attr)
@@ -108,8 +110,7 @@ Example::
     tensor([ 0.1395,  0.2957,  0.6553,  0.5574])
 """.format(**common_args))
 
-add_docstr("sin",
-        r"""
+add_docstr("sin", r"""
 Returns a new tensor with the sine of the elements of :attr:`input`.
 
 .. math::
@@ -128,9 +129,7 @@ Example::
 """)
 
 
-
-add_docstr("where",
-           r"""
+add_docstr("where", r"""
 Return a tensor of elements selected from either :attr:`x` or :attr:`y`, depending on :attr:`condition`.
 
 The operation is defined as:
@@ -427,8 +426,7 @@ Example::
 """.format(**common_args))
 
 
-add_docstr('select',
-               r"""
+add_docstr('select', r"""
 Slices the :attr:`self` tensor along the selected dimension at the given index.
 This function returns a view of the original tensor with the given dimension removed.
 
@@ -501,8 +499,7 @@ add_docstr("linear", r"""
     """)
 
 
-add_docstr('masked_scatter',
-               r"""
+add_docstr('masked_scatter', r"""
 Copies elements from :attr:`source` into :attr:`self` tensor at positions where
 the :attr:`mask` is True.
 The shape of :attr:`mask` must be :ref:`broadcastable <broadcasting-semantics>`
@@ -710,7 +707,7 @@ Example::
              -0.5790,  0.1497]])
 """)
 
-add_docstr("batch_norm",  r"""Applies Batch Normalization over a 4D input (a mini-batch of 2D inputs
+add_docstr("batch_norm", r"""Applies Batch Normalization over a 4D input (a mini-batch of 2D inputs
     with additional channel dimension) as described in the paper
     `Batch Normalization: Accelerating Deep Network Training by Reducing
     Internal Covariate Shift <https://arxiv.org/abs/1502.03167>`__ .
@@ -769,7 +766,7 @@ add_docstr("batch_norm",  r"""Applies Batch Normalization over a 4D input (a min
     """)
 
 
-add_docstr("adaptive_max_pool2d",  r"""Applies a 2D adaptive max pooling over an input signal composed of
+add_docstr("adaptive_max_pool2d", r"""Applies a 2D adaptive max pooling over an input signal composed of
     several input planes.
 
     In the simplest case, the output value of the layer with input size :math:`(N, C, H, W)`,
@@ -821,7 +818,7 @@ add_docstr("adaptive_max_pool2d",  r"""Applies a 2D adaptive max pooling over an
     """)
 
 
-add_docstr("max_pool2d",  r"""Applies a 2D max pooling over an input signal composed of several input
+add_docstr("max_pool2d", r"""Applies a 2D max pooling over an input signal composed of several input
     planes.
 
     In the simplest case, the output value of the layer with input size :math:`(N, C, H, W)`,
@@ -872,8 +869,7 @@ add_docstr("max_pool2d",  r"""Applies a 2D max pooling over an input signal comp
     """)
 
 
-add_docstr("avg_pool2d",
-    r"""
+add_docstr("avg_pool2d", r"""
     Applies a 2D average pooling over an input signal composed of several input
     planes.
 
@@ -989,9 +985,7 @@ Example::
 """)
 
 
-
-add_docstr("addcmul",
-           r"""
+add_docstr("addcmul", r"""
 Performs the element-wise multiplication of :attr:`tensor1`
 by :attr:`tensor2`, multiply the result by the scalar :attr:`value`
 and add it to :attr:`input`.
@@ -1316,7 +1310,7 @@ add_docstr("log_softmax", r"""
         - Input: :math:`(*)` where `*` means, any number of additional
           dimensions
         - Output: :math:`(*)`, same shape as the input
- 
+
     Returns:
         a Tensor of the same dimension and shape as the input with
         values in the range [-inf, 0)
@@ -1410,7 +1404,7 @@ add_docstr("hardtanh", r"""Applies the HardTanh function element-wise.
         - Input: :math:`(*)`, where :math:`*` means any number of dimensions.
         - Output: :math:`(*)`, same shape as the input.""")
 
-add_docstr("sigmoid",     r"""
+add_docstr("sigmoid", r"""
     Applies the element-wise function:
 
     .. math::
@@ -1421,7 +1415,7 @@ add_docstr("sigmoid",     r"""
         - Output: :math:`(*)`, same shape as the input.
     """)
 
-add_docstr("relu",     r"""Applies the rectified linear unit function element-wise:
+add_docstr("relu", r"""Applies the rectified linear unit function element-wise:
 
     :math:`\text{ReLU}(x) = (x)^+ = \max(0, x)`
 
@@ -1435,7 +1429,7 @@ add_docstr("relu",     r"""Applies the rectified linear unit function element-wi
 
     """)
 
-add_docstr("leaky_relu",     r"""Applies the element-wise function:
+add_docstr("leaky_relu", r"""Applies the element-wise function:
 
     .. math::
         \text{LeakyReLU}(x) = \max(0, x) + \text{negative_slope} * \min(0, x)
@@ -1449,7 +1443,7 @@ add_docstr("leaky_relu",     r"""Applies the element-wise function:
         \text{negative_slope} \times x, & \text{ otherwise }
         \end{cases}
 
-    Args: 
+    Args:
         input (Tensor): input
         negative_slope: Controls the angle of the negative slope. Default: 1e-2
         inplace: can optionally do the operation in-place. Default: ``False``
@@ -1461,7 +1455,7 @@ add_docstr("leaky_relu",     r"""Applies the element-wise function:
 
     """)
 
-add_docstr("nll_loss",    r"""
+add_docstr("nll_loss", r"""
     The negative log likelihood loss. It is useful to train a classification
     problem with `C` classes.
 
@@ -1525,7 +1519,7 @@ add_docstr("nll_loss",    r"""
 
     """)
 
-add_docstr("mse_loss",     r"""Creates a criterion that measures the mean squared error (squared L2 norm) between
+add_docstr("mse_loss", r"""Creates a criterion that measures the mean squared error (squared L2 norm) between
     each element in the input :math:`x` and target :math:`y`.
 
     The unreduced (i.e. with :attr:`reduction` set to ``'none'``) loss can be described as:
@@ -1567,7 +1561,7 @@ add_docstr("mse_loss",     r"""Creates a criterion that measures the mean square
 
     """)
 
-add_docstr("cross_entropy",    r"""This criterion computes the cross entropy loss between input and target.
+add_docstr("cross_entropy", r"""This criterion computes the cross entropy loss between input and target.
 
     It is useful when training a classification problem with `C` classes.
     If provided, the optional argument :attr:`weight` should be a 1D `Tensor`
@@ -1674,7 +1668,7 @@ add_docstr("cross_entropy",    r"""This criterion computes the cross entropy los
             \end{aligned}
     """)
 
-add_docstr("binary_cross_entropy_with_logits",    r"""This loss combines a `Sigmoid` layer and the `BCELoss` in one single
+add_docstr("binary_cross_entropy_with_logits", r"""This loss combines a `Sigmoid` layer and the `BCELoss` in one single
     class. This version is more numerically stable than using a plain `Sigmoid`
     followed by a `BCELoss` as, by combining the operations into one layer,
     we take advantage of the log-sum-exp trick for numerical stability.
@@ -2475,8 +2469,7 @@ Example::
             [False, True]])
 """)
 
-add_docstr('fill_',
-               r"""
+add_docstr('fill_', r"""
 Fills :attr:`tensor` with the specified value.
 
 Args:
@@ -2505,7 +2498,7 @@ Example::
     tensor([[True, True], [False, True]])
 """)
 
-add_docstr("sigmoid_focal_loss",  r"""
+add_docstr("sigmoid_focal_loss", r"""
     Original implementation from https://github.com/facebookresearch/fvcore/blob/master/fvcore/nn/focal_loss.py .
     Loss used in RetinaNet for dense detection: https://arxiv.org/abs/1708.02002.
 
@@ -2527,7 +2520,7 @@ add_docstr("sigmoid_focal_loss",  r"""
         Loss tensor with the reduction option applied.
     """)
 
-add_docstr("nms",    r"""
+add_docstr("nms", r"""
     Performs non-maximum suppression (NMS) on the boxes according
     to their intersection-over-union (IoU).
 
@@ -2550,7 +2543,7 @@ add_docstr("nms",    r"""
     """)
 
 
-add_docstr("roi_align",     r"""
+add_docstr("roi_align", r"""
     Performs Region of Interest (RoI) Align operator with average pooling, as described in Mask R-CNN.
 
     Args:
@@ -2624,7 +2617,7 @@ add_docstr("sgd", r"""
         nesterov (bool, optional): enables Nesterov momentum (default: False)
 
     Example:
-        >>> optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
+        >>> optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
         >>> optimizer.zero_grad()
         >>> loss_fn(model(input), target).backward()
         >>> optimizer.step()
@@ -2678,11 +2671,11 @@ add_docstr("arange", r"""
 
     Example::
 
-        >>> torch.arange(5)
+        >>> arange(5)
         tensor([ 0,  1,  2,  3,  4])
-        >>> torch.arange(1, 4)
+        >>> arange(1, 4)
         tensor([ 1,  2,  3])
-        >>> torch.arange(1, 2.5, 0.5)
+        >>> arange(1, 2.5, 0.5)
         tensor([ 1.0000,  1.5000,  2.0000])
     """)
 
@@ -2695,7 +2688,7 @@ add_docstr("randperm", r"""
 
     Example::
 
-        >>> torch.randperm(4)
+        >>> randperm(4)
         tensor([2, 1, 0, 3])
     """)
 
@@ -2714,12 +2707,12 @@ add_docstr("random", r"""
     distribution over ``[from, to - 1]``. If not specified, the values are usually
     only bounded by :attr:`self` tensor's data type. However, for floating point
     types, if unspecified, range will be ``[0, 2^mantissa]`` to ensure that every
-    value is representable. For example, `torch.tensor(1, dtype=torch.double).random_()`
+    value is representable. For example, `tensor(1, dtype=double).random_()`
     will be uniform in ``[0, 2^53]``.
     """)
 
 
-add_docstr("bernoulli",     r"""
+add_docstr("bernoulli", r"""
     Draws binary random numbers (0 or 1) from a Bernoulli distribution.
 
     The :attr:`input` tensor should be a tensor containing probabilities
@@ -2747,30 +2740,30 @@ add_docstr("bernoulli",     r"""
 
     Example::
 
-        >>> a = torch.empty(3, 3).uniform_(0, 1)  # generate a uniform random matrix with range [0, 1]
+        >>> a = empty(3, 3).uniform_(0, 1)  # generate a uniform random matrix with range [0, 1]
         >>> a
         tensor([[ 0.1737,  0.0950,  0.3609],
                 [ 0.7148,  0.0289,  0.2676],
                 [ 0.9456,  0.8937,  0.7202]])
-        >>> torch.bernoulli(a)
+        >>> bernoulli(a)
         tensor([[ 1.,  0.,  0.],
                 [ 0.,  0.,  0.],
                 [ 1.,  1.,  1.]])
 
-        >>> a = torch.ones(3, 3) # probability of drawing "1" is 1
-        >>> torch.bernoulli(a)
+        >>> a = ones(3, 3) # probability of drawing "1" is 1
+        >>> bernoulli(a)
         tensor([[ 1.,  1.,  1.],
                 [ 1.,  1.,  1.],
                 [ 1.,  1.,  1.]])
-        >>> a = torch.zeros(3, 3) # probability of drawing "1" is 0
-        >>> torch.bernoulli(a)
+        >>> a = zeros(3, 3) # probability of drawing "1" is 0
+        >>> bernoulli(a)
         tensor([[ 0.,  0.,  0.],
                 [ 0.,  0.,  0.],
                 [ 0.,  0.,  0.]])
     """)
 
- 
-add_docstr("masked_fill",   r"""
+
+add_docstr("masked_fill", r"""
     Fills elements of :attr:`self` tensor with :attr:`value` where :attr:`mask` is
     True. The shape of :attr:`mask` must be
     :ref:`broadcastable <broadcasting-semantics>` with the shape of the underlying
@@ -2841,7 +2834,7 @@ add_docstr("adamw", r"""
     """)
 
 
-add_docstr("adam",  r"""
+add_docstr("adam", r"""
     Implements Adam algorithm.
 
     .. math::
@@ -2900,7 +2893,7 @@ add_docstr("adam",  r"""
     """)
 
 
-add_docstr("adadelta",  r"""
+add_docstr("adadelta", r"""
     Implements Adadelta algorithm.
 
     .. math::
@@ -2945,7 +2938,7 @@ add_docstr("adadelta",  r"""
     """)
 
 
-add_docstr("conv_transpose2d",  r"""
+add_docstr("conv_transpose2d", r"""
     Applies a 2D transposed convolution operator over an input image
     composed of several input planes, sometimes also called "deconvolution".
 
@@ -2969,13 +2962,13 @@ add_docstr("conv_transpose2d",  r"""
     Examples::
 
         >>> # With square kernels and equal stride
-        >>> inputs = torch.randn(1, 4, 5, 5)
-        >>> weights = torch.randn(4, 8, 3, 3)
+        >>> inputs = randn(1, 4, 5, 5)
+        >>> weights = randn(4, 8, 3, 3)
         >>> F.conv_transpose2d(inputs, weights, padding=1)
     """)
- 
 
-add_docstr("cumsum",    r"""
+
+add_docstr("cumsum", r"""
     Returns the cumulative sum of elements of :attr:`input` in the dimension
     :attr:`dim`.
 
@@ -2991,17 +2984,17 @@ add_docstr("cumsum",    r"""
 
     Example::
 
-        >>> a = torch.randn(10)
+        >>> a = randn(10)
         >>> a
         tensor([-0.8286, -0.4890,  0.5155,  0.8443,  0.1865, -0.1752, -2.0595,
                 0.1850, -1.1571, -0.4243])
-        >>> torch.cumsum(a, dim=0)
+        >>> cumsum(a, dim=0)
         tensor([-0.8286, -1.3175, -0.8020,  0.0423,  0.2289,  0.0537, -2.0058,
                 -1.8209, -2.9780, -3.4022])
     """)
 
 
-add_docstr("cdist",r"""
+add_docstr("cdist", r"""
     Computes batched the p-norm distance between each pair of the two collections of row vectors.
 
     Args:
@@ -3028,30 +3021,30 @@ add_docstr("cdist",r"""
 
     Example:
 
-        >>> a = torch.tensor([[0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059]])
+        >>> a = tensor([[0.9041,  0.0196], [-0.3108, -2.4423], [-0.4821,  1.059]])
         >>> a
         tensor([[ 0.9041,  0.0196],
                 [-0.3108, -2.4423],
                 [-0.4821,  1.0590]])
-        >>> b = torch.tensor([[-2.1763, -0.4713], [-0.6986,  1.3702]])
+        >>> b = tensor([[-2.1763, -0.4713], [-0.6986,  1.3702]])
         >>> b
         tensor([[-2.1763, -0.4713],
                 [-0.6986,  1.3702]])
-        >>> torch.cdist(a, b, p=2)
+        >>> cdist(a, b, p=2)
         tensor([[3.1193, 2.0959],
                 [2.7138, 3.8322],
                 [2.2830, 0.3791]])
     """)
 
 
-add_docstr("reciprocal",    r"""
+add_docstr("reciprocal", r"""
     Returns a new tensor with the reciprocal of the elements of :attr:`input`
 
     .. math::
         \text{out}_{i} = \frac{1}{\text{input}_{i}}
 
     .. note::
-        Unlike NumPy's reciprocal, torch.reciprocal supports integral inputs. Integral
+        Unlike NumPy's reciprocal, reciprocal supports integral inputs. Integral
         inputs to reciprocal are automatically :ref:`promoted <type-promotion-doc>` to
         the default scalar type.
     """ + r"""
@@ -3060,15 +3053,15 @@ add_docstr("reciprocal",    r"""
 
     Example::
 
-        >>> a = torch.randn(4)
+        >>> a = randn(4)
         >>> a
         tensor([-0.4595, -2.1219, -1.4314,  0.7298])
-        >>> torch.reciprocal(a)
+        >>> reciprocal(a)
         tensor([-2.1763, -0.4713, -0.6986,  1.3702])
     """)
 
 
-add_docstr("bitwise_not",   r"""
+add_docstr("bitwise_not", r"""
     Computes the bitwise NOT of the given input tensor. The input tensor must be of
     integral or Boolean types. For bool tensors, it computes the logical NOT.
 
@@ -3077,15 +3070,15 @@ add_docstr("bitwise_not",   r"""
 
     Example:
 
-        >>> torch.bitwise_not(torch.tensor([-1, -2, 3], dtype=torch.int8))
-        tensor([ 0,  1, -4], dtype=torch.int8)
+        >>> bitwise_not(tensor([-1, -2, 3], dtype=int8))
+        tensor([ 0,  1, -4], dtype=int8)
     """)
 
 
-add_docstr("argmax",    r"""
+add_docstr("argmax", r"""
     Returns the indices of the maximum values of a tensor across a dimension.
 
-    This is the second value returned by :meth:`torch.max`. See its
+    This is the second value returned by :meth:`max`. See its
     documentation for the exact semantics of this method.
 
     Args:
@@ -3095,13 +3088,13 @@ add_docstr("argmax",    r"""
 
     Example::
 
-        >>> a = torch.randn(4, 4)
+        >>> a = randn(4, 4)
         >>> a
         tensor([[ 1.3398,  0.2663, -0.2686,  0.2450],
                 [-0.7401, -0.8805, -0.3402, -1.1936],
                 [ 0.4907, -1.3948, -1.0691, -0.3132],
                 [-1.6092,  0.5419, -0.2993,  0.3195]])
-        >>> torch.argmax(a, dim=1)
+        >>> argmax(a, dim=1)
         tensor([ 0,  2,  0,  1])
     """)
 
@@ -3109,7 +3102,7 @@ add_docstr("argmax",    r"""
 add_docstr("smooth_l1_loss", r"""
     Creates a criterion that uses a squared term if the absolute
     element-wise error falls below beta and an L1 term otherwise.
-    It is less sensitive to outliers than :class:`torch.nn.MSELoss` and in some cases
+    It is less sensitive to outliers than :class:`nn.MSELoss` and in some cases
     prevents exploding gradients (e.g. see the paper `Fast R-CNN`_ by Ross Girshick).
 
     For a batch of size :math:`N`, the unreduced loss can be described as:
@@ -3172,7 +3165,7 @@ add_docstr("smooth_l1_loss", r"""
     """)
 
 
-add_docstr("maximum",   r"""
+add_docstr("maximum", r"""
     Computes the element-wise maximum of :attr:`input` and :attr:`other`.
 
     .. note::
@@ -3185,9 +3178,9 @@ add_docstr("maximum",   r"""
 
     Example::
 
-        >>> a = torch.tensor((1, 2, -1))
-        >>> b = torch.tensor((3, 0, 4))
-        >>> torch.maximum(a, b)
+        >>> a = tensor((1, 2, -1))
+        >>> b = tensor((3, 0, 4))
+        >>> maximum(a, b)
         tensor([3, 2, 4])
     """)
 
@@ -3205,21 +3198,21 @@ add_docstr("minimum", r"""
 
     Example::
 
-        >>> a = torch.tensor((1, 2, -1))
-        >>> b = torch.tensor((3, 0, 4))
-        >>> torch.minimum(a, b)
+        >>> a = tensor((1, 2, -1))
+        >>> b = tensor((3, 0, 4))
+        >>> minimum(a, b)
         tensor([1, 0, -1])
     """)
 
 
-add_docstr("mm",    r"""
+add_docstr("mm", r"""
     Performs a matrix multiplication of the matrices :attr:`input` and :attr:`mat2`.
 
     If :attr:`input` is a :math:`(n \times m)` tensor, :attr:`mat2` is a
     :math:`(m \times p)` tensor, :attr:`out` will be a :math:`(n \times p)` tensor.
 
     .. note:: This function does not :ref:`broadcast <broadcasting-semantics>`.
-            For broadcasting matrix products, see :func:`torch.matmul`.
+            For broadcasting matrix products, see :func:`matmul`.
 
     Supports strided and sparse 2-D tensors as inputs, autograd with
     respect to strided inputs.
@@ -3232,15 +3225,15 @@ add_docstr("mm",    r"""
 
     Example::
 
-        >>> mat1 = torch.randn(2, 3)
-        >>> mat2 = torch.randn(3, 3)
-        >>> torch.mm(mat1, mat2)
+        >>> mat1 = randn(2, 3)
+        >>> mat2 = randn(3, 3)
+        >>> mm(mat1, mat2)
         tensor([[ 0.4851,  0.5037, -0.3633],
                 [-0.0760, -3.6705,  2.4784]])
     """)
 
 
-add_docstr("conv3d",    r"""
+add_docstr("conv3d", r"""
     Applies a 3D convolution over an input image composed of several input
     planes.
 
@@ -3274,13 +3267,13 @@ add_docstr("conv3d",    r"""
 
     Examples::
 
-        >>> filters = torch.randn(33, 16, 3, 3, 3)
-        >>> inputs = torch.randn(20, 16, 50, 10, 20)
+        >>> filters = randn(33, 16, 3, 3, 3)
+        >>> inputs = randn(20, 16, 50, 10, 20)
         >>> F.conv3d(inputs, filters)
     """)
 
 
-add_docstr("expand",    r"""
+add_docstr("expand", r"""
     Returns a new view of the :attr:`self` tensor with singleton dimensions expanded
     to a larger size.
 
@@ -3298,7 +3291,7 @@ add_docstr("expand",    r"""
     memory.
 
     Args:
-        *sizes (torch.Size or int...): the desired expanded size
+        *sizes (Size or int...): the desired expanded size
 
     .. warning::
 
@@ -3309,9 +3302,9 @@ add_docstr("expand",    r"""
 
     Example::
 
-        >>> x = torch.tensor([[1], [2], [3]])
+        >>> x = tensor([[1], [2], [3]])
         >>> x.size()
-        torch.Size([3, 1])
+        Size([3, 1])
         >>> x.expand(3, 4)
         tensor([[ 1,  1,  1,  1],
                 [ 2,  2,  2,  2],
@@ -3323,7 +3316,7 @@ add_docstr("expand",    r"""
     """)
 
 
-add_docstr("unfold",    r"""
+add_docstr("unfold", r"""
     Returns a view of the original tensor which contains all slices of size :attr:`size` from
     :attr:`self` tensor in the dimension :attr:`dimension`.
 
@@ -3342,7 +3335,7 @@ add_docstr("unfold",    r"""
 
     Example::
 
-        >>> x = torch.arange(1., 8)
+        >>> x = arange(1., 8)
         >>> x
         tensor([ 1.,  2.,  3.,  4.,  5.,  6.,  7.])
         >>> x.unfold(0, 2, 1)
@@ -3359,7 +3352,7 @@ add_docstr("unfold",    r"""
     """)
 
 
-add_docstr("masked_select",     r"""
+add_docstr("masked_select", r"""
     Returns a new 1-D tensor which indexes the :attr:`input` tensor according to
     the boolean mask :attr:`mask` which is a `BoolTensor`.
 
@@ -3375,7 +3368,7 @@ add_docstr("masked_select",     r"""
 
     Example::
 
-        >>> x = torch.randn(3, 4)
+        >>> x = randn(3, 4)
         >>> x
         tensor([[ 0.3552, -2.3825, -0.8297,  0.3477],
                 [-1.2035,  1.2252,  0.5002,  0.6248],
@@ -3385,12 +3378,12 @@ add_docstr("masked_select",     r"""
         tensor([[False, False, False, False],
                 [False, True, True, True],
                 [False, False, False, True]])
-        >>> torch.masked_select(x, mask)
+        >>> masked_select(x, mask)
         tensor([ 1.2252,  0.5002,  0.6248,  2.0139])
     """)
 
 
-add_docstr('index_fill',    r"""
+add_docstr('index_fill', r"""
     Fills the elements of the :attr:`self` tensor with value :attr:`value` by
     selecting the indices in the order given in :attr:`index`.
 
@@ -3400,8 +3393,8 @@ add_docstr('index_fill',    r"""
         value (float): the value to fill with
 
     Example::
-        >>> x = torch.tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=torch.float)
-        >>> index = torch.tensor([0, 2])
+        >>> x = tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=float)
+        >>> index = tensor([0, 2])
         >>> x.index_fill_(1, index, -1)
         tensor([[-1.,  2., -1.],
                 [-1.,  5., -1.],
@@ -3409,7 +3402,7 @@ add_docstr('index_fill',    r"""
     """)
 
 
-add_docstr("linspace",      r"""
+add_docstr("linspace", r"""
     Creates a one-dimensional tensor of size :attr:`steps` whose values are evenly
     spaced from :attr:`start` to :attr:`end`, inclusive. That is, the value are:
 
@@ -3436,18 +3429,18 @@ add_docstr("linspace",      r"""
 
     Example::
 
-        >>> torch.linspace(3, 10, steps=5)
+        >>> linspace(3, 10, steps=5)
         tensor([  3.0000,   4.7500,   6.5000,   8.2500,  10.0000])
-        >>> torch.linspace(-10, 10, steps=5)
+        >>> linspace(-10, 10, steps=5)
         tensor([-10.,  -5.,   0.,   5.,  10.])
-        >>> torch.linspace(start=-10, end=10, steps=5)
+        >>> linspace(start=-10, end=10, steps=5)
         tensor([-10.,  -5.,   0.,   5.,  10.])
-        >>> torch.linspace(start=-10, end=10, steps=1)
+        >>> linspace(start=-10, end=10, steps=1)
         tensor([-10.])
     """)
 
 
-add_docstr("roll",  r"""
+add_docstr("roll", r"""
     Roll the tensor along the given dimension(s). Elements that are shifted beyond the
     last position are re-introduced at the first position. If a dimension is not
     specified, the tensor will be flattened before rolling and then restored
@@ -3463,23 +3456,23 @@ add_docstr("roll",  r"""
 
     Example::
 
-        >>> x = torch.tensor([1, 2, 3, 4, 5, 6, 7, 8]).view(4, 2)
+        >>> x = tensor([1, 2, 3, 4, 5, 6, 7, 8]).view(4, 2)
         >>> x
         tensor([[1, 2],
                 [3, 4],
                 [5, 6],
                 [7, 8]])
-        >>> torch.roll(x, 1, 0)
+        >>> roll(x, 1, 0)
         tensor([[7, 8],
                 [1, 2],
                 [3, 4],
                 [5, 6]])
-        >>> torch.roll(x, -1, 0)
+        >>> roll(x, -1, 0)
         tensor([[3, 4],
                 [5, 6],
                 [7, 8],
                 [1, 2]])
-        >>> torch.roll(x, shifts=(2, 1), dims=(0, 1))
+        >>> roll(x, shifts=(2, 1), dims=(0, 1))
         tensor([[6, 5],
                 [8, 7],
                 [2, 1],
@@ -3487,19 +3480,19 @@ add_docstr("roll",  r"""
     """)
 
 
-add_docstr("norm",  r"""
+add_docstr("norm", r"""
     Returns the matrix norm or vector norm of a given tensor.
 
     .. warning::
 
-        torch.norm is deprecated and may be removed in a future PyTorch release.
+        norm is deprecated and may be removed in a future PyTorch release.
         Its documentation and behavior may be incorrect, and it is no longer
         actively maintained.
 
-        Use :func:`torch.linalg.norm`, instead, or :func:`torch.linalg.vector_norm`
-        when computing vector norms and :func:`torch.linalg.matrix_norm` when
+        Use :func:`linalg.norm`, instead, or :func:`linalg.vector_norm`
+        when computing vector norms and :func:`linalg.matrix_norm` when
         computing matrix norms. Note, however, the signature for these functions
-        is slightly different than the signature for torch.norm.
+        is slightly different than the signature for norm.
 
     Args:
         input (Tensor): The input tensor. Its data type must be either a floating
@@ -3540,46 +3533,46 @@ add_docstr("norm",  r"""
         keepdim (bool, optional): whether the output tensors have :attr:`dim`
             retained or not. Ignored if :attr:`dim` = ``None`` and
             :attr:`out` = ``None``. Default: ``False``
-        dtype (:class:`torch.dtype`, optional): the desired data type of
+        dtype (:class:`dtype`, optional): the desired data type of
             returned tensor. If specified, the input tensor is casted to
             :attr:`dtype` while performing the operation. Default: None.
 
     .. note::
         Even though ``p='fro'`` supports any number of dimensions, the true
         mathematical definition of Frobenius norm only applies to tensors with
-        exactly two dimensions. :func:`torch.linalg.norm` with ``ord='fro'`` aligns
+        exactly two dimensions. :func:`linalg.norm` with ``ord='fro'`` aligns
         with the mathematical definition, since it can only be applied across
         exactly two dimensions.
 
     Example::
 
         >>> import torch
-        >>> a = torch.arange(9, dtype= torch.float) - 4
+        >>> a = arange(9, dtype= float) - 4
         >>> b = a.reshape((3, 3))
-        >>> torch.norm(a)
+        >>> norm(a)
         tensor(7.7460)
-        >>> torch.norm(b)
+        >>> norm(b)
         tensor(7.7460)
-        >>> torch.norm(a, float('inf'))
+        >>> norm(a, float('inf'))
         tensor(4.)
-        >>> torch.norm(b, float('inf'))
+        >>> norm(b, float('inf'))
         tensor(4.)
-        >>> c = torch.tensor([[ 1, 2, 3],[-1, 1, 4]] , dtype= torch.float)
-        >>> torch.norm(c, dim=0)
+        >>> c = tensor([[ 1, 2, 3],[-1, 1, 4]] , dtype= float)
+        >>> norm(c, dim=0)
         tensor([1.4142, 2.2361, 5.0000])
-        >>> torch.norm(c, dim=1)
+        >>> norm(c, dim=1)
         tensor([3.7417, 4.2426])
-        >>> torch.norm(c, p=1, dim=1)
+        >>> norm(c, p=1, dim=1)
         tensor([6., 6.])
-        >>> d = torch.arange(8, dtype= torch.float).reshape(2,2,2)
-        >>> torch.norm(d, dim=(1,2))
+        >>> d = arange(8, dtype= float).reshape(2,2,2)
+        >>> norm(d, dim=(1,2))
         tensor([ 3.7417, 11.2250])
-        >>> torch.norm(d[0, :, :]), torch.norm(d[1, :, :])
+        >>> norm(d[0, :, :]), norm(d[1, :, :])
         (tensor(3.7417), tensor(11.2250))
     """)
 
 
-add_docstr("group_norm",    r"""
+add_docstr("group_norm", r"""
     Applies Group Normalization over a mini-batch of inputs as described in
     the paper `Group Normalization <https://arxiv.org/abs/1803.08494>`__
 
@@ -3592,7 +3585,7 @@ add_docstr("group_norm",    r"""
     per-channel affine transform parameter vectors of size :attr:`num_channels` if
     :attr:`affine` is ``True``.
     The standard-deviation is calculated via the biased estimator, equivalent to
-    `torch.var(input, unbiased=False)`.
+    `var(input, unbiased=False)`.
 
     This layer uses statistics computed from input data in both training and
     evaluation modes.
@@ -3609,7 +3602,7 @@ add_docstr("group_norm",    r"""
 
     Examples::
 
-        >>> input = torch.randn(20, 6, 10, 10)
+        >>> input = randn(20, 6, 10, 10)
         >>> # Separate 6 channels into 3 groups
         >>> m = nn.GroupNorm(3, 6)
         >>> # Separate 6 channels into 6 groups (equivalent with InstanceNorm)
@@ -3634,7 +3627,7 @@ add_docstr("layer_norm", r"""Applies Layer Normalization over a mini-batch of in
     :math:`\gamma` and :math:`\beta` are learnable affine transform parameters of
     :attr:`normalized_shape` if :attr:`elementwise_affine` is ``True``.
     The standard-deviation is calculated via the biased estimator, equivalent to
-    `torch.var(input, unbiased=False)`.
+    `var(input, unbiased=False)`.
 
     .. note::
         Unlike Batch Normalization and Instance Normalization, which applies
@@ -3646,7 +3639,7 @@ add_docstr("layer_norm", r"""Applies Layer Normalization over a mini-batch of in
     evaluation modes.
 
     Args:
-        normalized_shape (int or list or torch.Size): input shape from an expected input
+        normalized_shape (int or list or Size): input shape from an expected input
             of size
 
             .. math::
@@ -3673,14 +3666,14 @@ add_docstr("layer_norm", r"""Applies Layer Normalization over a mini-batch of in
 
         >>> # NLP Example
         >>> batch, sentence_length, embedding_dim = 20, 5, 10
-        >>> embedding = torch.randn(batch, sentence_length, embedding_dim)
+        >>> embedding = randn(batch, sentence_length, embedding_dim)
         >>> layer_norm = nn.LayerNorm(embedding_dim)
         >>> # Activate module
         >>> layer_norm(embedding)
         >>>
         >>> # Image Example
         >>> N, C, H, W = 20, 5, 10, 10
-        >>> input = torch.randn(N, C, H, W)
+        >>> input = randn(N, C, H, W)
         >>> # Normalize over the last three dimensions (i.e. the channel and spatial dimensions)
         >>> # as shown in the image below
         >>> layer_norm = nn.LayerNorm([C, H, W])
@@ -3709,21 +3702,21 @@ add_docstr("adaptive_avg_pool3d", r"""
     Examples:
         >>> # target output size of 5x7x9
         >>> m = nn.AdaptiveAvgPool3d((5,7,9))
-        >>> input = torch.randn(1, 64, 8, 9, 10)
+        >>> input = randn(1, 64, 8, 9, 10)
         >>> output = m(input)
         >>> # target output size of 7x7x7 (cube)
         >>> m = nn.AdaptiveAvgPool3d(7)
-        >>> input = torch.randn(1, 64, 10, 9, 8)
+        >>> input = randn(1, 64, 10, 9, 8)
         >>> output = m(input)
         >>> # target output size of 7x9x8
         >>> m = nn.AdaptiveAvgPool3d((7, None, None))
-        >>> input = torch.randn(1, 64, 10, 9, 8)
+        >>> input = randn(1, 64, 10, 9, 8)
         >>> output = m(input)
 
     """)
 
 
-add_docstr("adaptive_max_pool3d",   r"""
+add_docstr("adaptive_max_pool3d", r"""
     Applies a 3D adaptive max pooling over an input signal composed of several input planes.
 
     The output is of size :math:`D_{out} \times H_{out} \times W_{out}`, for any input size.
@@ -3747,21 +3740,21 @@ add_docstr("adaptive_max_pool3d",   r"""
     Examples:
         >>> # target output size of 5x7x9
         >>> m = nn.AdaptiveMaxPool3d((5,7,9))
-        >>> input = torch.randn(1, 64, 8, 9, 10)
+        >>> input = randn(1, 64, 8, 9, 10)
         >>> output = m(input)
         >>> # target output size of 7x7x7 (cube)
         >>> m = nn.AdaptiveMaxPool3d(7)
-        >>> input = torch.randn(1, 64, 10, 9, 8)
+        >>> input = randn(1, 64, 10, 9, 8)
         >>> output = m(input)
         >>> # target output size of 7x9x8
         >>> m = nn.AdaptiveMaxPool3d((7, None, None))
-        >>> input = torch.randn(1, 64, 10, 9, 8)
+        >>> input = randn(1, 64, 10, 9, 8)
         >>> output = m(input)
 
     """)
 
 
-add_docstr("max_pool3d",    r"""
+add_docstr("max_pool3d", r"""
     Applies a 3D max pooling over an input signal composed of several input
     planes.
 
@@ -3796,7 +3789,7 @@ add_docstr("max_pool3d",    r"""
         padding: implicit zero padding to be added on all three sides
         dilation: a parameter that controls the stride of elements in the window
         return_indices: if ``True``, will return the max indices along with the outputs.
-                        Useful for :class:`torch.nn.MaxUnpool3d` later
+                        Useful for :class:`nn.MaxUnpool3d` later
         ceil_mode: when True, will use `ceil` instead of `floor` to compute the output shape
 
     Shape:
@@ -3821,7 +3814,7 @@ add_docstr("max_pool3d",    r"""
         >>> m = nn.MaxPool3d(3, stride=2)
         >>> # pool of non-square window
         >>> m = nn.MaxPool3d((3, 2, 2), stride=(2, 1, 2))
-        >>> input = torch.randn(20, 16, 50,44, 31)
+        >>> input = randn(20, 16, 50,44, 31)
         >>> output = m(input)
 
     .. _link:
@@ -3829,7 +3822,7 @@ add_docstr("max_pool3d",    r"""
     """)
 
 
-add_docstr("permute",   r"""
+add_docstr("permute", r"""
     Returns a view of the original tensor :attr:`input` with its dimensions permuted.
 
     Args:
@@ -3837,15 +3830,15 @@ add_docstr("permute",   r"""
         dims (tuple of ints): The desired ordering of dimensions
 
     Example:
-        >>> x = torch.randn(2, 3, 5)
+        >>> x = randn(2, 3, 5)
         >>> x.size()
-        torch.Size([2, 3, 5])
-        >>> torch.permute(x, (2, 0, 1)).size()
-        torch.Size([5, 2, 3])
+        Size([2, 3, 5])
+        >>> permute(x, (2, 0, 1)).size()
+        Size([5, 2, 3])
     """)
 
 
-add_docstr('copy_',    r"""
+add_docstr('copy_', r"""
     Copies the elements from :attr:`other` into :attr:`input` tensor and returns
     :attr:`self`.
 
@@ -3859,7 +3852,7 @@ add_docstr('copy_',    r"""
     """)
 
 
-add_docstr("gather",    r"""
+add_docstr("gather", r"""
     Gathers values along an axis specified by `dim`.
 
     For a 3-D tensor the output is specified by::
@@ -3884,17 +3877,17 @@ add_docstr("gather",    r"""
 
     Example::
 
-        >>> t = torch.tensor([[1, 2], [3, 4]])
-        >>> torch.gather(t, 1, torch.tensor([[0, 0], [1, 0]]))
+        >>> t = tensor([[1, 2], [3, 4]])
+        >>> gather(t, 1, tensor([[0, 0], [1, 0]]))
         tensor([[ 1,  1],
                 [ 4,  3]])
     """)
 
 
-add_docstr("remainder",   r"""
-    Like :func:`torch.fmod` this applies C++'s `std::fmod <https://en.cppreference.com/w/cpp/numeric/math/fmod>`_
+add_docstr("remainder", r"""
+    Like :func:`fmod` this applies C++'s `std::fmod <https://en.cppreference.com/w/cpp/numeric/math/fmod>`_
     for floating point tensors and the modulus operation for integer tensors.
-    Unlike :func:`torch.fmod`, however, if the sign of the modulus is different
+    Unlike :func:`fmod`, however, if the sign of the modulus is different
     than the sign of the divisor :attr:`other` then the divisor is added to the modulus.
 
     Supports :ref:`broadcasting to a common shape <broadcasting-semantics>`,
@@ -3903,7 +3896,7 @@ add_docstr("remainder",   r"""
     .. note::
         Complex inputs are not supported. In some cases, it is not mathematically
         possible to satisfy the definition of a modulo operation with complex numbers.
-        See :func:`torch.fmod` for how division by zero is handled.
+        See :func:`fmod` for how division by zero is handled.
 
     .. note::
         This op, like NumPy's `remainder <https://numpy.org/doc/stable/reference/generated/numpy.remainder.html>`_,
@@ -3919,20 +3912,20 @@ add_docstr("remainder",   r"""
 
     Example::
 
-        >>> torch.remainder(torch.tensor([-3., -2, -1, 1, 2, 3]), 2)
+        >>> remainder(tensor([-3., -2, -1, 1, 2, 3]), 2)
         tensor([ 1.,  0.,  1.,  1.,  0.,  1.])
-        >>> torch.remainder(torch.tensor([1, 2, 3, 4, 5]), -1.5)
+        >>> remainder(tensor([1, 2, 3, 4, 5]), -1.5)
         tensor([ -0.5000, -1.0000,  0.0000, -0.5000, -1.0000 ])
 
     .. seealso::
 
-        :func:`torch.fmod` which just computes the modulus for integer inputs and
+        :func:`fmod` which just computes the modulus for integer inputs and
         applies C++'s `std::fmod <https://en.cppreference.com/w/cpp/numeric/math/fmod>`_
         for floating point inputs.
     """)
 
 
-add_docstr("ctc_loss",  r"""
+add_docstr("ctc_loss", r"""
     The Connectionist Temporal Classification loss.
 
     Calculates loss between a continuous (unsegmented) time series and a target sequence. CTCLoss sums over the
@@ -3958,7 +3951,7 @@ add_docstr("ctc_loss",  r"""
           :math:`N = \text{batch size}`, and
           :math:`C = \text{number of classes (including blank)}`.
           The logarithmized probabilities of the outputs (e.g. obtained with
-          :func:`torch.nn.functional.log_softmax`).
+          :func:`nn.functional.log_softmax`).
         - Targets: Tensor of size :math:`(N, S)` or
           :math:`(\operatorname{sum}(\text{target_lengths}))`,
           where :math:`N = \text{batch size}` and
@@ -3997,13 +3990,13 @@ add_docstr("ctc_loss",  r"""
         >>> S_min = 10  # Minimum target length, for demonstration purposes
         >>>
         >>> # Initialize random batch of input vectors, for *size = (T,N,C)
-        >>> input = torch.randn(T, N, C).log_softmax(2).detach().requires_grad_()
+        >>> input = randn(T, N, C).log_softmax(2).detach().requires_grad_()
         >>>
         >>> # Initialize random batch of targets (0 = blank, 1:C = classes)
-        >>> target = torch.randint(low=1, high=C, size=(N, S), dtype=torch.long)
+        >>> target = randint(low=1, high=C, size=(N, S), dtype=long)
         >>>
-        >>> input_lengths = torch.full(size=(N,), fill_value=T, dtype=torch.long)
-        >>> target_lengths = torch.randint(low=S_min, high=S, size=(N,), dtype=torch.long)
+        >>> input_lengths = full(size=(N,), fill_value=T, dtype=long)
+        >>> target_lengths = randint(low=S_min, high=S, size=(N,), dtype=long)
         >>> ctc_loss = nn.CTCLoss()
         >>> loss = ctc_loss(input, target, input_lengths, target_lengths)
         >>> loss.backward()
@@ -4015,12 +4008,12 @@ add_docstr("ctc_loss",  r"""
         >>> N = 16      # Batch size
         >>>
         >>> # Initialize random batch of input vectors, for *size = (T,N,C)
-        >>> input = torch.randn(T, N, C).log_softmax(2).detach().requires_grad_()
-        >>> input_lengths = torch.full(size=(N,), fill_value=T, dtype=torch.long)
+        >>> input = randn(T, N, C).log_softmax(2).detach().requires_grad_()
+        >>> input_lengths = full(size=(N,), fill_value=T, dtype=long)
         >>>
         >>> # Initialize random batch of targets (0 = blank, 1:C = classes)
-        >>> target_lengths = torch.randint(low=1, high=T, size=(N,), dtype=torch.long)
-        >>> target = torch.randint(low=1, high=C, size=(sum(target_lengths),), dtype=torch.long)
+        >>> target_lengths = randint(low=1, high=T, size=(N,), dtype=long)
+        >>> target = randint(low=1, high=C, size=(sum(target_lengths),), dtype=long)
         >>> ctc_loss = nn.CTCLoss()
         >>> loss = ctc_loss(input, target, input_lengths, target_lengths)
         >>> loss.backward()
@@ -4034,21 +4027,21 @@ add_docstr("ctc_loss",  r"""
         In order to use CuDNN, the following must be satisfied: :attr:`targets` must be
         in concatenated format, all :attr:`input_lengths` must be `T`.  :math:`blank=0`,
         :attr:`target_lengths` :math:`\leq 256`, the integer arguments must be of
-        dtype :attr:`torch.int32`.
+        dtype :attr:`int32`.
 
-        The regular implementation uses the (more common in PyTorch) `torch.long` dtype.
+        The regular implementation uses the (more common in PyTorch) `long` dtype.
 
 
     Note:
         In some circumstances when using the CUDA backend with CuDNN, this operator
         may select a nondeterministic algorithm to increase performance. If this is
         undesirable, you can try to make the operation deterministic (potentially at
-        a performance cost) by setting ``torch.backends.cudnn.deterministic =
+        a performance cost) by setting ``backends.cudnn.deterministic =
         True``.
     """)
 
 
-add_docstr('index_put',    r"""
+add_docstr('index_put', r"""
     Puts values from the tensor :attr:`values` into the tensor :attr:`self` using
     the indices specified in :attr:`indices` (which is a tuple of Tensors). The
     expression ``tensor.index_put_(indices, values)`` is equivalent to
@@ -4067,7 +4060,7 @@ add_docstr('index_put',    r"""
     """)
 
 
-add_docstr('scatter',   r"""
+add_docstr('scatter', r"""
     Writes all values from the tensor :attr:`src` into :attr:`self` at the indices
     specified in the :attr:`index` tensor. For each value in :attr:`src`, its output
     index is specified by its index in :attr:`src` for ``dimension != dim`` and by
@@ -4117,7 +4110,7 @@ add_docstr('scatter',   r"""
         self[i][j][index[i][j][k]] *= src[i][j][k]  # if dim == 2
 
     Reducing with the addition operation is the same as using
-    :meth:`~torch.Tensor.scatter_add_`.
+    :meth:`~Tensor.scatter_add_`.
 
     Args:
         dim (int): the axis along which to index
@@ -4131,26 +4124,26 @@ add_docstr('scatter',   r"""
 
     Example::
 
-        >>> src = torch.arange(1, 11).reshape((2, 5))
+        >>> src = arange(1, 11).reshape((2, 5))
         >>> src
         tensor([[ 1,  2,  3,  4,  5],
                 [ 6,  7,  8,  9, 10]])
-        >>> index = torch.tensor([[0, 1, 2, 0]])
-        >>> torch.zeros(3, 5, dtype=src.dtype).scatter_(0, index, src)
+        >>> index = tensor([[0, 1, 2, 0]])
+        >>> zeros(3, 5, dtype=src.dtype).scatter_(0, index, src)
         tensor([[1, 0, 0, 4, 0],
                 [0, 2, 0, 0, 0],
                 [0, 0, 3, 0, 0]])
-        >>> index = torch.tensor([[0, 1, 2], [0, 1, 4]])
-        >>> torch.zeros(3, 5, dtype=src.dtype).scatter_(1, index, src)
+        >>> index = tensor([[0, 1, 2], [0, 1, 4]])
+        >>> zeros(3, 5, dtype=src.dtype).scatter_(1, index, src)
         tensor([[1, 2, 3, 0, 0],
                 [6, 7, 0, 0, 8],
                 [0, 0, 0, 0, 0]])
 
-        >>> torch.full((2, 4), 2.).scatter_(1, torch.tensor([[2], [3]]),
+        >>> full((2, 4), 2.).scatter_(1, tensor([[2], [3]]),
         ...            1.23, reduce='multiply')
         tensor([[2.0000, 2.0000, 2.4600, 2.0000],
                 [2.0000, 2.0000, 2.0000, 2.4600]])
-        >>> torch.full((2, 4), 2.).scatter_(1, torch.tensor([[2], [3]]),
+        >>> full((2, 4), 2.).scatter_(1, tensor([[2], [3]]),
         ...            1.23, reduce='add')
         tensor([[2.0000, 2.0000, 3.2300, 2.0000],
                 [2.0000, 2.0000, 2.0000, 3.2300]])
@@ -4158,8 +4151,8 @@ add_docstr('scatter',   r"""
     """)
 
 
-add_docstr("interpolate",   r"""
-    Down/up samples the input to either the given :attr:`size` 
+add_docstr("interpolate", r"""
+    Down/up samples the input to either the given :attr:`size`
 
     The algorithm used for interpolation is determined by :attr:`mode`.
 
@@ -4200,12 +4193,12 @@ add_docstr("interpolate",   r"""
         output and input pixels, and thus the output values can depend on the
         input size. This was the default behavior for these modes up to version
         0.3.1. Since then, the default behavior is ``align_corners = False``.
-        See :class:`~torch.nn.Upsample` for concrete examples on how this
+        See :class:`~nn.Upsample` for concrete examples on how this
         affects the outputs.
     """)
 
 
-add_docstr("pad",   r"""
+add_docstr("pad", r"""
     Pads tensor.
 
     Padding size:
@@ -4225,8 +4218,8 @@ add_docstr("pad",   r"""
         :math:`\text{padding_front}, \text{padding_back})`.
 
     Padding mode:
-        See :class:`torch.nn.ConstantPad2d`, :class:`torch.nn.ReflectionPad2d`, and
-        :class:`torch.nn.ReplicationPad2d` for concrete examples on how each of the
+        See :class:`nn.ConstantPad2d`, :class:`nn.ReflectionPad2d`, and
+        :class:`nn.ReplicationPad2d` for concrete examples on how each of the
         padding modes works. Constant padding is implemented for arbitrary dimensions.
         Replicate and reflection padding is implemented for padding the last 3
         dimensions of 5D input tensor, or the last 2 dimensions of 4D input
@@ -4242,34 +4235,34 @@ add_docstr("pad",   r"""
 
     Examples::
 
-        >>> t4d = torch.empty(3, 3, 4, 2)
+        >>> t4d = empty(3, 3, 4, 2)
         >>> p1d = (1, 1) # pad last dim by 1 on each side
         >>> out = F.pad(t4d, p1d, "constant", 0)  # effectively zero padding
         >>> print(out.size())
-        torch.Size([3, 3, 4, 4])
+        Size([3, 3, 4, 4])
         >>> p2d = (1, 1, 2, 2) # pad last dim by (1, 1) and 2nd to last by (2, 2)
         >>> out = F.pad(t4d, p2d, "constant", 0)
         >>> print(out.size())
-        torch.Size([3, 3, 8, 4])
-        >>> t4d = torch.empty(3, 3, 4, 2)
+        Size([3, 3, 8, 4])
+        >>> t4d = empty(3, 3, 4, 2)
         >>> p3d = (0, 1, 2, 1, 3, 3) # pad by (0, 1), (2, 1), and (3, 3)
         >>> out = F.pad(t4d, p3d, "constant", 0)
         >>> print(out.size())
-        torch.Size([3, 9, 7, 3])
+        Size([3, 9, 7, 3])
 
     """)
 
 
-add_docstr("unique",    r"""
+add_docstr("unique", r"""
     Returns the unique elements of the input tensor.
 
-    .. note:: This function is different from :func:`torch.unique_consecutive` in the sense that
+    .. note:: This function is different from :func:`unique_consecutive` in the sense that
         this function also eliminates non-consecutive duplicate values.
 
     .. note:: Currently in the CUDA implementation and the CPU implementation when dim is specified,
-        `torch.unique` always sort the tensor at the beginning regardless of the `sort` argument.
+        `unique` always sort the tensor at the beginning regardless of the `sort` argument.
         Sorting could be slow, so if your input tensor is already sorted, it is recommended to use
-        :func:`torch.unique_consecutive` which avoids the sorting.
+        :func:`unique_consecutive` which avoids the sorting.
 
     Args:
         input (Tensor): the input tensor
@@ -4299,19 +4292,19 @@ add_docstr("unique",    r"""
 
     Example::
 
-        >>> output = torch.unique(torch.tensor([1, 3, 2, 3], dtype=torch.long))
+        >>> output = unique(tensor([1, 3, 2, 3], dtype=long))
         >>> output
         tensor([ 2,  3,  1])
 
-        >>> output, inverse_indices = torch.unique(
-        ...     torch.tensor([1, 3, 2, 3], dtype=torch.long), sorted=True, return_inverse=True)
+        >>> output, inverse_indices = unique(
+        ...     tensor([1, 3, 2, 3], dtype=long), sorted=True, return_inverse=True)
         >>> output
         tensor([ 1,  2,  3])
         >>> inverse_indices
         tensor([ 0,  2,  1,  2])
 
-        >>> output, inverse_indices = torch.unique(
-        ...     torch.tensor([[1, 3], [2, 3]], dtype=torch.long), sorted=True, return_inverse=True)
+        >>> output, inverse_indices = unique(
+        ...     tensor([[1, 3], [2, 3]], dtype=long), sorted=True, return_inverse=True)
         >>> output
         tensor([ 1,  2,  3])
         >>> inverse_indices
@@ -4321,7 +4314,7 @@ add_docstr("unique",    r"""
     """)
 
 
-add_docstr("prod",      r"""
+add_docstr("prod", r"""
     Returns the product of each row of the :attr:`input` tensor in the given
     dimension :attr:`dim`.
 
@@ -4332,12 +4325,266 @@ add_docstr("prod",      r"""
 
     Example::
 
-        >>> a = torch.randn(4, 2)
+        >>> a = randn(4, 2)
         >>> a
         tensor([[ 0.5261, -0.3837],
                 [ 1.1857, -0.2498],
                 [-1.1646,  0.0705],
                 [ 1.1131, -1.0629]])
-        >>> torch.prod(a, 1)
+        >>> prod(a, 1)
         tensor([-0.2018, -0.2962, -0.0821, -1.1831])
+    """)
+
+
+add_docstr("erfinv", r"""
+    Computes the inverse error function of :attr:`input`.
+    The inverse error function is defined in the range :math:`(-1, 1)` as:
+
+    .. math::
+        \mathrm{erfinv}(\mathrm{erf}(x)) = x
+
+    Args:
+        input (Tensor): the input tensor
+        inplace: If set to ``True``, will do this operation in-place. Default: ``False``
+    """)
+
+
+add_docstr("im2col", r"""
+    Extracts sliding local blocks from a batched input tensor.
+
+    Consider a batched :attr:`input` tensor of shape :math:`(N, C, *)`,
+    where :math:`N` is the batch dimension, :math:`C` is the channel dimension,
+    and :math:`*` represent arbitrary spatial dimensions. This operation flattens
+    each sliding :attr:`kernel_size`-sized block within the spatial dimensions
+    of :attr:`input` into a column (i.e., last dimension) of a 3-D :attr:`output`
+    tensor of shape :math:`(N, C \times \prod(\text{kernel\_size}), L)`, where
+    :math:`C \times \prod(\text{kernel\_size})` is the total number of values
+    within each block (a block has :math:`\prod(\text{kernel\_size})` spatial
+    locations each containing a :math:`C`-channeled vector), and :math:`L` is
+    the total number of such blocks:
+
+    .. math::
+        L = \prod_d \left\lfloor\frac{\text{spatial\_size}[d] + 2 \times \text{padding}[d] %
+            - \text{dilation}[d] \times (\text{kernel\_size}[d] - 1) - 1}{\text{stride}[d]} + 1\right\rfloor,
+
+    where :math:`\text{spatial\_size}` is formed by the spatial dimensions
+    of :attr:`input` (:math:`*` above), and :math:`d` is over all spatial
+    dimensions.
+
+    Therefore, indexing :attr:`output` at the last dimension (column dimension)
+    gives all values within a certain block.
+
+    The :attr:`padding`, :attr:`stride` and :attr:`dilation` arguments specify
+    how the sliding blocks are retrieved.
+
+    * :attr:`stride` controls the stride for the sliding blocks.
+
+    * :attr:`padding` controls the amount of implicit zero-paddings on both
+      sides for :attr:`padding` number of points for each dimension before
+      reshaping.
+
+    * :attr:`dilation` controls the spacing between the kernel points; also known as the à trous algorithm.
+      It is harder to describe, but this `link`_ has a nice visualization of what :attr:`dilation` does.
+
+    Args:
+        input (Tensor): the input tensor
+        kernel_size (int or tuple): the size of the sliding blocks
+        stride (int or tuple, optional): the stride of the sliding blocks in the input
+                                         spatial dimensions. Default: 1
+        padding (int or tuple, optional): implicit zero padding to be added on
+                                          both sides of input. Default: 0
+        dilation (int or tuple, optional): a parameter that controls the
+                                           stride of elements within the
+                                           neighborhood. Default: 1
+
+    * If :attr:`kernel_size`, :attr:`dilation`, :attr:`padding` or
+      :attr:`stride` is an int or a tuple of length 1, their values will be
+      replicated across all spatial dimensions.
+
+    * For the case of two input spatial dimensions this operation is sometimes
+      called ``im2col``.
+
+    Shape:
+        - Input: :math:`(N, C, *)`
+        - Output: :math:`(N, C \times \prod(\text{kernel\_size}), L)` as described above
+
+    .. _link:
+        https://github.com/vdumoulin/conv_arithmetic/blob/master/README.md
+    """)
+
+
+add_docstr("col2im", r"""
+    Combines an array of sliding local blocks into a large containing
+    tensor.
+
+    Consider a batched :attr:`input` tensor containing sliding local blocks,
+    e.g., patches of images, of shape :math:`(N, C \times  \prod(\text{kernel\_size}), L)`,
+    where :math:`N` is batch dimension, :math:`C \times \prod(\text{kernel\_size})`
+    is the number of values within a block (a block has :math:`\prod(\text{kernel\_size})`
+    spatial locations each containing a :math:`C`-channeled vector), and
+    :math:`L` is the total number of blocks. (This is exactly the
+    same specification as the output shape of :class:`~nn.Unfold`.) This
+    operation combines these local blocks into the large :attr:`output` tensor
+    of shape :math:`(N, C, \text{output\_size}[0], \text{output\_size}[1], \dots)`
+    by summing the overlapping values. Similar to :class:`~nn.Unfold`, the
+    arguments must satisfy
+
+    .. math::
+        L = \prod_d \left\lfloor\frac{\text{output\_size}[d] + 2 \times \text{padding}[d] %
+            - \text{dilation}[d] \times (\text{kernel\_size}[d] - 1) - 1}{\text{stride}[d]} + 1\right\rfloor,
+
+    where :math:`d` is over all spatial dimensions.
+
+    * :attr:`output_size` describes the spatial shape of the large containing
+      tensor of the sliding local blocks. It is useful to resolve the ambiguity
+      when multiple input shapes map to same number of sliding blocks, e.g.,
+      with ``stride > 0``.
+
+    The :attr:`padding`, :attr:`stride` and :attr:`dilation` arguments specify
+    how the sliding blocks are retrieved.
+
+    * :attr:`stride` controls the stride for the sliding blocks.
+
+    * :attr:`padding` controls the amount of implicit zero-paddings on both
+      sides for :attr:`padding` number of points for each dimension before
+      reshaping.
+
+    * :attr:`dilation` controls the spacing between the kernel points; also known as the à trous algorithm.
+      It is harder to describe, but this `link`_ has a nice visualization of what :attr:`dilation` does.
+
+    Args:
+        input (Tensor): the input tensor
+        output_size (int or tuple): the shape of the spatial dimensions of the
+                                    output (i.e., ``output.sizes()[2:]``)
+        kernel_size (int or tuple): the size of the sliding blocks
+        stride (int or tuple): the stride of the sliding blocks in the input
+                               spatial dimensions. Default: 1
+        padding (int or tuple, optional): implicit zero padding to be added on
+                                          both sides of input. Default: 0
+        dilation (int or tuple, optional): a parameter that controls the
+                                           stride of elements within the
+                                           neighborhood. Default: 1
+
+    * If :attr:`output_size`, :attr:`kernel_size`, :attr:`dilation`,
+      :attr:`padding` or :attr:`stride` is an int or a tuple of length 1 then
+      their values will be replicated across all spatial dimensions.
+
+    * For the case of two output spatial dimensions this operation is sometimes
+      called ``col2im``.
+
+    Shape:
+        - Input: :math:`(N, C \times \prod(\text{kernel\_size}), L)`
+        - Output: :math:`(N, C, \text{output\_size}[0], \text{output\_size}[1], \dots)` as described above
+
+    .. _link:
+        https://github.com/vdumoulin/conv_arithmetic/blob/master/README.md
+
+    """)
+
+
+add_docstr("flip", r"""
+    Reverse the order of a n-D tensor along given axis in dims.
+
+    Args:
+        {input}
+        dims (a list or tuple): axis to flip on
+
+    Example::
+
+        >>> x = arange(8).view(2, 2, 2)
+        >>> x
+        tensor([[[ 0,  1],
+                [ 2,  3]],
+
+                [[ 4,  5],
+                [ 6,  7]]])
+        >>> flip(x, [0, 1])
+        tensor([[[ 6,  7],
+                [ 4,  5]],
+
+                [[ 2,  3],
+                [ 0,  1]]])
+    """.format(**common_args))
+
+
+add_docstr("cholesky_ex", r"""
+    Computes the Cholesky decomposition of a complex Hermitian or real symmetric positive-definite matrix.
+
+    Letting :math:`\mathbb{K}` be :math:`\mathbb{R}` or :math:`\mathbb{C}`,
+    the **Cholesky decomposition** of a complex Hermitian or real symmetric positive-definite matrix
+    :math:`A \in \mathbb{K}^{n \times n}` is defined as
+
+    .. math::
+
+        A = LL^{\text{H}}\mathrlap{\qquad L \in \mathbb{K}^{n \times n}}
+
+    where :math:`L` is a lower triangular matrix and
+    :math:`L^{\text{H}}` is the conjugate transpose when :math:`L` is complex, and the transpose when :math:`L` is real-valued.
+
+    Supports input of float, double, cfloat and cdouble dtypes.
+    Also supports batches of matrices, and if :attr:`A` is a batch of matrices then
+    the output has the same batch dimensions.
+
+    Keyword args:
+        input (Tensor): tensor of shape `(*, n, n)` where `*` is zero or more batch dimensions
+                    consisting of symmetric or Hermitian positive-definite matrices.
+        upper (bool, optional): whether to return an upper triangular matrix.
+            The tensor returned with upper=True is the conjugate transpose of the tensor
+            returned with upper=False.
+        check_errors (bool, optional): controls whether to check the content of ``infos``. Default: `False`.
+
+    Raises:
+        RuntimeError: if the :attr:`A` matrix or any matrix in a batched :attr:`A` is not Hermitian
+                    (resp. symmetric) positive-definite. If :attr:`A` is a batch of matrices,
+                    the error message will include the batch index of the first matrix that fails
+                    to meet this condition.
+    Examples::
+        >>> A = randn(2, 2, dtype=torch.complex128)
+        >>> A = A @ A.t().conj()  # creates a Hermitian positive-definite matrix
+        >>> L, info = cholesky_ex(A)
+        >>> A
+        tensor([[ 2.3792+0.0000j, -0.9023+0.9831j],
+                [-0.9023-0.9831j,  0.8757+0.0000j]], dtype=torch.complex128)
+        >>> L
+        tensor([[ 1.5425+0.0000j,  0.0000+0.0000j],
+                [-0.5850-0.6374j,  0.3567+0.0000j]], dtype=torch.complex128)
+        >>> info
+        tensor(0, dtype=torch.int32)
+    """)
+
+
+add_docstr("triangular_solve", r"""
+    Solves a system of equations with a triangular coefficient matrix :math:`A`
+    and multiple right-hand sides :math:`b`.
+
+    In particular, solves :math:`AX = b` and assumes :math:`A` is upper-triangular
+    with the default keyword arguments.
+
+    `triangular_solve(b, A)` can take in 2D inputs `b, A` or inputs that are
+    batches of 2D matrices. If the inputs are batches, then returns
+    batched outputs `X`
+
+    If the diagonal of :attr:`A` contains zeros or elements that are very close to zero and
+    :attr:`unitriangular`\ `= False` (default) or if the input matrix is badly conditioned,
+    the result may contain `NaN` s.
+
+    Supports input of float, double, cfloat and cdouble data types.
+
+    Args:
+        input (Tensor): multiple right-hand sides of size :math:`(*, m, k)` where
+                    :math:`*` is zero of more batch dimensions
+        A (Tensor): the input triangular coefficient matrix of size :math:`(*, m, m)`
+                    where :math:`*` is zero or more batch dimensions
+        upper (bool, optional): whether to solve the upper-triangular system
+            of equations (default) or the lower-triangular system of equations. Default: ``True``.
+        transpose (bool, optional): whether :math:`A` should be transposed before
+            being sent into the solver. Default: ``False``.
+        unitriangular (bool, optional): whether :math:`A` is unit triangular.
+            If True, the diagonal elements of :math:`A` are assumed to be
+            1 and not referenced from :math:`A`. Default: ``False``.
+
+    Returns:
+        A namedtuple `(solution, cloned_coefficient)` where `cloned_coefficient`
+        is a clone of :math:`A` and `solution` is the solution :math:`X` to :math:`AX = b`
+        (or whatever variant of the system of equations, depending on the keyword arguments.)
     """)
