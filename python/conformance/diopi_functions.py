@@ -266,12 +266,12 @@ def div(input, other, inplace=False, rounding_mode=None) -> Tensor:
                               Dtype.uint8, Dtype.uint16, Dtype.uint32, Dtype.uint64, Dtype.bool]
         if not isinstance(other, Tensor):
             out = Tensor(sizeI, input.get_dtype()
-                                    if input.get_dtype() not in need_promote_types else Dtype.float32)
+                         if input.get_dtype() not in need_promote_types else Dtype.float32)
         else:
             sizeO = other.size()
             outsize = broadcast_out_size(list(sizeI), list(sizeO))
-            out = Tensor(outsize, input.get_dtype() 
-                                    if input.get_dtype() not in need_promote_types else Dtype.float32)
+            out = Tensor(outsize, input.get_dtype()
+                         if input.get_dtype() not in need_promote_types else Dtype.float32)
         args = args + "out.tensor_handle, "
 
     if not isinstance(other, Tensor):

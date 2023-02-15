@@ -96,10 +96,7 @@ class ManualTest(object):
         out_numpy = out.numpy()
         mask_numpy = mask.numpy()
 
-        if training == False:
-            # assert np.allclose(input_numpy, out_num
-            pass
-        else:
+        if training == True:
             # compute ratio
             real_ratio = np.sum(mask_numpy) / mask.numel()
             # check data

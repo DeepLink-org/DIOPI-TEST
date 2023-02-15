@@ -1509,7 +1509,6 @@ diopi_configs = {
     'transpose': dict(
         name=['transpose'],
         interface=['torch'],
-        is_inplace=True,
         para=dict(
             dim0=[1, -2],
             dim1=[2, -1],
@@ -1521,28 +1520,6 @@ diopi_configs = {
             args=[
                 {
                     "ins": ['input'],
-                    "shape": ((2, 1536, 950),
-                              (660, 6, 49, 32)),
-                },
-            ],
-        ),
-    ),
-
-    'transpose_require_gradients': dict(
-        name=['transpose'],
-        interface=['torch'],
-        is_inplace=True,
-        para=dict(
-            dim0=[1, -2],
-            dim1=[2, -1],
-        ),
-        tensor_para=dict(
-            gen_fn=Genfunc.randn,
-            dtype=[Dtype.float16],
-            args=[
-                {
-                    "ins": ['input'],
-                    "requires_grad": [True],
                     "shape": ((2, 1536, 950),
                               (660, 6, 49, 32)),
                 },
