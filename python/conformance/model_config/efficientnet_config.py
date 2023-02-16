@@ -1,7 +1,7 @@
 from ..config import Genfunc
 from ..dtype import Dtype
 
-efficientnet_config = { 
+efficientnet_config = {
     'linspace': dict(
         name=["linspace"],
         interface=["torch"],
@@ -273,6 +273,9 @@ efficientnet_config = {
 
     'cross_entropy': dict(
         name=["cross_entropy"],
+        para=dict(
+            reduction=['none'],
+        ),
         tensor_para=dict(
             args=[
                 {

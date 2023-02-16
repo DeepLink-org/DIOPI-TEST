@@ -1,7 +1,7 @@
 from ..config import Genfunc
 from ..dtype import Dtype
 
-mobilenet_v2_config = { 
+mobilenet_v2_config = {
     'randperm': dict(
         name=["randperm"],
         no_output_ref=True,
@@ -193,6 +193,9 @@ mobilenet_v2_config = {
 
     'cross_entropy': dict(
         name=["cross_entropy"],
+        para=dict(
+            reduction=['none'],
+        ),
         tensor_para=dict(
             args=[
                 {

@@ -7,8 +7,11 @@ from .densenet_config import densenet_config
 from .vgg16_config import vgg16_config
 from .repvgg_config import repvgg_config
 from .shufflenet_v2_config import shufflenet_v2_config
+from .swin_transformer_config import swin_transformer_config
+from .vit_config import vit_config
 
 
 __all__ = ['resnet50_config', 'resnet101_config', 'mobilenet_v2_config',
            'efficientnet_config', 'seresnet50_config', 'densenet_config',
-           'vgg16_config', 'vgg16_config', 'shufflenet_v2_config']
+           'vgg16_config', 'vgg16_config', 'shufflenet_v2_config',
+           'swin_transformer_config', 'vit_config']

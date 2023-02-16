@@ -52,6 +52,14 @@ def reduce_op_process(input, dim=None, keepdim=False, dtype=None):
     return dim_list, out
 
 
+def need_promote_dtype(input):
+    all_int_dtype = [Dtype.int8, Dtype.int16, Dtype.int32, Dtype.int64,
+                     Dtype.uint8, Dtype.uint16, Dtype.uint32, Dtype.uint64, Dtype.bool]
+    if input.get_dtype() in all_int_dtype:
+        return True
+    return False
+
+
 def fill_(input, value):
     func = check_function("diopiFill")
     value = byref(Scalar(value))
@@ -250,6 +258,8 @@ def lt(input, other, inplace=False) -> Tensor:
 
 
 def mul(input, other, inplace=False) -> Tensor:
+    if need_promote_dtype(input):
+        return binary_op_scalar(input, other, inplace, 'diopiMul', dtype=Dtype.float32)
     return binary_op_scalar(input, other, inplace, 'diopiMul')
 
 
@@ -1205,7 +1215,7 @@ def batch_norm(input, running_mean, running_var, weight=None, bias=None,
     return out
 
 
-def log_softmax(input, dim, dtype=None):
+def log_softmax(input, dim=None, dtype=None):
     if dim is None:
         dim = 0
     if input.numel() == 0:
