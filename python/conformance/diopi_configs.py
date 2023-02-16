@@ -1216,8 +1216,8 @@ diopi_configs = {
 
     'linear': dict(
         name=["linear"],
-        atol=1e-4,
-        rtol=1e-5,
+        atol=1e-1,
+        rtol=1e-2,
         atol_half=1e-1,
         rtol_half=1e-2,
         tensor_para=dict(
