@@ -1,7 +1,7 @@
 from ..config import Genfunc
 from ..dtype import Dtype
 
-resnet50_config = { 
+resnet50_config = {
     'randperm': dict(
         name=["randperm"],
         no_output_ref=True,
@@ -214,6 +214,9 @@ resnet50_config = {
 
     'cross_entropy': dict(
         name=["cross_entropy"],
+        para=dict(
+            reduction=['none'],
+        ),
         tensor_para=dict(
             args=[
                 {

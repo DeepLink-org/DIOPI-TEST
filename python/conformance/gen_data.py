@@ -196,8 +196,8 @@ def gen_tensor(arg: dict) -> np.ndarray:
             shape = (1,)
         if isinstance(arg["gen_fn"], int):
             gen_fn = arg["gen_fn"]
-            low=0
-            high=10
+            low = 0
+            high = 10
         else:
             gen_fn = arg["gen_fn"]["fn"]
             assert (gen_fn == Genfunc.randint), "only randint needs args"
@@ -331,7 +331,7 @@ class GenInputData(object):
     @staticmethod
     def run(func_name, model_name, filter_dtype_str_list):
 
-        if model_name !=  "":
+        if model_name != "":
             diopi_config = model_name + "_config"
             configs = Config.process_configs(eval(diopi_config))
         else:

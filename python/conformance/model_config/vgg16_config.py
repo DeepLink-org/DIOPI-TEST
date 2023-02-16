@@ -1,7 +1,7 @@
 from ..config import Genfunc
 from ..dtype import Dtype
 
-vgg16_config = { 
+vgg16_config = {
     'randperm': dict(
         name=["randperm"],
         no_output_ref=True,
@@ -116,6 +116,7 @@ vgg16_config = {
 
     'dropout': dict(
         name=["dropout"],
+        no_output_ref=True,
         para=dict(
             p=[0.5],
             training=[True],
@@ -135,6 +136,9 @@ vgg16_config = {
 
     'cross_entropy': dict(
         name=["cross_entropy"],
+        para=dict(
+            reduction=['none'],
+        ),
         tensor_para=dict(
             args=[
                 {
