@@ -8,6 +8,17 @@ from . import Dtype, raw_like
 from collections import namedtuple
 import numpy as np
 
+import torch
+# torch.Tensor to Tensor
+def convert_torch_tensor(input) -> Tensor:
+    input_np = input.numpy()
+    return Tensor.from_numpy(input_np)
+
+# Tensor to torch.Tensor
+def convert_cf_tensor(input) -> torch.Tensor:
+    input_np = input.numpy()
+    return torch.from_numpy(input_np)
+
 
 def broadcast_out_size(size1, size2):
     sizeO = size1 if len(size1) > len(size2) else size2
@@ -79,6 +90,7 @@ def unary_op(input, inplace, call) -> Tensor:
         func = check_function(call)
         ret = func(input.context_handle, input.tensor_handle)
     else:
+        print(f"tensor type={type(input)}")
         out = raw_like(input)
         func = check_function(call)
         ret = func(input.context_handle, out.tensor_handle,
@@ -160,6 +172,12 @@ def softmax(input, dim, dtype=None):
 def relu(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiRelu')
 
+def caikun_relu(input, inplace=False) -> Tensor:
+    print("enter into caikun relu")
+    input_cf = convert_torch_tensor(input)
+    result = relu(input_cf, inplace)
+    return convert_cf_tensor(result)
+
 
 def abs(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiAbs')
@@ -222,7 +240,19 @@ def add(input, other, inplace=False, alpha=1) -> Tensor:
 
 
 def sub(input, other, inplace=False, alpha=1.0) -> Tensor:
-    return binary_op_scalar(input, other, inplace, 'diopiSub', alpha=alpha)
+    print("enter into sub")
+    result = binary_op_scalar(input, other, inplace, 'diopiSub', alpha=alpha)
+    return result
+
+
+# input: torch.Tensor
+# output: torch.Tensor
+def caikun_sub(input, other, inplace=False, alpha=1.0) -> torch.Tensor:
+    print("enter into caikun sub")
+    input_cf = convert_torch_tensor(input)
+    other_cf = convert_torch_tensor(other)
+    result = sub(input_cf, other_cf, inplace, alpha)
+    return convert_cf_tensor(result)
 
 
 def eq(input, other, inplace=False) -> Tensor:
