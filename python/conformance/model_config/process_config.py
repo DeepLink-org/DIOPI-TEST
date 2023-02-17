@@ -1,13 +1,36 @@
 import cv_config
 import seg_config
 import os
+import det_config
 
-unary_op = {'input': 'tensor', 'inplace': 'para/key'}
+unary_op = {'input': 'tensor'}
+unary_inp_op = {'input': 'tensor', 'inplace': 'para/key'}
+binary_op = {'input': 'tensor', 'other': 'tensor'}
+reduce_op = {'input': 'tensor', 'dim': 'para/key'}
+
 func_para = dict(
-    relu=unary_op,
-    floor=unary_op,
-    neg=unary_op,
-    reciprocal=unary_op,
+    relu=unary_inp_op,
+    floor=unary_inp_op,
+    neg=unary_inp_op,
+    reciprocal=unary_inp_op,
+    abs=unary_inp_op,
+    leaky_relu=unary_inp_op,
+    nonzero=unary_op,
+    sqrt=unary_op,
+    log=unary_op,
+    log2=unary_op,
+    bitwise_not=unary_op,
+    exp=unary_op,
+    logical_and=binary_op,
+    matmul=binary_op,
+    ge=binary_op,
+    le=binary_op,
+    lt=binary_op,
+    gt=binary_op,
+    all=reduce_op,
+    any=reduce_op,
+    max=reduce_op,
+    min=reduce_op,
     conv2d={"input": "tensor/grad", "weight": "tensor/grad", "bias": "tensor/none/grad",
             "stride": "para", "padding": "para", "dilation": "para", "groups": "para"},
     batch_norm={"input": "tensor/grad", "running_mean": "tensor", "running_var": "tensor", "weight": "tensor/none/grad",
@@ -39,7 +62,6 @@ func_para = dict(
     one_hot={'input': 'tensor', 'num_classes': 'para/key'},
     layer_norm={'input': 'tensor/grad', 'normalized_shape': 'para/key', 'weight': 'tensor/none/grad', 'bias': 'tensor/none/grad', 'eps': 'para/key'},
     permute={'input': 'tensor', 'dims': 'para/key'},
-    matmul={'input': 'tensor', 'other': 'tensor'},
     softmax={'input': 'tensor', 'dim': 'para', 'dtype': 'para/key'},
     gelu={'input': 'tensor/grad', 'approximate': 'para/key'},
     roll={'input': 'tensor', 'shifts': 'para/key', 'dims': 'para/key'},
@@ -54,11 +76,21 @@ func_para = dict(
     stack={'tensors': "tensorlist", 'dim': "para/key"},
     clamp={'input': 'tensor', 'min': 'tensor/scalar/key', 'max': 'tensor/scalar/key', 'inplace': 'para/key'},
     addcmul={'input': 'tensor', 'tensor1': 'tensor', 'tensor2': 'tensor', 'value': 'para/key'},
-    sqrt={'input': "tensor"},
     addcdiv={'input': 'tensor', 'tensor1': 'tensor', 'tensor2': 'tensor', 'value': 'para/key'},
     expand={'input': 'tensor', 'size': 'para'},
     tanh={'input': "tensor/grad"},
+    pow={'input': 'tensor/para', 'exponent': 'tensor/para'},
+    index_select={'input': 'tensor', 'dim': 'para', 'index': 'tensor'},
+    split={'input': 'tensor', 'split_size_or_sections': 'para', 'dim': 'para/key'},
+    mse_loss={'input': 'tensor', 'target': 'tensor', 'size_average': 'para/key', 'reduce': 'para/key', 'reduction': 'para/key'},
+    binary_cross_entropy_with_logits={'input': 'tensor', 'target': 'tensor', 'weight': 'tensor/none', 'size_average': 'para/key',
+                                      'reduce': 'para/key', 'reduction': 'para/key', 'pos_weight': 'tensor/none'},
+    interpolate={'input': 'tensor', 'size': 'para/key', 'mode': 'para/key', 'align_corners': 'para/key'},
+    where={'condition': 'tensor', 'input': 'tensor/scalar', 'other': 'tensor/scalar'},
+    sort={'input': 'tensor', 'dim': 'para/key', 'descending': 'para/key', 'stable': 'para/key'},
     uniform={'input': 'tensor', 'start': 'para/key', 'end': 'para/key'},
+    unique={'input': 'tensor', 'sorted': 'para/key', 'return_inverse': 'para/key', 'return_counts': 'para/key', 'dim': 'para/key'},
+    topk={'input': 'tensor', 'k': 'para', 'dim': 'para/key', 'largest': 'para/key', 'sorted': 'para/key'},
     adamw={'param", "param_grad': "tensor", 'exp_avg", "exp_avg_sq", "max_exp_avg_sq': "tensor", 'step': 'para',
            "amsgrad": "para/key", "beta1": "para/key", "beta2": "para/key", "lr": "para/key", "weight_decay": "para/key", "eps": "para/key"},
     interpolate={'input': 'tensor', 'size': 'para/key', 'mode': 'para/key', 'align_corners': 'para/key'},
@@ -66,8 +98,10 @@ func_para = dict(
 
 )
 convert_name = {'iadd': "add", 'radd': "add", 'add_': "add", 'rmul': 'mul', 'truediv': 'div', 'rtruediv': 'div',
-                'mul_': 'mul','div_':'div', 'addcmul_': 'addcmul', 'addcdiv_': 'addcdiv', 'uniform_': 'uniform', 'rand': 'uniform','relu_':'relu'}
-inplace_tag = ['iadd', 'mul_', 'div_']
+                'mul_': 'mul', 'addcmul_': 'addcmul', 'addcdiv_': 'addcdiv', 'uniform_': 'uniform', 'rand': 'uniform',
+                'and': 'logical_and', 'sub_': 'sub', 'div_': 'div', 'imul': 'mul', 'clamp_': 'clamp', 'sigmoid_': 'sigmoid',
+                'itruediv': 'div', 'invert': 'bitwise_not', 'rsub': 'sub', 'expand_as': 'expand', 't': 'transpose'}
+inplace_tag = ['iadd', 'imul', 'mul_', 'sub_', 'div_', 'clamp_', 'sigmoid_', 'itruediv']
 interface_tag = {"sgd": "CustomizedTest", "adamw": "CustomizedTest", 'im2col': 'CustomizedTest'}
 no_output_ref = ['randperm', 'uniform', 'dropout']
 saved_args = {"sigmoid": "0", 'softmax': '0', 'log_softmax': '0', 'tanh': '0'}
@@ -76,7 +110,8 @@ tensor_vide = "                    "
 para_vide = "            "
 key_vide = "        "
 seq_name = ['cat', 'stack']
-
+ignore_list = ['getitem', 'relu_', 'setitem', 'get_rank', 'get_world_size', 'barrier',
+               'load', 'broadcast', 'repeat', 'all_reduce']
 
 def toDtype(dtype, tensor_para):
     if dtype == 'torch.cuda.FloatTensor':
@@ -130,7 +165,8 @@ def gen_config_code(config, file_name):
         idx = 0
         type_idx = 0
         if name not in func_para.keys():
-            print(f"%%%%%%% miss definition for {name} while generate {file_name}.py %%%%%%%%%%\n")
+            if name not in ignore_list:
+                print(f"%%%%%%% miss definition for {name} while generate {file_name}.py %%%%%%%%%%\n")
             continue
         if ele[0] in inplace_tag:
             config.append(key_vide + 'is_inplace=[True],\n')
@@ -211,6 +247,12 @@ def gen_config_code(config, file_name):
             for e in para:
                 config.append(e)
             config.append(key_vide + "),\n")
+        if ele[0] == 't':
+            config.append(key_vide + "para=dict(\n")
+            length = len(para_list[0])
+            config.append(para_vide + 'dim0=[0 for i in range(' + str(length) + ")],\n")
+            config.append(para_vide + 'dim1=[1 for i in range(' + str(length) + ")],\n")
+            config.append(key_vide + "),\n")
         if tensor_para:
             config.append(key_vide + "tensor_para=dict(\n")
             config.append(para_vide + "args=[\n")
@@ -231,22 +273,27 @@ def gen_config_code(config, file_name):
 
 
 if __name__ == '__main__':
-    config_dict = {##"resnet50_config": cv_config.resnet50_8xb32_in1k_config,
-                #    'resnet101_config': cv_config.resnet101_8xb32_in1k_config,
-                #    'densenet_config': cv_config.densenet121_4xb256_in1k_config,
-                #    'seresnet50_config': cv_config.seresnet50_8xb32_in1k_config,
-                #    'efficientnet_config': cv_config.efficientnet_b2_8xb32_in1k_config,
-                #    "mobilenet_v2_config": cv_config.mobilenet_v2_8xb32_in1k_config,
-                #    "repvgg_config": cv_config.repvgg_A0_4xb64_coslr_120e_in1k_config,
-                #    "shufflenet_v2_config": cv_config.shufflenet_v2_1x_16xb64_in1k_config,
-                #    "swin_transformer_config": cv_config.swin_base_16xb64_in1k_config,
-                #    "vit_config": cv_config.vit_base_p16_pt_64xb64_in1k_224_config,
-                #    "vgg16_config": cv_config.vgg16_8xb32_in1k_config,
-                   "unet_config":seg_config.fcn_unet_s5_d16_4x4_512x1024_160k_cityscapes_config,
-                    "fcn_config":seg_config.fcn_d6_r50_d16_512x1024_40k_cityscapes_config,
-                    "deeplabv3_config":seg_config.deeplabv3_r50_d8_512x1024_40k_cityscapes_config,
-                    "deeplabv3plus_config":seg_config.deeplabv3plus_r50_d8_512x1024_40k_cityscapes_config,
-                    "pspnet_config":seg_config.pspnet_r50_d8_512x1024_40k_cityscapes_config,
-                    "upernet_config":seg_config.upernet_r50_512x1024_40k_cityscapes_config}
+    cv_config_dict = {"resnet50_config": cv_config.resnet50_8xb32_in1k_config,
+                   'resnet101_config': cv_config.resnet101_8xb32_in1k_config,
+                   'densenet_config': cv_config.densenet121_4xb256_in1k_config,
+                   'seresnet50_config': cv_config.seresnet50_8xb32_in1k_config,
+                   'efficientnet_config': cv_config.efficientnet_b2_8xb32_in1k_config,
+                   "mobilenet_v2_config": cv_config.mobilenet_v2_8xb32_in1k_config,
+                   "repvgg_config": cv_config.repvgg_A0_4xb64_coslr_120e_in1k_config,
+                   "shufflenet_v2_config": cv_config.shufflenet_v2_1x_16xb64_in1k_config,
+                   "swin_transformer_config": cv_config.swin_base_16xb64_in1k_config,
+                   "vit_config": cv_config.vit_base_p16_pt_64xb64_in1k_224_config,
+                   "vgg16_config": cv_config.vgg16_8xb32_in1k_config}
+    det_config_dict = {"faster_rcnn_r50_config": det_config.faster_rcnn_r50_fpn_1x_coco_config,
+                       "retinanet_config": det_config.retinanet_r18_fpn_1x_coco_config,
+                       "ascend_ssd300_config": det_config.ascend_ssd300_coco_config,
+                       "yolov3_config": det_config.yolov3_mobilenetv2_mstrain_416_300e_coco_config}
+    seg_config_dict = {"unet_config": seg_config.fcn_unet_s5_d16_4x4_512x1024_160k_cityscapes_config,
+                       "fcn_config": seg_config.fcn_d6_r50_d16_512x1024_40k_cityscapes_config,
+                       "deeplabv3_config": seg_config.deeplabv3_r50_d8_512x1024_40k_cityscapes_config,
+                       "deeplabv3plus_config": seg_config.deeplabv3plus_r50_d8_512x1024_40k_cityscapes_config,
+                       "pspnet_config": seg_config.pspnet_r50_d8_512x1024_40k_cityscapes_config,
+                       "upernet_config": seg_config.upernet_r50_512x1024_40k_cityscapes_config}
+    config_dict = det_config_dict
     for k, v in config_dict.items():
         gen_config_code(v, k)

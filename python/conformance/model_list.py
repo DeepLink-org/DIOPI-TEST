@@ -1,5 +1,6 @@
 model_list = ['resnet50', 'vgg16', 'resnet101', 'seresnet50', 'densenet', 'mobilenet_v2',
-              'efficientnet', 'shufflenet_v2', 'repvgg', 'swin_transformer', 'vit']
+              'efficientnet', 'shufflenet_v2', 'repvgg', 'swin_transformer', 'vit',
+              'retinanet', 'faster_rcnn_r50', 'ascend_ssd300', 'yolov3']
 
 model_op_list = {
     'resnet50': ['sgd', 'randperm', 'conv2d', 'add', 'batch_norm', 'relu', 'adaptive_avg_pool2d', 'linear', 'cross_entropy', 'sum', 'mean', 'mul', 'div'],
