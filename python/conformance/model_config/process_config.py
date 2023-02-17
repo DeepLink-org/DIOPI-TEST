@@ -1,4 +1,5 @@
 import cv_config
+import seg_config
 import os
 
 unary_op = {'input': 'tensor', 'inplace': 'para/key'}
@@ -60,11 +61,13 @@ func_para = dict(
     uniform={'input': 'tensor', 'start': 'para/key', 'end': 'para/key'},
     adamw={'param", "param_grad': "tensor", 'exp_avg", "exp_avg_sq", "max_exp_avg_sq': "tensor", 'step': 'para',
            "amsgrad": "para/key", "beta1": "para/key", "beta2": "para/key", "lr": "para/key", "weight_decay": "para/key", "eps": "para/key"},
+    interpolate={'input': 'tensor', 'size': 'para/key', 'mode': 'para/key', 'align_corners': 'para/key'},
+    topk={'input':'tensor','k':'para','dim':'para/key','largest':'para/key','sorted':'para/key'},
 
 )
 convert_name = {'iadd': "add", 'radd': "add", 'add_': "add", 'rmul': 'mul', 'truediv': 'div', 'rtruediv': 'div',
-                'mul_': 'mul', 'addcmul_': 'addcmul', 'addcdiv_': 'addcdiv', 'uniform_': 'uniform', 'rand': 'uniform'}
-inplace_tag = ['iadd', 'mul_']
+                'mul_': 'mul','div_':'div', 'addcmul_': 'addcmul', 'addcdiv_': 'addcdiv', 'uniform_': 'uniform', 'rand': 'uniform','relu_':'relu'}
+inplace_tag = ['iadd', 'mul_', 'div_']
 interface_tag = {"sgd": "CustomizedTest", "adamw": "CustomizedTest", 'im2col': 'CustomizedTest'}
 no_output_ref = ['randperm', 'uniform', 'dropout']
 saved_args = {"sigmoid": "0", 'softmax': '0', 'log_softmax': '0', 'tanh': '0'}
@@ -181,6 +184,8 @@ def gen_config_code(config, file_name):
                     if name in ['sgd', 'adamw'] and not isinstance(kpara_list[k], list):
                         para.append(para_vide + str(k) + "=[" + str(kpara_list[k]) + f" for i in range({len(para_list[0])})],\n")
                     else:
+                        if name == 'interpolate' and k == 'size':
+                            kpara_list[k] = [ tuple(e) for e in kpara_list[k]]
                         if not isinstance(kpara_list[k], list):
                             kpara_list[k] = [kpara_list[k]]
                         para.append(para_vide + str(k) + "=" + str(kpara_list[k]) + ",\n")
@@ -226,16 +231,22 @@ def gen_config_code(config, file_name):
 
 
 if __name__ == '__main__':
-    config_dict = {"resnet50_config": cv_config.resnet50_8xb32_in1k_config,
-                   'resnet101_config': cv_config.resnet101_8xb32_in1k_config,
-                   'densenet_config': cv_config.densenet121_4xb256_in1k_config,
-                   'seresnet50_config': cv_config.seresnet50_8xb32_in1k_config,
-                   'efficientnet_config': cv_config.efficientnet_b2_8xb32_in1k_config,
-                   "mobilenet_v2_config": cv_config.mobilenet_v2_8xb32_in1k_config,
-                   "repvgg_config": cv_config.repvgg_A0_4xb64_coslr_120e_in1k_config,
-                   "shufflenet_v2_config": cv_config.shufflenet_v2_1x_16xb64_in1k_config,
-                   "swin_transformer_config": cv_config.swin_base_16xb64_in1k_config,
-                   "vit_config": cv_config.vit_base_p16_pt_64xb64_in1k_224_config,
-                   "vgg16_config": cv_config.vgg16_8xb32_in1k_config}
+    config_dict = {##"resnet50_config": cv_config.resnet50_8xb32_in1k_config,
+                #    'resnet101_config': cv_config.resnet101_8xb32_in1k_config,
+                #    'densenet_config': cv_config.densenet121_4xb256_in1k_config,
+                #    'seresnet50_config': cv_config.seresnet50_8xb32_in1k_config,
+                #    'efficientnet_config': cv_config.efficientnet_b2_8xb32_in1k_config,
+                #    "mobilenet_v2_config": cv_config.mobilenet_v2_8xb32_in1k_config,
+                #    "repvgg_config": cv_config.repvgg_A0_4xb64_coslr_120e_in1k_config,
+                #    "shufflenet_v2_config": cv_config.shufflenet_v2_1x_16xb64_in1k_config,
+                #    "swin_transformer_config": cv_config.swin_base_16xb64_in1k_config,
+                #    "vit_config": cv_config.vit_base_p16_pt_64xb64_in1k_224_config,
+                #    "vgg16_config": cv_config.vgg16_8xb32_in1k_config,
+                   "unet_config":seg_config.fcn_unet_s5_d16_4x4_512x1024_160k_cityscapes_config,
+                    "fcn_config":seg_config.fcn_d6_r50_d16_512x1024_40k_cityscapes_config,
+                    "deeplabv3_config":seg_config.deeplabv3_r50_d8_512x1024_40k_cityscapes_config,
+                    "deeplabv3plus_config":seg_config.deeplabv3plus_r50_d8_512x1024_40k_cityscapes_config,
+                    "pspnet_config":seg_config.pspnet_r50_d8_512x1024_40k_cityscapes_config,
+                    "upernet_config":seg_config.upernet_r50_512x1024_40k_cityscapes_config}
     for k, v in config_dict.items():
         gen_config_code(v, k)
