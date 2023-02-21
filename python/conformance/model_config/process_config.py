@@ -23,6 +23,8 @@ func_para = dict(
     exp=unary_op,
     logical_and=binary_op,
     matmul=binary_op,
+    maximum=binary_op,
+    minimum=binary_op,
     ge=binary_op,
     le=binary_op,
     lt=binary_op,
@@ -35,12 +37,12 @@ func_para = dict(
             "stride": "para", "padding": "para", "dilation": "para", "groups": "para"},
     batch_norm={"input": "tensor/grad", "running_mean": "tensor", "running_var": "tensor", "weight": "tensor/none/grad",
                 "bias": "tensor/none/grad", "training": "para", "momentum": "para", "eps": "para"},
-    max_pool2d={"input": "tensor/grad", "kernel_size": "para", "stride": "para", "padding": "para",
-                "dilation": "para", "ceil_mode": "para", "return_indices": "para"},
+    max_pool2d={"input": "tensor/grad", "kernel_size": "para", "stride": "para/key", "padding": "para/key",
+                "dilation": "para/key", "ceil_mode": "para/key", "return_indices": "par/key"},
     adaptive_avg_pool2d={"input": "tensor/grad", "output_size": "para"},
     linear={"input": "tensor/grad", "weight": "tensor/grad", "bias": "tensor/none/grad"},
     cross_entropy={"input": "tensor/grad", "target": "tensor", "weight": "tensor/none/grad", "size_average": "para/key",
-                   "ignore_index/key": "para", "reduce": "para/key", "reduction": "para/key", "label_smoothing": "para/key"},
+                   "ignore_index": "para/key", "reduce": "para/key", "reduction": "para/key", "label_smoothing": "para/key"},
     add={"input": "tensor", "other": "tensor/scalar", "alpha": "para/key"},
     sum={"input": "tensor", "dim": "para/key", "dtype": "para/key"},
     mean={"input": "tensor", "dim": "para/key", "dtype": "para/key"},
@@ -62,7 +64,7 @@ func_para = dict(
     one_hot={'input': 'tensor', 'num_classes': 'para/key'},
     layer_norm={'input': 'tensor/grad', 'normalized_shape': 'para/key', 'weight': 'tensor/none/grad', 'bias': 'tensor/none/grad', 'eps': 'para/key'},
     permute={'input': 'tensor', 'dims': 'para/key'},
-    softmax={'input': 'tensor', 'dim': 'para', 'dtype': 'para/key'},
+    softmax={'input': 'tensor', 'dim': 'para/key', 'dtype': 'para/key'},
     gelu={'input': 'tensor/grad', 'approximate': 'para/key'},
     roll={'input': 'tensor', 'shifts': 'para/key', 'dims': 'para/key'},
     sub={"input": "tensor", "other": "tensor/scalar", "alpha": "para/key"},
@@ -85,7 +87,7 @@ func_para = dict(
     mse_loss={'input': 'tensor', 'target': 'tensor', 'size_average': 'para/key', 'reduce': 'para/key', 'reduction': 'para/key'},
     binary_cross_entropy_with_logits={'input': 'tensor', 'target': 'tensor', 'weight': 'tensor/none', 'size_average': 'para/key',
                                       'reduce': 'para/key', 'reduction': 'para/key', 'pos_weight': 'tensor/none'},
-    interpolate={'input': 'tensor', 'size': 'para/key', 'mode': 'para/key', 'align_corners': 'para/key'},
+    interpolate={'input': 'tensor', 'size': 'para/key', 'scale_factor': 'para/key', 'mode': 'para/key', 'align_corners': 'para/key'},
     where={'condition': 'tensor', 'input': 'tensor/scalar', 'other': 'tensor/scalar'},
     sort={'input': 'tensor', 'dim': 'para/key', 'descending': 'para/key', 'stable': 'para/key'},
     uniform={'input': 'tensor', 'start': 'para/key', 'end': 'para/key'},
@@ -93,9 +95,6 @@ func_para = dict(
     topk={'input': 'tensor', 'k': 'para', 'dim': 'para/key', 'largest': 'para/key', 'sorted': 'para/key'},
     adamw={'param", "param_grad': "tensor", 'exp_avg", "exp_avg_sq", "max_exp_avg_sq': "tensor", 'step': 'para',
            "amsgrad": "para/key", "beta1": "para/key", "beta2": "para/key", "lr": "para/key", "weight_decay": "para/key", "eps": "para/key"},
-    interpolate={'input': 'tensor', 'size': 'para/key', 'mode': 'para/key', 'align_corners': 'para/key'},
-    topk={'input':'tensor','k':'para','dim':'para/key','largest':'para/key','sorted':'para/key'},
-
 )
 convert_name = {'iadd': "add", 'radd': "add", 'add_': "add", 'rmul': 'mul', 'truediv': 'div', 'rtruediv': 'div',
                 'mul_': 'mul', 'addcmul_': 'addcmul', 'addcdiv_': 'addcdiv', 'uniform_': 'uniform', 'rand': 'uniform',
@@ -126,6 +125,21 @@ def toDtype(dtype, tensor_para):
     elif dtype == 'torch.cuda.BoolTensor':
         tensor_para.append(tensor_vide + '"dtype": [Dtype.bool],\n')
         tensor_para.append(tensor_vide + '"gen_fn": Genfunc.mask,\n')
+    elif dtype == 'torch.cuda.IntTensor':
+        tensor_para.append(tensor_vide + '"dtype": [Dtype.int32],\n')
+        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.randint,\n')
+    elif dtype == 'torch.cuda.ByteTensor':
+        tensor_para.append(tensor_vide + '"dtype": [Dtype.uint8],\n')
+        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.randint,\n')
+    elif dtype == 'torch.cuda.CharTensor':
+        tensor_para.append(tensor_vide + '"dtype": [Dtype.int8],\n')
+        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.randn,\n')
+    elif dtype == 'torch.cuda.HalfTensor':
+        tensor_para.append(tensor_vide + '"dtype": [Dtype.float16],\n')
+        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.randn,\n')
+    elif dtype == 'torch.cuda.ShortTensor':
+        tensor_para.append(tensor_vide + '"dtype": [Dtype.int16],\n')
+        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.randn,\n')
     elif isinstance(dtype, list):
         dtype_list = [ele.replace("torch", "Dtype") for ele in dtype]
         dtype_list = list(set(dtype_list))
@@ -147,6 +161,10 @@ def gen_config_code(config, file_name):
         name = ele[0]
         if name == 'unfold' and ele[1] == 'torch.nn.functional':
             name = 'im2col'
+        if name == 'max' and len(ele[2]) == 2:
+            name = 'maximum'
+        if name == 'min' and len(ele[2]) == 2:
+            name = 'minimum'
         if name in convert_name.keys():
             name = convert_name[name]
         para = []
@@ -216,7 +234,7 @@ def gen_config_code(config, file_name):
                     tensor_para.append(para_vide + "    },\n")
 
             if is_para:
-                if "key" in v and k in kpara_list.keys():
+                if k in kpara_list.keys():
                     if name in ['sgd', 'adamw'] and not isinstance(kpara_list[k], list):
                         para.append(para_vide + str(k) + "=[" + str(kpara_list[k]) + f" for i in range({len(para_list[0])})],\n")
                     else:
@@ -224,9 +242,9 @@ def gen_config_code(config, file_name):
                             kpara_list[k] = [ tuple(e) for e in kpara_list[k]]
                         if not isinstance(kpara_list[k], list):
                             kpara_list[k] = [kpara_list[k]]
-                        para.append(para_vide + str(k) + "=" + str(kpara_list[k]) + ",\n")
+                        para.append(para_vide + str(k) + "=" + str(kpara_list[k]).replace("torch.", "Dtype.") + ",\n")
                 elif idx < len(para_list):
-                    if name in ['permute', 'expand'] and idx + 1 < len(para_list):
+                    if name in ['permute', 'expand'] and not isinstance(para_list[idx][0], tuple):
                         dims_list = []
                         for i in range(len(para_list[idx])):
                             dims = [para_list[j][i] for j in range(idx, len(para_list))]
@@ -237,7 +255,13 @@ def gen_config_code(config, file_name):
                         idx += 3
                         step_list = [e[0] for e in para_list[idx]]
                         para_list[idx] = step_list
+
+                    if name == 'arange' and idx == len(para_list)-1 and k == 'start':
+                        k = 'end'
                     para.append(para_vide + str(k) + "=" + str(para_list[idx]) + ",\n")
+                elif "key" not in v:
+                    print(f"%%%%%%% miss definition for {k} while generate {name} op while generate {file_name}.py %%%%%%%%%%\n")
+                    continue
                 else:
                     continue
             idx += 1
@@ -284,16 +308,16 @@ if __name__ == '__main__':
                    "swin_transformer_config": cv_config.swin_base_16xb64_in1k_config,
                    "vit_config": cv_config.vit_base_p16_pt_64xb64_in1k_224_config,
                    "vgg16_config": cv_config.vgg16_8xb32_in1k_config}
-    det_config_dict = {"faster_rcnn_r50_config": det_config.faster_rcnn_r50_fpn_1x_coco_config,
-                       "retinanet_config": det_config.retinanet_r18_fpn_1x_coco_config,
+    det_config_dict = {"faster_rcnn_r50_config": det_config.faster_rcnn_r101_fpn_1x_coco_config,
+                       "retinanet_config": det_config.retinanet_r50_fpn_1x_coco_config,
                        "ascend_ssd300_config": det_config.ascend_ssd300_coco_config,
-                       "yolov3_config": det_config.yolov3_mobilenetv2_mstrain_416_300e_coco_config}
+                       "yolov3_config": det_config.yolov3_d53_320_273e_coco_config}
     seg_config_dict = {"unet_config": seg_config.fcn_unet_s5_d16_4x4_512x1024_160k_cityscapes_config,
                        "fcn_config": seg_config.fcn_d6_r50_d16_512x1024_40k_cityscapes_config,
                        "deeplabv3_config": seg_config.deeplabv3_r50_d8_512x1024_40k_cityscapes_config,
                        "deeplabv3plus_config": seg_config.deeplabv3plus_r50_d8_512x1024_40k_cityscapes_config,
                        "pspnet_config": seg_config.pspnet_r50_d8_512x1024_40k_cityscapes_config,
                        "upernet_config": seg_config.upernet_r50_512x1024_40k_cityscapes_config}
-    config_dict = det_config_dict
+    config_dict = seg_config_dict
     for k, v in config_dict.items():
         gen_config_code(v, k)

@@ -120,21 +120,6 @@ unet_config = {
         ),
     ),
 
-    'relu_1': dict(
-        name=["relu"],
-        interface=["torch"],
-        tensor_para=dict(
-            args=[
-                {
-                    "ins": ["input"],
-                    "shape": [(4, 64, 512, 1024), (4, 128, 256, 512), (4, 256, 128, 256), (4, 512, 64, 128), (4, 1024, 32, 64), (4, 64, 256, 512)],
-                    "dtype": [Dtype.float32],
-                    "gen_fn": Genfunc.randn,
-                },
-            ],
-        ),
-    ),
-
     'max_pool2d': dict(
         name=["max_pool2d"],
         para=dict(
@@ -162,8 +147,9 @@ unet_config = {
         name=["interpolate"],
         para=dict(
             size=[(64, 128), (128, 256), (256, 512), (512, 1024), (512, 1024), (512, 1024)],
-            mode=[None, None, None, None, None, None],
-            align_corners=['bilinear', 'bilinear', 'bilinear', 'bilinear', 'bilinear', 'bilinear'],
+            scale_factor=[None, None, None, None, None, None],
+            mode=['bilinear', 'bilinear', 'bilinear', 'bilinear', 'bilinear', 'bilinear'],
+            align_corners=[False, False, False, False, False, False],
         ),
         tensor_para=dict(
             args=[
@@ -234,6 +220,7 @@ unet_config = {
     'cross_entropy': dict(
         name=["cross_entropy"],
         para=dict(
+            ignore_index=[255],
             reduction=['none'],
         ),
         tensor_para=dict(
@@ -319,6 +306,24 @@ unet_config = {
                 {
                     "ins": ["input"],
                     "shape": [(4, 1, 512, 1024)],
+                    "dtype": [Dtype.int64],
+                    "gen_fn": Genfunc.randint,
+                },
+            ],
+        ),
+    ),
+
+    'expand': dict(
+        name=["expand"],
+        interface=["torch.Tensor"],
+        para=dict(
+            size=[(1, 4, 512, 1024)],
+        ),
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ["input"],
+                    "shape": [(1, 4, 512, 1024)],
                     "dtype": [Dtype.int64],
                     "gen_fn": Genfunc.randint,
                 },

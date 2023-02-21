@@ -120,21 +120,6 @@ fcn_config = {
         ),
     ),
 
-    'relu_1': dict(
-        name=["relu"],
-        interface=["torch"],
-        tensor_para=dict(
-            args=[
-                {
-                    "ins": ["input"],
-                    "shape": [(2, 32, 256, 512), (2, 64, 256, 512), (2, 64, 128, 256), (2, 256, 128, 256), (2, 128, 128, 256), (2, 128, 64, 128), (2, 512, 64, 128), (2, 256, 64, 128), (2, 256, 32, 64), (2, 1024, 32, 64), (2, 512, 32, 64), (2, 2048, 32, 64)],
-                    "dtype": [Dtype.float32],
-                    "gen_fn": Genfunc.randn,
-                },
-            ],
-        ),
-    ),
-
     'max_pool2d': dict(
         name=["max_pool2d"],
         para=dict(
@@ -238,8 +223,9 @@ fcn_config = {
         name=["interpolate"],
         para=dict(
             size=['torch.Size([512, 1024])'],
-            mode=[None],
-            align_corners=['bilinear'],
+            scale_factor=[None],
+            mode=['bilinear'],
+            align_corners=[False],
         ),
         tensor_para=dict(
             args=[
@@ -256,6 +242,7 @@ fcn_config = {
     'cross_entropy': dict(
         name=["cross_entropy"],
         para=dict(
+            ignore_index=[255],
             reduction=['none'],
         ),
         tensor_para=dict(
@@ -341,6 +328,24 @@ fcn_config = {
                 {
                     "ins": ["input"],
                     "shape": [(2, 1, 512, 1024)],
+                    "dtype": [Dtype.int64],
+                    "gen_fn": Genfunc.randint,
+                },
+            ],
+        ),
+    ),
+
+    'expand': dict(
+        name=["expand"],
+        interface=["torch.Tensor"],
+        para=dict(
+            size=[(1, 2, 512, 1024)],
+        ),
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ["input"],
+                    "shape": [(1, 2, 512, 1024)],
                     "dtype": [Dtype.int64],
                     "gen_fn": Genfunc.randint,
                 },

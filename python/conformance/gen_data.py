@@ -575,6 +575,8 @@ class GenOutputData(object):
                 input = kwargs['input']
                 module = "input"
                 del kwargs['input']
+            if 'dtype' in kwargs.keys():
+                kwargs['dtype'] = eval(str(kwargs['dtype']).replace("Dtype.", "torch."))
             func_call = f"{module}.{cfg_func_name}(**kwargs)"
 
             try:

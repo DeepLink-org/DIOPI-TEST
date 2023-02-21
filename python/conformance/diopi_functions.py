@@ -229,7 +229,7 @@ def add(input, other, inplace=False, alpha=1) -> Tensor:
     return binary_op_scalar(input, other, inplace, 'diopiAdd', alpha=alpha)
 
 
-def sub(input, other, inplace=False, alpha=1.0) -> Tensor:
+def sub(input, other, inplace=False, alpha=1) -> Tensor:
     return binary_op_scalar(input, other, inplace, 'diopiSub', alpha=alpha)
 
 
@@ -2260,7 +2260,8 @@ def smooth_l1_loss_backward(input, grad_outputs, target, reduction='mean', beta=
 
 
 def maximum(input, other) -> Tensor:
-    out = Tensor(input.size(), input.get_dtype())
+    sizeO = broadcast_out_size(list(input.size()), list(other.size()))
+    out = Tensor(sizeO, input.get_dtype())
 
     func = check_function("diopiMaximum")
     ret = func(input.context_handle, out.tensor_handle,
@@ -2270,7 +2271,8 @@ def maximum(input, other) -> Tensor:
 
 
 def minimum(input, other) -> Tensor:
-    out = Tensor(input.size(), input.get_dtype())
+    sizeO = broadcast_out_size(list(input.size()), list(other.size()))
+    out = Tensor(sizeO, input.get_dtype())
 
     func = check_function("diopiMinimum")
     ret = func(input.context_handle, out.tensor_handle,
@@ -2972,10 +2974,21 @@ def scatter(input, dim, index, src=None, value=None, reduce=None, inplace=False)
     return out
 
 
-def interpolate(input, size, mode="nearest", align_corners=None) -> Tensor:
+def interpolate(input, size=None, scale_factor=None, mode="nearest", align_corners=None) -> Tensor:
+    assert size is None or scale_factor is None, "only one of size or scale_factor should be defined"
     sizeI = list(input.size())
-    for i in range(len(size)):
-        sizeI[-i - 1] = size[-i - 1]
+
+    if size is not None:
+        for i in range(len(size)):
+            sizeI[-i - 1] = size[-i - 1]
+    else:
+        dim = len(sizeI) - 2
+        if not isinstance(scale_factor, tuple):
+            scale_factor = [scale_factor for _ in range(dim)]
+            size = [0 for _ in range(dim)]
+        for i in range(dim):
+            sizeI[-i - 1] *= scale_factor[-i - 1]
+            size[-i - 1] = sizeI[-i - 1]
 
     nhwc_stride = compute_nhwc_stride(sizeI) if glob_vars.nhwc else None
     out = Tensor(sizeI, input.get_dtype(), stride=nhwc_stride)

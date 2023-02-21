@@ -1,3 +1,4 @@
+# 11 models for classfication
 from .resnet50_config import resnet50_config
 from .resnet101_config import resnet101_config
 from .mobilenet_v2_config import mobilenet_v2_config
@@ -10,6 +11,7 @@ from .shufflenet_v2_config import shufflenet_v2_config
 from .swin_transformer_config import swin_transformer_config
 from .vit_config import vit_config
 
+# 6 models for segmentation
 from .unet_config import unet_config
 from .upernet_config import upernet_config
 from .fcn_config import fcn_config
@@ -17,6 +19,7 @@ from .pspnet_config import pspnet_config
 from .deeplabv3_config import deeplabv3_config
 from .deeplabv3plus_config import deeplabv3plus_config
 
+# 4 models for detetcion
 from .faster_rcnn_r50_config import faster_rcnn_r50_config
 from .retinanet_config import retinanet_config
 from .ascend_ssd300_config import ascend_ssd300_config
