@@ -761,6 +761,7 @@ diopi_configs = {
         name=['add', 'sub', 'mul', 'div', 'eq',
               'ne', 'le', 'lt', 'gt', 'ge'],
         interface=['torch'],
+        tag=['scalar'],
         is_inplace=True,
         dtype=[Dtype.float32],
         para=dict(
@@ -1877,6 +1878,25 @@ diopi_configs = {
                     "ins": ['input'],
                     "shape": ((2, 4096), (32, 49, 256), (2, 16, 64, 64),
                               (1, 2304, 1, 1, 1)),
+                    "dtype": [Dtype.float32, Dtype.float64],
+                    "gen_fn": Genfunc.randn,
+                },
+            ],
+        ),
+    ),
+
+    'dropout2d': dict(
+        name=["dropout2d"],
+        no_output_ref=True,
+        is_inplace=True,
+        para=dict(
+            p=[0.5, 0.1],
+        ),
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((32, 49, 256), (32, 16, 64, 64)),
                     "dtype": [Dtype.float32, Dtype.float64],
                     "gen_fn": Genfunc.randn,
                 },
