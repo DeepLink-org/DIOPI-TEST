@@ -6,7 +6,6 @@ from .diopi_runtime import Sizes, Scalar, Tensor, TensorHandle, compute_nhwc_str
 from .utils import check_returncode, check_function, glob_vars
 from . import Dtype, raw_like
 from collections import namedtuple
-from enum import Enum
 import numpy as np
 
 

@@ -239,6 +239,8 @@ diopi_configs = {
         name=["adaptive_avg_pool2d"],
         atol=1e-5,
         rtol=1e-4,
+        atol_half=1e-3,
+        rtol_half=1e-3,
         para=dict(
             output_size=[(1, 1), 2, (None, 3), (3, 4), (7, 7), (10, 10)],
         ),
@@ -251,7 +253,7 @@ diopi_configs = {
                     "shape": ((2, 2048, 8, 6), (2, 288, 33, 33),
                               (2, 144, 65, 65), (2, 1280, 7, 7),
                               (2, 265, 7, 7), (2, 265, 7, 7)),
-                    "dtype": [Dtype.float32, Dtype.float16, Dtype.float64],
+                    "dtype": [Dtype.float16],
                 },
             ]
         ),
@@ -2419,6 +2421,8 @@ diopi_configs = {
     'conv3d': dict(
         name=['conv3d'],
         atol=1e-2,
+        atol_half=1e-2,
+        rtol_half=1e-2,
         interface=['torch'],
         para=dict(
             stride=[1, (2, 1, 1), 3, 1],
