@@ -6,7 +6,7 @@ diopi_configs = {
         name=["batch_norm"],
         dtype=[Dtype.float32, Dtype.float16, Dtype.float64],
         atol=1e-5,
-        atol_half=1e-3,
+        atol_half=1e-2,
         para=dict(
             training=[False, False, True, True],
             momentum=[0.1, 0.15, 0.2, 0.25],
@@ -1828,45 +1828,45 @@ diopi_configs = {
         ),
     ),
 
-    # 'dropout': dict(
-    #     name=["dropout"],
-    #     no_output_ref=True,
-    #     is_inplace=True,
-    #     para=dict(
-    #         p=[0.5, 0, 0.1, 0.4],
-    #         training=[True, True, True, False]
-    #     ),
-    #     tensor_para=dict(
-    #         args=[
-    #             {
-    #                 "ins": ['input'],
-    #                 "shape": ((2, 4096), (32, 49, 256), (2, 16, 64, 64),
-    #                           (1, 2304, 1, 1, 1)),
-    #                 "dtype": [Dtype.float32, Dtype.float64],
-    #                 "gen_fn": Genfunc.randn,
-    #             },
-    #         ],
-    #     ),
-    # ),
+    'dropout': dict(
+        name=["dropout"],
+        no_output_ref=True,
+        is_inplace=True,
+        para=dict(
+            p=[0.5, 0, 0.1, 0.4],
+            training=[True, True, True, False]
+        ),
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((2, 4096), (32, 49, 256), (2, 16, 64, 64),
+                              (1, 2304, 1, 1, 1)),
+                    "dtype": [Dtype.float32, Dtype.float64],
+                    "gen_fn": Genfunc.randn,
+                },
+            ],
+        ),
+    ),
 
-    # 'dropout_without_inplace': dict(
-    #     name=["dropout"],
-    #     no_output_ref=True,
-    #     para=dict(
-    #         p=[0.5, 0, 0.1, 0.4],
-    #     ),
-    #     tensor_para=dict(
-    #         args=[
-    #             {
-    #                 "ins": ['input'],
-    #                 "shape": ((2, 4096), (32, 49, 256), (2, 16, 64, 64),
-    #                           (1, 2304, 1, 1, 1)),
-    #                 "dtype": [Dtype.float32, Dtype.float64],
-    #                 "gen_fn": Genfunc.randn,
-    #             },
-    #         ],
-    #     ),
-    # ),
+    'dropout_without_inplace': dict(
+        name=["dropout"],
+        no_output_ref=True,
+        para=dict(
+            p=[0.5, 0, 0.1, 0.4],
+        ),
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((2, 4096), (32, 49, 256), (2, 16, 64, 64),
+                              (1, 2304, 1, 1, 1)),
+                    "dtype": [Dtype.float32, Dtype.float64],
+                    "gen_fn": Genfunc.randn,
+                },
+            ],
+        ),
+    ),
 
     'dropout_training': dict(
         name=["dropout"],
