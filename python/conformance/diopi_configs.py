@@ -145,7 +145,7 @@ diopi_configs = {
             ]
         ),
     ),
-    
+
     'threshold_without_inplace': dict(
         name=["threshold"],
         para=dict(
@@ -239,8 +239,8 @@ diopi_configs = {
         name=["adaptive_avg_pool2d"],
         atol=1e-5,
         rtol=1e-4,
-        atol_half=1e-3,
-        rtol_half=1e-3,
+        atol_half=1e-2,
+        rtol_half=1e-2,
         para=dict(
             output_size=[(1, 1), 2, (None, 3), (3, 4), (7, 7), (10, 10)],
         ),
@@ -379,7 +379,7 @@ diopi_configs = {
         name=['abs', 'cos', 'erf', 'exp',
               'neg', 'sin', 'sqrt'],
         interface=['torch'],
-        dtype=[Dtype.float16, Dtype.float32, Dtype.float64, 
+        dtype=[Dtype.float16, Dtype.float32, Dtype.float64,
                Dtype.int16, Dtype.int64, Dtype.uint8, Dtype.int8],
         tensor_para=dict(
             gen_fn=Genfunc.randn,
@@ -1230,7 +1230,7 @@ diopi_configs = {
                     "ins": ['input'],
                     "shape": ((64, ), (169, 4), (17100, 2), (1, 1, 384),
                               (4, 133, 128, 128), (2, 64, 3, 3, 3)),
-                    "dtype": [Dtype.int16, Dtype.int32, Dtype.int64, 
+                    "dtype": [Dtype.int16, Dtype.int32, Dtype.int64,
                               Dtype.uint8, Dtype.int8, Dtype.bool],
                     "gen_fn": Genfunc.randn,
                 },

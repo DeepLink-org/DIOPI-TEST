@@ -130,7 +130,7 @@ class ManualTest(object):
                 f"failed to execute {name} "
         else:
             assert np.allclose(input_numpy, out_numpy, rtol=1e-4, atol=1e-5),\
-            "failed to execute dropout"
+                "failed to execute dropout"
 
     def test_dropout(input, p=0.5, training=True, inplace=False):
         ManualTest.test_dropout_(F.dropout, input, p, training, inplace)
