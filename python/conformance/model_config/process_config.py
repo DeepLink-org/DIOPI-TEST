@@ -21,6 +21,7 @@ func_para = dict(
     log2=unary_op,
     bitwise_not=unary_op,
     exp=unary_op,
+    erfinv=unary_inp_op,
     logical_and=binary_op,
     matmul=binary_op,
     maximum=binary_op,
@@ -33,6 +34,7 @@ func_para = dict(
     any=reduce_op,
     max=reduce_op,
     min=reduce_op,
+    argmax=reduce_op,
     conv2d={"input": "tensor/grad", "weight": "tensor/grad", "bias": "tensor/none/grad",
             "stride": "para", "padding": "para", "dilation": "para", "groups": "para"},
     batch_norm={"input": "tensor/grad", "running_mean": "tensor", "running_var": "tensor", "weight": "tensor/none/grad",
@@ -64,6 +66,7 @@ func_para = dict(
     one_hot={'input': 'tensor', 'num_classes': 'para/key'},
     layer_norm={'input': 'tensor/grad', 'normalized_shape': 'para/key', 'weight': 'tensor/none/grad', 'bias': 'tensor/none/grad', 'eps': 'para/key'},
     permute={'input': 'tensor', 'dims': 'para/key'},
+    flip={'input': 'tensor', 'dims': 'para'},
     softmax={'input': 'tensor', 'dim': 'para/key', 'dtype': 'para/key'},
     gelu={'input': 'tensor/grad', 'approximate': 'para/key'},
     roll={'input': 'tensor', 'shifts': 'para/key', 'dims': 'para/key'},
@@ -91,6 +94,7 @@ func_para = dict(
     where={'condition': 'tensor', 'input': 'tensor/scalar', 'other': 'tensor/scalar'},
     sort={'input': 'tensor', 'dim': 'para/key', 'descending': 'para/key', 'stable': 'para/key'},
     uniform={'input': 'tensor', 'start': 'para/key', 'end': 'para/key'},
+    fill_={'input': 'tensor', 'value': 'scalar'},
     unique={'input': 'tensor', 'sorted': 'para/key', 'return_inverse': 'para/key', 'return_counts': 'para/key', 'dim': 'para/key'},
     topk={'input': 'tensor', 'k': 'para', 'dim': 'para/key', 'largest': 'para/key', 'sorted': 'para/key'},
     adamw={'param", "param_grad': "tensor", 'exp_avg", "exp_avg_sq", "max_exp_avg_sq': "tensor", 'step': 'para',
@@ -99,8 +103,9 @@ func_para = dict(
 convert_name = {'iadd': "add", 'radd': "add", 'add_': "add", 'rmul': 'mul', 'truediv': 'div', 'rtruediv': 'div',
                 'mul_': 'mul', 'addcmul_': 'addcmul', 'addcdiv_': 'addcdiv', 'uniform_': 'uniform', 'rand': 'uniform',
                 'and': 'logical_and', 'sub_': 'sub', 'div_': 'div', 'imul': 'mul', 'clamp_': 'clamp', 'sigmoid_': 'sigmoid',
-                'itruediv': 'div', 'invert': 'bitwise_not', 'rsub': 'sub', 'expand_as': 'expand', 't': 'transpose'}
-inplace_tag = ['iadd', 'imul', 'mul_', 'sub_', 'div_', 'clamp_', 'sigmoid_', 'itruediv']
+                'itruediv': 'div', 'invert': 'bitwise_not', 'rsub': 'sub', 'expand_as': 'expand', 't': 'transpose',
+                'erfinv_': 'erfinv'}
+inplace_tag = ['iadd', 'imul', 'mul_', 'sub_', 'div_', 'clamp_', 'sigmoid_', 'itruediv', 'erfinv_']
 interface_tag = {"sgd": "CustomizedTest", "adamw": "CustomizedTest", 'im2col': 'CustomizedTest'}
 no_output_ref = ['randperm', 'uniform', 'dropout']
 saved_args = {"sigmoid": "0", 'softmax': '0', 'log_softmax': '0', 'tanh': '0'}
@@ -235,7 +240,7 @@ def gen_config_code(config, file_name):
 
             if is_para:
                 if k in kpara_list.keys():
-                    if name in ['sgd', 'adamw'] and not isinstance(kpara_list[k], list):
+                    if name in ['sgd', 'adamw'] and (not isinstance(kpara_list[k], list) or len(kpara_list[k]) == 1):
                         para.append(para_vide + str(k) + "=[" + str(kpara_list[k]) + f" for i in range({len(para_list[0])})],\n")
                     else:
                         if name == 'interpolate' and k == 'size':
@@ -307,10 +312,11 @@ if __name__ == '__main__':
                    "shufflenet_v2_config": cv_config.shufflenet_v2_1x_16xb64_in1k_config,
                    "swin_transformer_config": cv_config.swin_base_16xb64_in1k_config,
                    "vit_config": cv_config.vit_base_p16_pt_64xb64_in1k_224_config,
-                   "vgg16_config": cv_config.vgg16_8xb32_in1k_config}
+                   "vgg16_config": cv_config.vgg16_8xb32_in1k_config,
+                   "inceptionv3_config": cv_config.inception_v3_8xb32_in1k_config}
     det_config_dict = {"faster_rcnn_r50_config": det_config.faster_rcnn_r101_fpn_1x_coco_config,
                        "retinanet_config": det_config.retinanet_r50_fpn_1x_coco_config,
-                       "ascend_ssd300_config": det_config.ascend_ssd300_coco_config,
+                       "ssd300_config": det_config.ssd300_coco_config,
                        "yolov3_config": det_config.yolov3_d53_320_273e_coco_config}
     seg_config_dict = {"unet_config": seg_config.fcn_unet_s5_d16_4x4_512x1024_160k_cityscapes_config,
                        "fcn_config": seg_config.fcn_d6_r50_d16_512x1024_40k_cityscapes_config,
@@ -318,6 +324,6 @@ if __name__ == '__main__':
                        "deeplabv3plus_config": seg_config.deeplabv3plus_r50_d8_512x1024_40k_cityscapes_config,
                        "pspnet_config": seg_config.pspnet_r50_d8_512x1024_40k_cityscapes_config,
                        "upernet_config": seg_config.upernet_r50_512x1024_40k_cityscapes_config}
-    config_dict = seg_config_dict
+    config_dict = cv_config_dict
     for k, v in config_dict.items():
         gen_config_code(v, k)

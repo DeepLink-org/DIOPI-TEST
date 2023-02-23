@@ -1,6 +1,6 @@
 model_list = ['resnet50', 'vgg16', 'resnet101', 'seresnet50', 'densenet', 'mobilenet_v2',
-              'efficientnet', 'shufflenet_v2', 'repvgg', 'swin_transformer', 'vit',
-              'retinanet', 'faster_rcnn_r50', 'ascend_ssd300', 'yolov3',
+              'efficientnet', 'shufflenet_v2', 'repvgg', 'swin_transformer', 'vit', 'inceptionv3'
+              'retinanet', 'faster_rcnn_r50', 'ssd300', 'yolov3',
               'unet', 'upernet', 'pspnet', 'fcn', 'deeplabv3', 'deeplabv3plus']
 
 model_op_list = {
@@ -20,7 +20,8 @@ model_op_list = {
                          'log_softmax', 'sum', 'mean', 'norm', 'stack', 'reciprocal', 'clamp', 'adamw', 'addcmul', 'sqrt', 'addcdiv'],
     'vit': ['randperm', 'one_hot', 'mul', 'add', 'conv2d', 'transpose', 'expand', 'cat', 'dropout', 'layer_norm', 'linear',
             'permute', 'matmul', 'gelu', 'tanh', 'neg', 'log_softmax', 'sum', 'div', 'mean', 'norm', 'stack', 'reciprocal', 'clamp', 'adamw', 'addcmul', 'sqrt', 'addcdiv'],
-    'ascend_ssd300': ['maximum', 'randperm', 'conv2d', 'relu', 'max_pool2d', 'pow', 'sum', 'sqrt', 'add',  'expand', 'mul', 'div', 'arange', 'stack', 'logical_and', 'cat', 'maximum', 'minimum',
+    'inceptionv3': [],
+    'ssd300': ['maximum', 'randperm', 'conv2d', 'relu', 'max_pool2d', 'pow', 'sum', 'sqrt', 'add',  'expand', 'mul', 'div', 'arange', 'stack', 'logical_and', 'cat', 'maximum', 'minimum',
                       'sub', 'max', 'min', 'clamp', 'ge', 'lt', 'gt', 'index_select', 'log', 'permute', 'cross_entropy', 'topk', 'abs', 'where', 'mean', 'eq', 'sgd', 'nonzero', 'sort', 'exp'],
     'retinanet': ['randperm',  'conv2d', 'batch_norm', 'relu', 'max_pool2d', 'add',  'interpolate', 'orange', 'mul', 'stack', 'logical_and', 'expand', 'cat', 'any', 'sub', 'maximum',
                   'minimum', 'clamp', 'div', 'max', 'ge', 'lt', 'eq', 'gt', 'nonzero', 'unique', 'log', 'permute', 'sum', 'abs', 'mean', 'sgd', 'sigmoid', 'sort'],

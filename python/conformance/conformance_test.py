@@ -74,10 +74,19 @@ def allclose(cfg: dict, tensor1: np.ndarray, tensor2: np.ndarray, sum_to_compare
     return passed
 
 
+def log_allclose_info(out_numpy, out_ref, info, cfg):
+    sum1 = out_numpy.sum()
+    sum2 = out_ref.sum()
+    max_diff = np.abs(out_numpy - out_ref).max()
+    logger.debug(f"{info} sum of out is {sum1}, sum of out_ref is {sum2}, max of diff is {max_diff}")
+    logger.debug(f"{info} sum of out is {sum1}, sum of out_ref is {sum2}, max of diff is {max_diff}")
+
 def compare_with_gen_output(output, cfg, output_reference, sum_to_compare=False):
     passed = True
     if isinstance(output, Tensor):
         passed = allclose(cfg, output.numpy(), output_reference, sum_to_compare)
+        if not passed:
+            log_allclose_info(output.numpy(), output_reference, "tensor faild:", cfg)
     elif isinstance(output, (list, tuple)):
         assert isinstance(output_reference, (list, tuple))
         assert len(output) == len(output_reference)
@@ -208,7 +217,7 @@ class ConformanceTest(object):
                     continue
 
             function_paras = data["function_paras"]
-            test_tag = data["cfg"]["tag"]
+            test_tag = [] #data["cfg"]["tag"]
             tensor_info = []
             nhwc_list = nhwc_op[cfg_func_name] if glob_vars.nhwc and (cfg_func_name in nhwc_op) else []
             dtype_list = dtype_op[cfg_func_name] if glob_vars.four_bytes and (cfg_func_name in dtype_op) else []

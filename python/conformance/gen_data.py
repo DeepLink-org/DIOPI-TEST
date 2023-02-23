@@ -262,7 +262,7 @@ def gen_and_dump_data(dir_path: str, cfg_name: str, cfg_expand_list: list, cfg_s
                 for idx in range(len(arg['shape'])):
                     new_arg = copy.deepcopy(arg)
                     new_arg['shape'] = arg['shape'][idx]
-                    value = gen_tensor(new_arg)
+                    value = gen_tensor(new_arg, cfg_dict)
                     tensor_list.append(value)
             elif len(arg["gen_num_range"]) != 2:
                 value = gen_tensor(arg, cfg_dict)
