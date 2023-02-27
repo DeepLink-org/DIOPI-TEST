@@ -879,12 +879,9 @@ def dropout_impl(input, size_mask, p=0.5, training=True, inplace=False):
     mask = Tensor(size_mask, Dtype.uint8)
     args = args + "c_double(p), c_bool(training)"
 
-    if training:
-        func = check_function(call)
-        ret = eval(f'func({args})')
-        check_returncode(ret)
-    else:
-        out = input
+    func = check_function(call)
+    ret = eval(f'func({args})')
+    check_returncode(ret)
     return out, mask
 
 
