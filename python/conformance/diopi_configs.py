@@ -609,7 +609,7 @@ diopi_configs = {
                     "shape": ((125, 1), (70, 1, 2),
                               (4, 256, 16, 16)),
                     "dtype": [Dtype.bool],
-                    "gen_fn": dict(fn=Genfunc.mask, high=2),
+                    "gen_fn": Genfunc.mask,
                 }
             ],
         ),
