@@ -2,6 +2,8 @@ import cv_config
 import seg_config
 import os
 import det_config
+import other_config
+import torch
 
 unary_op = {'input': 'tensor'}
 unary_inp_op = {'input': 'tensor', 'inplace': 'para/key'}
@@ -17,6 +19,8 @@ func_para = dict(
     leaky_relu=unary_inp_op,
     nonzero=unary_op,
     sqrt=unary_op,
+    sin=unary_op,
+    cos=unary_op,
     log=unary_op,
     log2=unary_op,
     bitwise_not=unary_op,
@@ -35,6 +39,9 @@ func_para = dict(
     max=reduce_op,
     min=reduce_op,
     argmax=reduce_op,
+    std={'input': 'tensor', 'dim': 'para', 'unbiased': 'para'},
+    conv_transpose2d={"input": "tensor", "weight": "tensor", "bias": "tensor/none", "stride": "para/key",
+                      "padding": "para/key", "output_padding": "para/key", "groups": "para/key", "dilation": "para/key"},
     conv2d={"input": "tensor/grad", "weight": "tensor/grad", "bias": "tensor/none/grad",
             "stride": "para", "padding": "para", "dilation": "para", "groups": "para"},
     batch_norm={"input": "tensor/grad", "running_mean": "tensor", "running_var": "tensor", "weight": "tensor/none/grad",
@@ -62,11 +69,13 @@ func_para = dict(
     pad={'input': "tensor", 'pad': 'para', 'mode': "para/key", 'value': 'para'},
     transpose={'input': 'tensor', 'dim0': 'para', 'dim1': 'para'},
     dropout={'input': 'tensor', 'p': 'para/key', 'training': 'para/key', 'inplace': 'para/key'},
+    dropout2d={'input': 'tensor', 'p': 'para/key', 'training': 'para/key', 'inplace': 'para/key'},
     arange={'start': "para/key", "end": "para", "step": "para/key", 'dtype': 'para/key'},
     one_hot={'input': 'tensor', 'num_classes': 'para/key'},
     layer_norm={'input': 'tensor/grad', 'normalized_shape': 'para/key', 'weight': 'tensor/none/grad', 'bias': 'tensor/none/grad', 'eps': 'para/key'},
     permute={'input': 'tensor', 'dims': 'para/key'},
     flip={'input': 'tensor', 'dims': 'para'},
+    group_norm={'input': 'tensor/grad', 'num_groups': 'para', 'weight': 'tensor/none/grad', 'bias': 'tensor/none/grad', 'eps': 'para/key'},
     softmax={'input': 'tensor', 'dim': 'para/key', 'dtype': 'para/key'},
     gelu={'input': 'tensor/grad', 'approximate': 'para/key'},
     roll={'input': 'tensor', 'shifts': 'para/key', 'dims': 'para/key'},
@@ -99,15 +108,28 @@ func_para = dict(
     topk={'input': 'tensor', 'k': 'para', 'dim': 'para/key', 'largest': 'para/key', 'sorted': 'para/key'},
     adamw={'param", "param_grad': "tensor", 'exp_avg", "exp_avg_sq", "max_exp_avg_sq': "tensor", 'step': 'para',
            "amsgrad": "para/key", "beta1": "para/key", "beta2": "para/key", "lr": "para/key", "weight_decay": "para/key", "eps": "para/key"},
+    cdist={'x1': 'tensor/grad', 'x2': 'tensor/grad', 'p': 'para/key', 'compute_mode': 'para/key'},
+    bmm={'input': 'tensor', 'mat2': 'tensor'},
+    cumsum={'input': 'tensor', 'dim': 'para', 'dtype': 'para/key'},
+    adam={'param", "param_grad': "tensor", 'exp_avg", "exp_avg_sq", "max_exp_avg_sq': "tensor", 'step': 'para',
+           "amsgrad": "para/key", "beta1": "para/key", "beta2": "para/key", "lr": "para/key", "weight_decay": "para/key", "eps": "para/key"},
+    embedding={'input': 'tensor', 'weight': 'tensor/grad', "padding_idx": 'para/key', 'max_norm': 'para/key', "norm_type": 'para/key',
+               'scale_grad_by_freq': 'para/key', 'sparse': 'para/key'},
+    smooth_l1_loss={'input': 'tensor/grad', 'target': 'tensor', 'size_average': 'para/key', 'reduce': 'para/key', 'reduction': 'para/key', 'beta': 'para/key'},
+    adadelta={'param", "param_grad': "tensor", 'square_avg", "acc_delta': 'tensor', 'lr': 'para', 'rho': 'para', 'eps': 'para', 'weight_decay': 'para'},
+    triangular_solve={'input': 'tensor/grad', 'A': 'tensor/grad', 'upper': 'para/key', 'transpose': 'para/key', 'unitriangular': 'para/key'},
+    gather={'input': 'tensor', 'dim': 'para', 'index': 'para'},
+    #einsum normal mod
 )
+
 convert_name = {'iadd': "add", 'radd': "add", 'add_': "add", 'rmul': 'mul', 'truediv': 'div', 'rtruediv': 'div',
                 'mul_': 'mul', 'addcmul_': 'addcmul', 'addcdiv_': 'addcdiv', 'uniform_': 'uniform', 'rand': 'uniform',
                 'and': 'logical_and', 'sub_': 'sub', 'div_': 'div', 'imul': 'mul', 'clamp_': 'clamp', 'sigmoid_': 'sigmoid',
                 'itruediv': 'div', 'invert': 'bitwise_not', 'rsub': 'sub', 'expand_as': 'expand', 't': 'transpose',
-                'erfinv_': 'erfinv'}
-inplace_tag = ['iadd', 'imul', 'mul_', 'sub_', 'div_', 'clamp_', 'sigmoid_', 'itruediv', 'erfinv_']
-interface_tag = {"sgd": "CustomizedTest", "adamw": "CustomizedTest", 'im2col': 'CustomizedTest'}
-no_output_ref = ['randperm', 'uniform', 'dropout']
+                'erfinv_': 'erfinv', 'floordiv': 'div', 'rpow': 'pow', 'isub': 'sub', 'sqrt_': 'sqrt', 'masked_fill_': 'masked_fill'}
+inplace_tag = ['iadd', 'imul', 'mul_', 'sub_', 'div_', 'clamp_', 'sigmoid_', 'itruediv', 'erfinv_', 'isub', 'masked_fill_']
+interface_tag = {"sgd": "CustomizedTest", "adamw": "CustomizedTest", 'im2col': 'CustomizedTest', 'adadelta': 'CustomizedTest'}
+no_output_ref = ['randperm', 'uniform', 'dropout', 'dropout2d']
 saved_args = {"sigmoid": "0", 'softmax': '0', 'log_softmax': '0', 'tanh': '0'}
 
 tensor_vide = "                    "
@@ -115,7 +137,8 @@ para_vide = "            "
 key_vide = "        "
 seq_name = ['cat', 'stack']
 ignore_list = ['getitem', 'relu_', 'setitem', 'get_rank', 'get_world_size', 'barrier',
-               'load', 'broadcast', 'repeat', 'all_reduce']
+               'load', 'broadcast', 'repeat', 'all_reduce', 'meshgrid', 'eye', 'conj',
+               'diagonal', 'grid_sample']
 
 def toDtype(dtype, tensor_para):
     if dtype == 'torch.cuda.FloatTensor':
@@ -158,42 +181,46 @@ def gen_config_code(config, file_name):
 
     os.system(f"rm -f {file_name}.py")
     with open(f'{file_name}.py', 'a') as f:
-        f.write("from ..config import Genfunc\n")
-        f.write("from ..dtype import Dtype\n\n")
-        f.write(file_name + " = {\n")
+        f.write("from ...config import Genfunc\n")
+        f.write("from ...dtype import Dtype\n\n")
+        f.write(file_name[file_name.find("/") + 1:] + " = {\n")
 
     for ele in content:
         name = ele[0]
+        para_list = ele[3]
+        kpara_list = ele[4]
+        type_list = ele[2]
         if name == 'unfold' and ele[1] == 'torch.nn.functional':
             name = 'im2col'
-        if name == 'max' and len(ele[2]) == 2:
+        elif name == 'max' and len(type_list) == 2:
             name = 'maximum'
-        if name == 'min' and len(ele[2]) == 2:
+        elif name == 'min' and len(type_list) == 2:
             name = 'minimum'
         if name in convert_name.keys():
             name = convert_name[name]
+        if name in ['sgd', 'adamw'] and not type_list:
+            continue
+        if name not in func_para.keys() and name not in ignore_list:
+            print(f"%%%%%%% miss definition for {name} while generate {file_name}.py %%%%%%%%%%\n")
+            continue
+        if para_list and len(para_list[0]) > 500:
+            print(f"Warning: too many {len(para_list[0])} for {name} while generate {file_name}.py %%%%%%%%%%\n")
+
         para = []
         tensor_para = []
+        idx = 0
+        type_idx = 0
+
         if name not in names.keys():
             config = ["    '" + name + "': dict(\n"]
             names.update({name: 0})
         else:
             names[name] += 1
             config = ["    '" + name + "_" + str(names[name]) + "': dict(\n"]
-
         config.append(key_vide + 'name=["' + name + '"],\n')
-        para_list = ele[3]
-        kpara_list = ele[4]
-        type_list = ele[2]
-        idx = 0
-        type_idx = 0
-        if name not in func_para.keys():
-            if name not in ignore_list:
-                print(f"%%%%%%% miss definition for {name} while generate {file_name}.py %%%%%%%%%%\n")
-            continue
+
         if ele[0] in inplace_tag:
             config.append(key_vide + 'is_inplace=[True],\n')
-
         if name in no_output_ref:
             config.append(key_vide + 'no_output_ref=True,\n')
         elif name in interface_tag.keys():
@@ -240,14 +267,14 @@ def gen_config_code(config, file_name):
 
             if is_para:
                 if k in kpara_list.keys():
-                    if name in ['sgd', 'adamw'] and (not isinstance(kpara_list[k], list) or len(kpara_list[k]) == 1):
+                    if name in ['sgd', 'adamw'] and not isinstance(kpara_list[k], list):
                         para.append(para_vide + str(k) + "=[" + str(kpara_list[k]) + f" for i in range({len(para_list[0])})],\n")
                     else:
-                        if name == 'interpolate' and k == 'size':
+                        if k == 'size' and type(kpara_list[k][0]) == torch.Size: # convert torch.Size to tuple
                             kpara_list[k] = [ tuple(e) for e in kpara_list[k]]
                         if not isinstance(kpara_list[k], list):
                             kpara_list[k] = [kpara_list[k]]
-                        para.append(para_vide + str(k) + "=" + str(kpara_list[k]).replace("torch.", "Dtype.") + ",\n")
+                        para.append(para_vide + str(k) + "=" + str(kpara_list[k]).replace("torch.", "Dtype.").replace('-inf', 'float("-inf")') + ",\n")
                 elif idx < len(para_list):
                     if name in ['permute', 'expand'] and not isinstance(para_list[idx][0], tuple):
                         dims_list = []
@@ -263,9 +290,13 @@ def gen_config_code(config, file_name):
 
                     if name == 'arange' and idx == len(para_list)-1 and k == 'start':
                         k = 'end'
-                    para.append(para_vide + str(k) + "=" + str(para_list[idx]) + ",\n")
+
+                    if k == 'size' and type(para_list[idx][0]) == torch.Size: # convert torch.Size to tuple
+                        para_list[idx] = [ tuple(e) for e in para_list[idx]]
+
+                    para.append(para_vide + str(k) + "=" + str(para_list[idx]).replace('-inf', 'float("-inf")') + ",\n")
                 elif "key" not in v:
-                    print(f"%%%%%%% miss definition for {k} while generate {name} op while generate {file_name}.py %%%%%%%%%%\n")
+                    print(f"%%%%%%% miss '{k}' in {name} op while generate {file_name}.py %%%%%%%%%%\n")
                     continue
                 else:
                     continue
@@ -317,13 +348,26 @@ if __name__ == '__main__':
     det_config_dict = {"faster_rcnn_r50_config": det_config.faster_rcnn_r101_fpn_1x_coco_config,
                        "retinanet_config": det_config.retinanet_r50_fpn_1x_coco_config,
                        "ssd300_config": det_config.ssd300_coco_config,
-                       "yolov3_config": det_config.yolov3_d53_320_273e_coco_config}
+                       "yolov3_config": det_config.yolov3_d53_320_273e_coco_config,
+                       "cascade_rcnn_config": det_config.cascade_rcnn_r50_fpn_1x_coco_config,
+                       'atss_config': det_config.atss_r50_fpn_1x_coco_config,
+                       "fcos_config": det_config.fcos_r50_caffe_fpn_gn_head_1x_coco_config,
+                       "mask_rcnn_config": det_config.mask_rcnn_r50_fpn_1x_coco_config,
+                       "solo_config": det_config.solo_r50_fpn_1x_coco_config,
+                       "detr_config": det_config.detr_r50_8x2_150e_coco_config,
+                       "centernet_config": det_config.centernet_resnet18_140e_coco_config}
     seg_config_dict = {"unet_config": seg_config.fcn_unet_s5_d16_4x4_512x1024_160k_cityscapes_config,
                        "fcn_config": seg_config.fcn_d6_r50_d16_512x1024_40k_cityscapes_config,
                        "deeplabv3_config": seg_config.deeplabv3_r50_d8_512x1024_40k_cityscapes_config,
                        "deeplabv3plus_config": seg_config.deeplabv3plus_r50_d8_512x1024_40k_cityscapes_config,
                        "pspnet_config": seg_config.pspnet_r50_d8_512x1024_40k_cityscapes_config,
                        "upernet_config": seg_config.upernet_r50_512x1024_40k_cityscapes_config}
-    config_dict = cv_config_dict
+    other_config_dict = {"stgcn_config": other_config.stgcn_80e_ntu60_xsub_keypoint_config,
+                         "hrnet_config": other_config.hrnet_w32_coco_wholebody_512x512_config,
+                         "deeppose_config": other_config.res50_coco_256x192_rle_config,
+                         'crnn_config': other_config.crnn_mini_vgg_5e_mj_config,
+                         'sar_config': other_config.sar_resnet31_parallel_decoder_5e_st_sub_mj_sub_sa_real_config,
+                         'dbnet_config': other_config.dbnet_resnet18_fpnc_1200e_icdar2015_config}
+    config_dict = det_config_dict
     for k, v in config_dict.items():
-        gen_config_code(v, k)
+        gen_config_code(v, "det_configs/" + k)

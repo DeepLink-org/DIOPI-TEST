@@ -2,7 +2,7 @@ import subprocess
 import argparse
 import shlex
 import conformance as cf
-from conformance.utils import is_ci, error_counter, DiopiException, write_report
+from conformance.utils import is_ci, error_counter, DiopiException, write_report, no_op_list
 from conformance.utils import logger, nhwc_op, dtype_op, dtype_out_op, glob_vars
 from conformance.model_list import model_list, model_op_list
 
@@ -62,6 +62,7 @@ if __name__ == "__main__":
             logger.info(f"Now, fname will be disabled, and all {args.model_name}'s ops will be processed.")
         cf.GenInputData.run(args.fname, args.model_name.lower(), args.filter_dtype)
         cf.GenOutputData.run(args.fname, args.model_name.lower(), args.filter_dtype)
+        print(no_op_list)
     elif args.mode == 'run_test':
         if args.model_name != '':
             logger.info(f"Now, fname will be disabled, and all {args.model_name}'s ops will be processed.")

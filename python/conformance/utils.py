@@ -236,11 +236,13 @@ def squeeze(input: diopi_runtime.Tensor, dim=None):
 
     input.reset_shape(new_size)
 
-
+no_op_list=[]
 def need_process_func(cfg_func_name, func_name, model_name):
     if model_name != '':
         op_list = model_op_list[model_name]
         if cfg_func_name not in op_list:
+            if cfg_func_name not in no_op_list:
+                no_op_list.append(cfg_func_name)
             return False
     elif func_name not in ['all_ops', cfg_func_name]:
         return False

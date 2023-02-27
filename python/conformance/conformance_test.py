@@ -64,6 +64,7 @@ def allclose(cfg: dict, tensor1: np.ndarray, tensor2: np.ndarray, sum_to_compare
     passed = np.allclose(tensor1, tensor2, rtol, atol, True)
     if record:
         save_precision(cfg, tensor1, tensor2, passed, var_name)
+    #print(tensor1.shape, tensor1.strides, tensor2.shape, tensor2.strides)
     if not passed and logger.level == 10:
         sum1 = tensor1.sum()
         sum2 = tensor2.sum()
