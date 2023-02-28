@@ -62,6 +62,12 @@ def common_dtype(dtype1: Dtype, dtype2: Dtype) -> Dtype:
     return dtype1 if dtype1.value >= dtype2.value else dtype2
 
 
+def promote_type(dtype1: Dtype) -> Dtype:
+    need_promote_types = [Dtype.int8, Dtype.int16, Dtype.int32, Dtype.int64,
+                          Dtype.uint8, Dtype.uint16, Dtype.uint32, Dtype.uint64, Dtype.bool]
+    return dtype1 if dtype1 not in need_promote_types else Dtype.float32
+
+
 def fill_(input, value):
     func = check_function("diopiFill")
     value = byref(Scalar(value))
@@ -90,10 +96,7 @@ def unary_op(input, inplace, call, dtype=None) -> Tensor:
         ret = func(input.context_handle, input.tensor_handle)
     else:
         if dtype is not None:
-            need_promote_types = [Dtype.int8, Dtype.int16, Dtype.int32, Dtype.int64,
-                                  Dtype.uint8, Dtype.uint16, Dtype.uint32, Dtype.uint64, Dtype.bool]
-            out_type = dtype if dtype not in need_promote_types else Dtype.float32
-            out = Tensor(input.size(), out_type)
+            out = Tensor(input.size(), dtype)
         else:
             out = raw_like(input)
         func = check_function(call)
@@ -194,7 +197,7 @@ def sigmoid(input, inplace=False) -> Tensor:
 
 
 def sqrt(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiSqrt', input.get_dtype())
+    return unary_op(input, inplace, 'diopiSqrt', promote_type(input.get_dtype()))
 
 
 def neg(input, inplace=False) -> Tensor:
@@ -202,11 +205,11 @@ def neg(input, inplace=False) -> Tensor:
 
 
 def sin(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiSin', input.get_dtype())
+    return unary_op(input, inplace, 'diopiSin', promote_type(input.get_dtype()))
 
 
 def cos(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiCos', input.get_dtype())
+    return unary_op(input, inplace, 'diopiCos', promote_type(input.get_dtype()))
 
 
 def tanh(input, inplace=False) -> Tensor:
@@ -214,23 +217,23 @@ def tanh(input, inplace=False) -> Tensor:
 
 
 def exp(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiExp', input.get_dtype())
+    return unary_op(input, inplace, 'diopiExp', promote_type(input.get_dtype()))
 
 
 def log(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiLog')
+    return unary_op(input, inplace, 'diopiLog', promote_type(input.get_dtype()))
 
 
 def log2(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiLog2')
+    return unary_op(input, inplace, 'diopiLog2', promote_type(input.get_dtype()))
 
 
 def log10(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiLog10')
+    return unary_op(input, inplace, 'diopiLog10', promote_type(input.get_dtype()))
 
 
 def erf(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiErf', input.get_dtype())
+    return unary_op(input, inplace, 'diopiErf', promote_type(input.get_dtype()))
 
 
 def add(input, other, inplace=False, alpha=1) -> Tensor:
@@ -278,10 +281,7 @@ def div(input, other, inplace=False, rounding_mode=None) -> Tensor:
         call = call + "Inp"
         out = input
     else:
-        need_promote_types = [Dtype.int8, Dtype.int16, Dtype.int32, Dtype.int64,
-                              Dtype.uint8, Dtype.uint16, Dtype.uint32, Dtype.uint64, Dtype.bool]
-        out_type = input.get_dtype() \
-            if input.get_dtype() not in need_promote_types else Dtype.float32
+        out_type = promote_type(input.get_dtype())
         if not isinstance(other, Tensor):
             out = Tensor(sizeI, out_type)
         else:
