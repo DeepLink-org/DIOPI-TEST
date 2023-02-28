@@ -429,7 +429,7 @@ diopi_configs = {
             ],
         ),
     ),
-    
+
     'tanh': dict(
         name=['tanh'],
         interface=['torch'],
@@ -792,7 +792,7 @@ diopi_configs = {
             ],
         ),
     ),
-    
+
     'pointwise_binary_test_equal_and_logic_specific': dict(
         name=['eq', 'ne', 'le', 'lt',
               'gt', 'ge', 'logical_and', 'logical_or'],
@@ -1720,7 +1720,7 @@ diopi_configs = {
             sorted=[True, False, False, False],
         ),
         tensor_para=dict(
-            dtype=[Dtype.float16, Dtype.float32, Dtype.float64, Dtype.int16, 
+            dtype=[Dtype.float16, Dtype.float32, Dtype.float64, Dtype.int16,
                    Dtype.int32, Dtype.int64, Dtype.uint8, Dtype.int8],
             gen_fn=Genfunc.randn,
             args=[
@@ -1788,7 +1788,7 @@ diopi_configs = {
                 },
                 {
                     "ins": ['input', 'other'],
-                    "dtype": [Dtype.float16, Dtype.float32, Dtype.float64, Dtype.int16, 
+                    "dtype": [Dtype.float16, Dtype.float32, Dtype.float64, Dtype.int16,
                               Dtype.int32, Dtype.int64, Dtype.uint8, Dtype.int8, Dtype.bool],
                     "shape": [(1024, ), (1482, 4), (4, 5, 6)],
                     "gen_fn": Genfunc.randn
@@ -2348,7 +2348,7 @@ diopi_configs = {
                 {
                     "ins": ['input'],
                     "shape": ((1,), (1024, 80), (2, 256, 256), (2, 1, 64, 64)),
-                    "dtype": [Dtype.float64, Dtype.float16, Dtype.float32, Dtype.int32, Dtype.int16, 
+                    "dtype": [Dtype.float64, Dtype.float16, Dtype.float32, Dtype.int32, Dtype.int16,
                               Dtype.int64, Dtype.uint8, Dtype.int8],
                     "gen_fn": Genfunc.randn,
                 },
