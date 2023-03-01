@@ -39,7 +39,7 @@ vit_config = {
         name=["mul"],
         interface=["torch.Tensor"],
         para=dict(
-            other=[0.026246705542010834, 0.9737532944579892, 1.0],
+            other=[4.184777508273928e-07, 0.9999995815222492, 1.0],
         ),
         tensor_para=dict(
             args=[
@@ -78,7 +78,7 @@ vit_config = {
         name=["mul"],
         interface=["torch.Tensor"],
         para=dict(
-            other=[0.026246705542010834, 0.9737532944579892],
+            other=[4.184777508273928e-07, 0.9999995815222492],
         ),
         tensor_para=dict(
             args=[
@@ -658,25 +658,73 @@ vit_config = {
         name=["adamw"],
         interface=["CustomizedTest"],
         para=dict(
-            step=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            amsgrad=[False, False, False, False, False, False, False, False, False, False, False, False],
-            beta1=[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
-            beta2=[0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999],
-            lr=[2.9999999999996695e-07, 2.9999999999996695e-07, 2.9999999999996695e-07, 2.9999999999996695e-07, 2.9999999999996695e-07, 2.9999999999996695e-07, 2.9999999999996695e-07, 2.9999999999996695e-07, 2.9999999999996695e-07, 2.9999999999996695e-07, 2.9999999999996695e-07, 2.9999999999996695e-07],
-            weight_decay=[0.0, 0.0, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3],
-            eps=[1e-08, 1e-08, 1e-08, 1e-08, 1e-08, 1e-08, 1e-08, 1e-08, 1e-08, 1e-08, 1e-08, 1e-08],
+            step=[1, 2],
+            amsgrad=[False for i in range(2)],
+            beta1=[0.9 for i in range(2)],
+            beta2=[0.999 for i in range(2)],
+            lr=[2.9999999999996695e-07 for i in range(2)],
+            weight_decay=[0.0 for i in range(2)],
+            eps=[1e-08 for i in range(2)],
         ),
         tensor_para=dict(
             args=[
                 {
                     "ins": ["param", "param_grad"],
-                    "shape": [(1, 1, 768), (1, 197, 768), (768, 3, 16, 16), (768,), (2304, 768), (2304,), (768, 768), (3072, 768), (3072,), (768, 3072), (1000, 3072), (1000,)],
+                    "shape": [(1, 1, 768), (1, 197, 768)],
                     "dtype": [Dtype.float32],
                     "gen_fn": Genfunc.randn,
                 },
                 {
                     "ins": ["exp_avg", "exp_avg_sq", "max_exp_avg_sq"],
-                    "shape": [(1, 1, 768), (1, 197, 768), (768, 3, 16, 16), (768,), (2304, 768), (2304,), (768, 768), (3072, 768), (3072,), (768, 3072), (1000, 3072), (1000,)],
+                    "shape": [(1, 1, 768), (1, 197, 768)],
+                    "dtype": [Dtype.float32],
+                    "gen_fn": Genfunc.randn,
+                },
+            ],
+        ),
+    ),
+
+    'adamw_1': dict(
+        name=["adamw"],
+        interface=["CustomizedTest"],
+        para=dict(
+            step=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            amsgrad=[False for i in range(10)],
+            beta1=[0.9 for i in range(10)],
+            beta2=[0.999 for i in range(10)],
+            lr=[2.9999999999996695e-07 for i in range(10)],
+            weight_decay=[0.3 for i in range(10)],
+            eps=[1e-08 for i in range(10)],
+        ),
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ["param", "param_grad"],
+                    "shape": [(768, 3, 16, 16), (768,), (2304, 768), (2304,), (768, 768), (3072, 768), (3072,), (768, 3072), (1000, 3072), (1000,)],
+                    "dtype": [Dtype.float32],
+                    "gen_fn": Genfunc.randn,
+                },
+                {
+                    "ins": ["exp_avg", "exp_avg_sq", "max_exp_avg_sq"],
+                    "shape": [(768, 3, 16, 16), (768,), (2304, 768), (2304,), (768, 768), (3072, 768), (3072,), (768, 3072), (1000, 3072), (1000,)],
+                    "dtype": [Dtype.float32],
+                    "gen_fn": Genfunc.randn,
+                },
+            ],
+        ),
+    ),
+
+    'softmax': dict(
+        name=["softmax"],
+        saved_args=dict(output=0),
+        para=dict(
+            dim=[1, 1],
+        ),
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ["input"],
+                    "shape": [(64, 1000), (16, 1000)],
                     "dtype": [Dtype.float32],
                     "gen_fn": Genfunc.randn,
                 },

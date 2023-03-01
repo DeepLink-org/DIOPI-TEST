@@ -745,11 +745,11 @@ dbnet_config = {
         name=["sgd"],
         interface=["CustomizedTest"],
         para=dict(
-            nesterov=[[False] for i in range(22)],
-            lr=[[0.007] for i in range(22)],
-            momentum=[[0.9] for i in range(22)],
-            weight_decay=[[0.0001] for i in range(22)],
-            dampening=[[0] for i in range(22)],
+            nesterov=[False for i in range(22)],
+            lr=[0.007 for i in range(22)],
+            momentum=[0.9 for i in range(22)],
+            weight_decay=[0.0001 for i in range(22)],
+            dampening=[0 for i in range(22)],
         ),
         tensor_para=dict(
             args=[

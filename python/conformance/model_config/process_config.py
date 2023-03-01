@@ -118,8 +118,8 @@ func_para = dict(
     smooth_l1_loss={'input': 'tensor/grad', 'target': 'tensor', 'size_average': 'para/key', 'reduce': 'para/key', 'reduction': 'para/key', 'beta': 'para/key'},
     adadelta={'param", "param_grad': "tensor", 'square_avg", "acc_delta': 'tensor', 'lr': 'para', 'rho': 'para', 'eps': 'para', 'weight_decay': 'para'},
     triangular_solve={'input': 'tensor/grad', 'A': 'tensor/grad', 'upper': 'para/key', 'transpose': 'para/key', 'unitriangular': 'para/key'},
-    gather={'input': 'tensor', 'dim': 'para', 'index': 'para'},
-    #einsum normal mod
+    gather={'input': 'tensor', 'dim': 'para', 'index': 'tensor'}, # to check index not out of range
+    #einsum normal mod conv3d max_pool3d adaptive_avg_pool3d
 )
 
 convert_name = {'iadd': "add", 'radd': "add", 'add_': "add", 'rmul': 'mul', 'truediv': 'div', 'rtruediv': 'div',
@@ -200,8 +200,9 @@ def gen_config_code(config, file_name):
             name = convert_name[name]
         if name in ['sgd', 'adamw'] and not type_list:
             continue
-        if name not in func_para.keys() and name not in ignore_list:
-            print(f"%%%%%%% miss definition for {name} while generate {file_name}.py %%%%%%%%%%\n")
+        if name not in func_para.keys():
+            if name not in ignore_list:
+                print(f"%%%%%%% miss definition for {name} while generate {file_name}.py %%%%%%%%%%\n")
             continue
         if para_list and len(para_list[0]) > 500:
             print(f"Warning: too many {len(para_list[0])} for {name} while generate {file_name}.py %%%%%%%%%%\n")
@@ -236,7 +237,11 @@ def gen_config_code(config, file_name):
                 break
             is_para = True
             if "tensor" in v:
-                if idx >= len(para_list):
+                if name in ['sgd', 'adamw', 'adam', 'adadelta']:
+                    type_idx = 0
+                    idx = 0
+                    is_para = False
+                elif idx >= len(para_list):
                     if "scalar/key" not in v:
                         assert "none" in v, "tensor can not be None"
                         continue
@@ -247,15 +252,6 @@ def gen_config_code(config, file_name):
                     tensor_para.append(para_vide + "    {\n" + tensor_vide + '"ins": ["' + str(k) + '"],\n')
                     if "grad" in v and type_idx < len(type_list):
                         tensor_para.append(tensor_vide + '"requires_grad": [True],\n')
-                    if name in ['sgd', 'adamw']:
-                        length = len(para_list[idx])
-                        if length == 1:
-                            para_list[idx] = para_list[idx][0]
-                        else:
-                            tmp_list = []
-                            for i in range(length):
-                                tmp_list.append(para_list[idx][i][0])
-                            para_list[idx] = tmp_list
 
                     tensor_para.append(tensor_vide + '"shape": ' + str(para_list[idx]) + ",\n")
                     if ele[0] == 'rand':
@@ -267,7 +263,8 @@ def gen_config_code(config, file_name):
 
             if is_para:
                 if k in kpara_list.keys():
-                    if name in ['sgd', 'adamw'] and not isinstance(kpara_list[k], list):
+                    if name in ['sgd', 'adamw', 'adam', 'adadelta'] and (not isinstance(kpara_list[k], list) or len(kpara_list[k]) == 1):
+                        kpara_list[k] = kpara_list[k][0] if isinstance(kpara_list[k], list) else kpara_list[k]
                         para.append(para_vide + str(k) + "=[" + str(kpara_list[k]) + f" for i in range({len(para_list[0])})],\n")
                     else:
                         if k == 'size' and type(kpara_list[k][0]) == torch.Size: # convert torch.Size to tuple
@@ -276,17 +273,12 @@ def gen_config_code(config, file_name):
                             kpara_list[k] = [kpara_list[k]]
                         para.append(para_vide + str(k) + "=" + str(kpara_list[k]).replace("torch.", "Dtype.").replace('-inf', 'float("-inf")') + ",\n")
                 elif idx < len(para_list):
-                    if name in ['permute', 'expand'] and not isinstance(para_list[idx][0], tuple):
+                    if name in ['permute', 'expand'] and not isinstance(para_list[idx][0], (tuple, list)):
                         dims_list = []
                         for i in range(len(para_list[idx])):
                             dims = [para_list[j][i] for j in range(idx, len(para_list))]
                             dims_list.append(tuple(dims))
                         para_list[idx] = dims_list
-
-                    if name == 'adamw' and k == 'step':
-                        idx += 3
-                        step_list = [e[0] for e in para_list[idx]]
-                        para_list[idx] = step_list
 
                     if name == 'arange' and idx == len(para_list)-1 and k == 'start':
                         k = 'end'
@@ -295,6 +287,10 @@ def gen_config_code(config, file_name):
                         para_list[idx] = [ tuple(e) for e in para_list[idx]]
 
                     para.append(para_vide + str(k) + "=" + str(para_list[idx]).replace('-inf', 'float("-inf")') + ",\n")
+                elif name in ['adamw', 'adam'] and k == 'step':
+                    step_list = [i + 1 for i in range(len(para_list[0]))]
+                    idx -= 1
+                    para.append(para_vide + str(k) + "=" + str(step_list) + ",\n")
                 elif "key" not in v:
                     print(f"%%%%%%% miss '{k}' in {name} op while generate {file_name}.py %%%%%%%%%%\n")
                     continue
@@ -351,10 +347,10 @@ if __name__ == '__main__':
                        "yolov3_config": det_config.yolov3_d53_320_273e_coco_config,
                        "cascade_rcnn_config": det_config.cascade_rcnn_r50_fpn_1x_coco_config,
                        'atss_config': det_config.atss_r50_fpn_1x_coco_config,
-                       "fcos_config": det_config.fcos_r50_caffe_fpn_gn_head_1x_coco_config,
+                       #"fcos_config": det_config.fcos_r50_caffe_fpn_gn_head_1x_coco_config,
                        "mask_rcnn_config": det_config.mask_rcnn_r50_fpn_1x_coco_config,
                        "solo_config": det_config.solo_r50_fpn_1x_coco_config,
-                       "detr_config": det_config.detr_r50_8x2_150e_coco_config,
+                       #"detr_config": det_config.detr_r50_8x2_150e_coco_config,
                        "centernet_config": det_config.centernet_resnet18_140e_coco_config}
     seg_config_dict = {"unet_config": seg_config.fcn_unet_s5_d16_4x4_512x1024_160k_cityscapes_config,
                        "fcn_config": seg_config.fcn_d6_r50_d16_512x1024_40k_cityscapes_config,
@@ -367,7 +363,9 @@ if __name__ == '__main__':
                          "deeppose_config": other_config.res50_coco_256x192_rle_config,
                          'crnn_config': other_config.crnn_mini_vgg_5e_mj_config,
                          'sar_config': other_config.sar_resnet31_parallel_decoder_5e_st_sub_mj_sub_sa_real_config,
-                         'dbnet_config': other_config.dbnet_resnet18_fpnc_1200e_icdar2015_config}
+                         'dbnet_config': other_config.dbnet_resnet18_fpnc_1200e_icdar2015_config,
+                         'slowfast_config': other_config.slowfast_r50_16x8x1_22e_sthv1_rgb_config,
+                         'tsn_config': other_config.tsn_r50_1x1x8_50e_sthv1_rgb_config}
     config_dict = det_config_dict
     for k, v in config_dict.items():
         gen_config_code(v, "det_configs/" + k)

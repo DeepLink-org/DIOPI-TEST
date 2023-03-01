@@ -340,23 +340,69 @@ shufflenet_v2_config = {
         name=["sgd"],
         interface=["CustomizedTest"],
         para=dict(
-            nesterov=[False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
-            lr=[0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
-            momentum=[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
-            weight_decay=[4e-05, 0.0, 4e-05, 4e-05, 0.0, 4e-05, 4e-05, 4e-05, 0.0, 4e-05, 4e-05, 0.0, 4e-05, 4e-05, 0.0, 4e-05, 4e-05],
-            dampening=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            nesterov=[False for i in range(12)],
+            lr=[0.05 for i in range(12)],
+            momentum=[0.9 for i in range(12)],
+            weight_decay=[4e-05 for i in range(12)],
+            dampening=[0 for i in range(12)],
         ),
         tensor_para=dict(
             args=[
                 {
                     "ins": ["param", "param_grad"],
-                    "shape": [(24, 3, 3, 3), (24,), (24, 1, 3, 3), (58, 24, 1, 1), (58,), (58, 1, 3, 3), (58, 58, 1, 1), (116, 1, 3, 3), (116,), (116, 116, 1, 1), (232, 1, 3, 3), (232,), (232, 232, 1, 1), (1024, 464, 1, 1), (1024,), (1000, 1024), (1000,)],
+                    "shape": [(24, 3, 3, 3), (24, 1, 3, 3), (58, 24, 1, 1), (58, 1, 3, 3), (58, 58, 1, 1), (116, 1, 3, 3), (116, 116, 1, 1), (232, 1, 3, 3), (232, 232, 1, 1), (1024, 464, 1, 1), (1000, 1024), (1000,)],
                     "dtype": [Dtype.float32],
                     "gen_fn": Genfunc.randn,
                 },
                 {
                     "ins": ["buf"],
-                    "shape": [(24, 3, 3, 3), (24,), (24, 1, 3, 3), (58, 24, 1, 1), (58,), (58, 1, 3, 3), (58, 58, 1, 1), (116, 1, 3, 3), (116,), (116, 116, 1, 1), (232, 1, 3, 3), (232,), (232, 232, 1, 1), (1024, 464, 1, 1), (1024,), (1000, 1024), (1000,)],
+                    "shape": [(24, 3, 3, 3), (24, 1, 3, 3), (58, 24, 1, 1), (58, 1, 3, 3), (58, 58, 1, 1), (116, 1, 3, 3), (116, 116, 1, 1), (232, 1, 3, 3), (232, 232, 1, 1), (1024, 464, 1, 1), (1000, 1024), (1000,)],
+                    "dtype": [Dtype.float32],
+                    "gen_fn": Genfunc.randn,
+                },
+            ],
+        ),
+    ),
+
+    'sgd_1': dict(
+        name=["sgd"],
+        interface=["CustomizedTest"],
+        para=dict(
+            nesterov=[False for i in range(5)],
+            lr=[0.05 for i in range(5)],
+            momentum=[0.9 for i in range(5)],
+            weight_decay=[0.0 for i in range(5)],
+            dampening=[0 for i in range(5)],
+        ),
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ["param", "param_grad"],
+                    "shape": [(24,), (58,), (116,), (232,), (1024,)],
+                    "dtype": [Dtype.float32],
+                    "gen_fn": Genfunc.randn,
+                },
+                {
+                    "ins": ["buf"],
+                    "shape": [(24,), (58,), (116,), (232,), (1024,)],
+                    "dtype": [Dtype.float32],
+                    "gen_fn": Genfunc.randn,
+                },
+            ],
+        ),
+    ),
+
+    'softmax': dict(
+        name=["softmax"],
+        saved_args=dict(output=0),
+        para=dict(
+            dim=[1, 1],
+        ),
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ["input"],
+                    "shape": [(64, 1000), (16, 1000)],
                     "dtype": [Dtype.float32],
                     "gen_fn": Genfunc.randn,
                 },

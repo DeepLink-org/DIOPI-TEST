@@ -346,10 +346,10 @@ crnn_config = {
         name=["adadelta"],
         interface=["CustomizedTest"],
         para=dict(
-            lr=[1.0],
-            rho=[0.9],
-            eps=[1e-06],
-            weight_decay=[0],
+            lr=[1.0 for i in range(1)],
+            rho=[0.9 for i in range(1)],
+            eps=[1e-06 for i in range(1)],
+            weight_decay=[0 for i in range(1)],
         ),
         tensor_para=dict(
             args=[

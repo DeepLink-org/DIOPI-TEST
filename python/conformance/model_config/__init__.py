@@ -1,15 +1,15 @@
 # 12 models for classfication (maybe rm r101)
-from .cv_configs.resnet50_config import resnet50_config
-from .cv_configs.resnet101_config import resnet101_config
-from .cv_configs.mobilenet_v2_config import mobilenet_v2_config
-from .cv_configs.efficientnet_config import efficientnet_config
-from .cv_configs.seresnet50_config import seresnet50_config
-from .cv_configs.densenet_config import densenet_config # redo
-from .cv_configs.vgg16_config import vgg16_config
-from .cv_configs.repvgg_config import repvgg_config
-from .cv_configs.shufflenet_v2_config import shufflenet_v2_config
-from .cv_configs.swin_transformer_config import swin_transformer_config
-from .cv_configs.vit_config import vit_config
+from .cv_configs.resnet50_config import resnet50_config # 5.2G
+from .cv_configs.resnet101_config import resnet101_config # 5.0G
+from .cv_configs.mobilenet_v2_config import mobilenet_v2_config # 4.3G
+from .cv_configs.efficientnet_config import efficientnet_config # 12G
+from .cv_configs.seresnet50_config import seresnet50_config # 5.7G
+from .cv_configs.densenet_config import densenet_config # todo
+from .cv_configs.vgg16_config import vgg16_config # 9.8G
+from .cv_configs.repvgg_config import repvgg_config # 4.1G
+from .cv_configs.shufflenet_v2_config import shufflenet_v2_config # 1.9G
+from .cv_configs.swin_transformer_config import swin_transformer_config # 21G
+from .cv_configs.vit_config import vit_config # 4.1G
 from .cv_configs.inceptionv3_config import inceptionv3_config # 18G
 
 # 6 models for segmentation
@@ -22,24 +22,26 @@ from .seg_configs.deeplabv3plus_config import deeplabv3plus_config
 
 # 11 models for detetcion
 from .det_configs.faster_rcnn_r50_config import faster_rcnn_r50_config # 9G
-from .det_configs.retinanet_config import retinanet_config
+from .det_configs.retinanet_config import retinanet_config # too many conv2d
 from .det_configs.ssd300_config import ssd300_config # 8.2G
 from .det_configs.yolov3_config import yolov3_config # 3.5G
 from .det_configs.atss_config import atss_config # 8G
-from .det_configs.fcos_config import fcos_config
-from .det_configs.cascade_rcnn_config import cascade_rcnn_config
-from .det_configs.mask_rcnn_config import mask_rcnn_config
-from .det_configs.detr_config import detr_config
-from .det_configs.centernet_config import centernet_config
-from .det_configs.solo_config import solo_config
+from .det_configs.fcos_config import fcos_config # too many conv2d
+from .det_configs.cascade_rcnn_config import cascade_rcnn_config # too many conv2d
+from .det_configs.mask_rcnn_config import mask_rcnn_config # too many conv2d
+from .det_configs.detr_config import detr_config # too many conv2d
+from .det_configs.centernet_config import centernet_config # 39G
+from .det_configs.solo_config import solo_config # too many conv2d
 
-# 6 models for action/pose (miss slowfast tcn)
+# 8 models for action/pose
 from .other_configs.deeppose_config import deeppose_config
-from .other_configs.hrnet_config import hrnet_config
-from .other_configs.stgcn_config import stgcn_config
-from .other_configs.sar_config import sar_config
-from .other_configs.dbnet_config import dbnet_config
+from .other_configs.hrnet_config import hrnet_config # 7G
+from .other_configs.stgcn_config import stgcn_config # 7.1G
+from .other_configs.sar_config import sar_config # cannot serialize a bytes object larger than 4 GiB
+from .other_configs.dbnet_config import dbnet_config # 24G
 from .other_configs.crnn_config import crnn_config
+from .other_configs.slowfast_config import slowfast_config # 9.6G
+from .other_configs.tsn_config import tsn_config # 20G
 
 
 __all__ = ['resnet50_config',
@@ -79,4 +81,6 @@ __all__ = ['resnet50_config',
            'stgcn_config',
            'sar_config',
            'dbnet_config',
-           'crnn_config']
+           'crnn_config',
+           'slowfast_config',
+           'tsn_config']

@@ -466,11 +466,11 @@ stgcn_config = {
         name=["sgd"],
         interface=["CustomizedTest"],
         para=dict(
-            nesterov=[[True] for i in range(21)],
-            lr=[[0.1] for i in range(21)],
-            momentum=[[0.9] for i in range(21)],
-            weight_decay=[[0.0001] for i in range(21)],
-            dampening=[[0] for i in range(21)],
+            nesterov=[True for i in range(21)],
+            lr=[0.1 for i in range(21)],
+            momentum=[0.9 for i in range(21)],
+            weight_decay=[0.0001 for i in range(21)],
+            dampening=[0 for i in range(21)],
         ),
         tensor_para=dict(
             args=[
