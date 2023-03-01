@@ -341,12 +341,11 @@ diopi_configs = {
         ),
     ),
 
-    'pointwise_op_without_inplace': dict(
+    'pointwise_op_int_without_inplace': dict(
         name=['abs', 'cos', 'erf', 'exp',
               'neg', 'sin', 'sqrt'],
         interface=['torch'],
-        dtype=[Dtype.float16, Dtype.float32, Dtype.float64,
-               Dtype.int16, Dtype.int64, Dtype.uint8, Dtype.int8],
+        dtype=[Dtype.int16, Dtype.int64, Dtype.uint8, Dtype.int8],
         tensor_para=dict(
             gen_fn=Genfunc.randn,
             args=[
