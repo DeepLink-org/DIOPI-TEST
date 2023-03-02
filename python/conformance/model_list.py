@@ -69,7 +69,6 @@ model_op_list = {
             'sum', 'expand', 'dropout', 'cross_entropy', 'adam', 'addcmul', 'sqrt', 'addcdiv', 'arange', 'max'],
     'crnn': ['mean', 'fill_', 'uniform', 'randperm', 'sub', 'div', 'stack', 'conv2d', 'relu', 'max_pool2d', 'add', 'batch_norm', 'permute', 'linear', 'adadelta', 'mul', 'addcmul', 'sqrt', 'arange', 'softmax'],
     'tsn': ['randperm', 'conv2d', 'batch_norm', 'relu', 'max_pool2d', 'add', 'adaptive_avg_pool2d', 'mean', 'dropout', 'linear', 'cross_entropy', 'mul', 'norm', 'stack', 'div', 'reciprocal', 'clamp', 'sgd'],
-    'slowfast': ['randperm', 'interpolate', 'add', 'batch_norm', 'relu', 'cat', 'dropout', 'linear', 'cross_entropy', 'mul', 'mean', 'norm', 'stack', 'div', 'reciprocal', 'clamp', 'sgd'
+    'slowfast': ['randperm', 'interpolate', 'add', 'batch_norm', 'relu', 'cat', 'dropout', 'linear', 'cross_entropy', 'mul', 'mean', 'norm', 'stack', 'div', 'reciprocal', 'clamp', 'sgd',
                  'conv3d', 'max_pool3d', 'adaptive_avg_pool3d'],
-
 }

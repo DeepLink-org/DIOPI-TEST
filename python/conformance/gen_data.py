@@ -296,7 +296,7 @@ def gen_and_dump_data(dir_path: str, cfg_name: str, cfg_expand_list: list, cfg_s
         function_paras["kwargs"].update(construct_paras)
         cfg_info = {"function_paras": function_paras, "cfg": cfg_dict}
         with open(os.path.join(dir_path, file_name), "wb") as f:
-            pickle.dump(cfg_info, f)
+            pickle.dump(cfg_info, f, protocol=4)
 
         tensor_list = []
         function_paras['kwargs'] = {}

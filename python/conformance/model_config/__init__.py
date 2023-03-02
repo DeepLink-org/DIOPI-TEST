@@ -37,10 +37,10 @@ from .det_configs.solo_config import solo_config # 24G
 from .other_configs.deeppose_config import deeppose_config
 from .other_configs.hrnet_config import hrnet_config # 7G
 from .other_configs.stgcn_config import stgcn_config # 7.1G
-from .other_configs.sar_config import sar_config # linear cannot serialize a bytes object larger than 4 GiB
+from .other_configs.sar_config import sar_config # large shape
 from .other_configs.dbnet_config import dbnet_config # 14G
 from .other_configs.crnn_config import crnn_config # 2.1G
-from .other_configs.slowfast_config import slowfast_config # 9.6G
+from .other_configs.slowfast_config import slowfast_config # 18G
 from .other_configs.tsn_config import tsn_config # 20G
 
 
