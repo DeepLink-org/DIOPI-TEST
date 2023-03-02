@@ -20,26 +20,26 @@ from .seg_configs.pspnet_config import pspnet_config
 from .seg_configs.deeplabv3_config import deeplabv3_config
 from .seg_configs.deeplabv3plus_config import deeplabv3plus_config
 
-# 11 models for detetcion
-from .det_configs.faster_rcnn_r50_config import faster_rcnn_r50_config # 9G
-from .det_configs.retinanet_config import retinanet_config # too many conv2d
-from .det_configs.ssd300_config import ssd300_config # 8.2G
-from .det_configs.yolov3_config import yolov3_config # 3.5G
-from .det_configs.atss_config import atss_config # 8G
-from .det_configs.fcos_config import fcos_config # too many conv2d
-from .det_configs.cascade_rcnn_config import cascade_rcnn_config # too many conv2d
-from .det_configs.mask_rcnn_config import mask_rcnn_config # too many conv2d
-from .det_configs.detr_config import detr_config # too many conv2d
-from .det_configs.centernet_config import centernet_config # 39G
-from .det_configs.solo_config import solo_config # too many conv2d
+# 11 models for detetcion (miss repeat)
+from .det_configs.faster_rcnn_r50_config import faster_rcnn_r50_config # 16G
+from .det_configs.retinanet_config import retinanet_config # 14G
+from .det_configs.ssd300_config import ssd300_config # 4.6G
+from .det_configs.yolov3_config import yolov3_config # 3.9G
+from .det_configs.atss_config import atss_config # 13G
+from .det_configs.fcos_config import fcos_config # 11G
+from .det_configs.cascade_rcnn_config import cascade_rcnn_config # 16G
+from .det_configs.mask_rcnn_config import mask_rcnn_config # 16G
+from .det_configs.detr_config import detr_config # 12G
+from .det_configs.centernet_config import centernet_config # 7.7G
+from .det_configs.solo_config import solo_config # 24G
 
 # 8 models for action/pose
 from .other_configs.deeppose_config import deeppose_config
 from .other_configs.hrnet_config import hrnet_config # 7G
 from .other_configs.stgcn_config import stgcn_config # 7.1G
-from .other_configs.sar_config import sar_config # cannot serialize a bytes object larger than 4 GiB
-from .other_configs.dbnet_config import dbnet_config # 24G
-from .other_configs.crnn_config import crnn_config
+from .other_configs.sar_config import sar_config # linear cannot serialize a bytes object larger than 4 GiB
+from .other_configs.dbnet_config import dbnet_config # 14G
+from .other_configs.crnn_config import crnn_config # 2.1G
 from .other_configs.slowfast_config import slowfast_config # 9.6G
 from .other_configs.tsn_config import tsn_config # 20G
 

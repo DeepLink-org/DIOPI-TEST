@@ -28,10 +28,11 @@ model_op_list = {
     'fcos': ['conv2d', 'batch_norm', 'relu', 'max_pool2d', 'add', 'interpolate', 'group_norm', 'mul', 'exp', 'arange', 'stack', 'expand', 'cat', 'sub', 'min', 'gt', 'max', 'ge', 'le', 'logical_and',
              'eq', 'split', 'permute', 'lt', 'nonzero', 'sum', 'div', 'sqrt', 'any', 'maximum', 'minimum', 'clamp', 'log', 'neg', 'ne', 'binary_cross_entropy_with_logits', 'mean', 'norm', 'reciprocal', 'sgd', 'sigmoid', 'sort'],
     'atss': ['conv2d', 'batch_norm', 'relu', 'max_pool2d', 'add', 'interpolate', 'group_norm', 'mul', 'arange', 'stack', 'logical_and', 'expand', 'cat', 'any', 'split', 'sum', 'sub', 'maximum',
-             'minimum', 'clamp', 'div', 'pow', 'sqrt', 'topk', 'mean', 'std', 'ge', 'min', 'gt', 'transpose', 'max', 'ne', 'nonzero', 'unique', 'eq', 'permute', 'lt', 'exp', 'binary_cross_entropy_with_logits', 'sgd'],
-    'ssd300': ['maximum', 'randperm', 'conv2d', 'relu', 'max_pool2d', 'pow', 'sum', 'sqrt', 'add',  'expand', 'mul', 'div', 'arange', 'stack', 'logical_and', 'cat', 'maximum', 'minimum',
-                      'sub', 'max', 'min', 'clamp', 'ge', 'lt', 'gt', 'index_select', 'log', 'permute', 'cross_entropy', 'topk', 'abs', 'where', 'mean', 'eq', 'sgd', 'nonzero', 'sort', 'exp'],
-    'retinanet': ['randperm',  'conv2d', 'batch_norm', 'relu', 'max_pool2d', 'add',  'interpolate', 'orange', 'mul', 'stack', 'logical_and', 'expand', 'cat', 'any', 'sub', 'maximum',
+             'minimum', 'clamp', 'div', 'pow', 'sqrt', 'topk', 'mean', 'std', 'ge', 'min', 'gt', 'transpose', 'max', 'ne', 'nonzero', 'unique', 'eq', 'permute', 'lt', 'exp', 'binary_cross_entropy_with_logits',
+             'sgd', 'sigmoid', 'sort'],
+    'ssd300': ['maximum', 'randperm', 'conv2d', 'relu', 'max_pool2d', 'pow', 'sum', 'sqrt', 'add',  'expand', 'mul', 'div', 'arange', 'stack', 'logical_and', 'cat', 'maximum', 'minimum', 'any', 'unique',
+               'sub', 'max', 'min', 'clamp', 'ge', 'lt', 'gt', 'index_select', 'log', 'permute', 'cross_entropy', 'topk', 'abs', 'where', 'mean', 'eq', 'sgd', 'nonzero', 'sort', 'exp'],
+    'retinanet': ['arange', 'randperm',  'conv2d', 'batch_norm', 'relu', 'max_pool2d', 'add',  'interpolate', 'orange', 'mul', 'stack', 'logical_and', 'expand', 'cat', 'any', 'sub', 'maximum',
                   'minimum', 'clamp', 'div', 'max', 'ge', 'lt', 'eq', 'gt', 'nonzero', 'unique', 'log', 'permute', 'sum', 'abs', 'mean', 'sgd', 'sigmoid', 'sort'],
     'faster_rcnn_r50': ['randperm',  'conv2d', 'batch_norm', 'relu', 'max_pool2d', 'add',  'interpolate', 'orange', 'mul', 'stack', 'logical_and', 'expand', 'cat', 'any', 'sub', 'maximum',
                         'minimum', 'clamp', 'div', 'max', 'ge', 'lt', 'eq', 'gt', 'nonzero', 'unique', 'log', 'permute', 'ne', 'binary_cross_entropy_with_logits', 'arange', 'sqrt',
@@ -49,7 +50,7 @@ model_op_list = {
     'cascade_rcnn': ['conv2d', 'batch_norm', 'relu', 'max_pool2d', 'add', 'interpolate', 'arange', 'mul', 'stack', 'logical_and', 'expand', 'cat', 'ge', 'lt', 'any', 'sub', 'maximum', 'minimum', 'clamp', 'div', 'max', 'eq', 'gt', 'nonzero',
                      'unique', 'randperm', 'log', 'permute', 'ne', 'binary_cross_entropy_with_logits', 'sum', 'abs', 'where', 'sigmoid', 'sort', 'exp', 'all', 'sqrt', 'log2', 'floor', 'linear', 'cross_entropy', 'topk', 'transpose', 'argmax', 'mean', 'sgd', 'split', 'softmax'],
     'centernet': ['conv2d', 'add', 'batch_norm', 'relu', 'max_pool2d', 'conv_transpose2d', 'sigmoid', 'mul', 'div', 'cat', 'sub', 'pow', 'lt', 'arange', 'neg', 'exp', 'max', 'gt', 'maximum', 'eq', 'sum', 'log', 'abs',
-                  'mean', 'norm', 'stack', 'reciprocal', 'clamp', 'sgd', 'topk', 'permute', 'gather'],
+                  'mean', 'norm', 'stack', 'reciprocal', 'clamp', 'sgd', 'topk', 'permute', 'gather', 'remainder'],
 
     # seg
     'unet': ['dropout2d', 'randperm', 'conv2d', 'add', 'batch_norm', 'relu', 'max_pool2d', 'interpolate', 'cat', 'cross_entropy', 'mean', 'mul', 'topk', 'transpose', 'expand', 'eq', 'ne', 'sum', 'div', 'sgd'],
@@ -68,6 +69,7 @@ model_op_list = {
             'sum', 'expand', 'dropout', 'cross_entropy', 'adam', 'addcmul', 'sqrt', 'addcdiv', 'arange', 'max'],
     'crnn': ['mean', 'fill_', 'uniform', 'randperm', 'sub', 'div', 'stack', 'conv2d', 'relu', 'max_pool2d', 'add', 'batch_norm', 'permute', 'linear', 'adadelta', 'mul', 'addcmul', 'sqrt', 'arange', 'softmax'],
     'tsn': ['randperm', 'conv2d', 'batch_norm', 'relu', 'max_pool2d', 'add', 'adaptive_avg_pool2d', 'mean', 'dropout', 'linear', 'cross_entropy', 'mul', 'norm', 'stack', 'div', 'reciprocal', 'clamp', 'sgd'],
-    'slowfast': ['randperm', 'interpolate', 'add', 'batch_norm', 'relu', 'cat', 'dropout', 'linear', 'cross_entropy', 'mul', 'mean', 'norm', 'stack', 'div', 'reciprocal', 'clamp', 'sgd'],
+    'slowfast': ['randperm', 'interpolate', 'add', 'batch_norm', 'relu', 'cat', 'dropout', 'linear', 'cross_entropy', 'mul', 'mean', 'norm', 'stack', 'div', 'reciprocal', 'clamp', 'sgd'
+                 'conv3d', 'max_pool3d', 'adaptive_avg_pool3d'],
 
 }

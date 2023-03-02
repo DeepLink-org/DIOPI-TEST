@@ -40,6 +40,7 @@ func_para = dict(
     min=reduce_op,
     argmax=reduce_op,
     std={'input': 'tensor', 'dim': 'para', 'unbiased': 'para'},
+    remainder={'input': 'tensor/scalar', 'other': 'tensor/scalar'},
     conv_transpose2d={"input": "tensor", "weight": "tensor", "bias": "tensor/none", "stride": "para/key",
                       "padding": "para/key", "output_padding": "para/key", "groups": "para/key", "dilation": "para/key"},
     conv2d={"input": "tensor/grad", "weight": "tensor/grad", "bias": "tensor/none/grad",
@@ -94,8 +95,8 @@ func_para = dict(
     expand={'input': 'tensor', 'size': 'para'},
     tanh={'input': "tensor/grad"},
     pow={'input': 'tensor/para', 'exponent': 'tensor/para'},
-    index_select={'input': 'tensor', 'dim': 'para', 'index': 'tensor'},
-    split={'input': 'tensor', 'split_size_or_sections': 'para', 'dim': 'para/key'},
+    index_select={'input': 'tensor', 'dim': 'para', 'index': 'tensor'}, # to check manually index not out of range
+    split={'tensor': 'tensor', 'split_size_or_sections': 'para', 'dim': 'para/key'},
     mse_loss={'input': 'tensor', 'target': 'tensor', 'size_average': 'para/key', 'reduce': 'para/key', 'reduction': 'para/key'},
     binary_cross_entropy_with_logits={'input': 'tensor', 'target': 'tensor', 'weight': 'tensor/none', 'size_average': 'para/key',
                                       'reduce': 'para/key', 'reduction': 'para/key', 'pos_weight': 'tensor/none'},
@@ -118,17 +119,24 @@ func_para = dict(
     smooth_l1_loss={'input': 'tensor/grad', 'target': 'tensor', 'size_average': 'para/key', 'reduce': 'para/key', 'reduction': 'para/key', 'beta': 'para/key'},
     adadelta={'param", "param_grad': "tensor", 'square_avg", "acc_delta': 'tensor', 'lr': 'para', 'rho': 'para', 'eps': 'para', 'weight_decay': 'para'},
     triangular_solve={'input': 'tensor/grad', 'A': 'tensor/grad', 'upper': 'para/key', 'transpose': 'para/key', 'unitriangular': 'para/key'},
-    gather={'input': 'tensor', 'dim': 'para', 'index': 'tensor'}, # to check index not out of range
-    #einsum normal mod conv3d max_pool3d adaptive_avg_pool3d
+    gather={'input': 'tensor', 'dim': 'para', 'index': 'tensor'}, # to check manually index not out of range
+    conv3d={"input": "tensor/grad", "weight": "tensor/grad", "bias": "tensor/none/grad",
+            "stride": "para/key", "padding": "para/key", "dilation": "para/key", "groups": "para/key"},
+    max_pool3d={"input": "tensor/grad", "kernel_size": "para", "stride": "para/key", "padding": "para/key",
+                "dilation": "para/key", "ceil_mode": "para/key", "return_indices": "par/key"},
+    adaptive_avg_pool3d={"input": "tensor/grad", "output_size": "para"},
+    #normal
 )
 
 convert_name = {'iadd': "add", 'radd': "add", 'add_': "add", 'rmul': 'mul', 'truediv': 'div', 'rtruediv': 'div',
                 'mul_': 'mul', 'addcmul_': 'addcmul', 'addcdiv_': 'addcdiv', 'uniform_': 'uniform', 'rand': 'uniform',
                 'and': 'logical_and', 'sub_': 'sub', 'div_': 'div', 'imul': 'mul', 'clamp_': 'clamp', 'sigmoid_': 'sigmoid',
                 'itruediv': 'div', 'invert': 'bitwise_not', 'rsub': 'sub', 'expand_as': 'expand', 't': 'transpose',
-                'erfinv_': 'erfinv', 'floordiv': 'div', 'rpow': 'pow', 'isub': 'sub', 'sqrt_': 'sqrt', 'masked_fill_': 'masked_fill'}
+                'erfinv_': 'erfinv', 'floordiv': 'div', 'rpow': 'pow', 'isub': 'sub', 'sqrt_': 'sqrt', 'masked_fill_': 'masked_fill',
+                'mod': 'remainder'}
 inplace_tag = ['iadd', 'imul', 'mul_', 'sub_', 'div_', 'clamp_', 'sigmoid_', 'itruediv', 'erfinv_', 'isub', 'masked_fill_']
-interface_tag = {"sgd": "CustomizedTest", "adamw": "CustomizedTest", 'im2col': 'CustomizedTest', 'adadelta': 'CustomizedTest'}
+interface_tag = {"sgd": "CustomizedTest", "adamw": "CustomizedTest", 'im2col': 'CustomizedTest', 'adadelta': 'CustomizedTest',
+                 "split": "torch"}
 no_output_ref = ['randperm', 'uniform', 'dropout', 'dropout2d']
 saved_args = {"sigmoid": "0", 'softmax': '0', 'log_softmax': '0', 'tanh': '0'}
 
@@ -138,7 +146,7 @@ key_vide = "        "
 seq_name = ['cat', 'stack']
 ignore_list = ['getitem', 'relu_', 'setitem', 'get_rank', 'get_world_size', 'barrier',
                'load', 'broadcast', 'repeat', 'all_reduce', 'meshgrid', 'eye', 'conj',
-               'diagonal', 'grid_sample']
+               'diagonal', 'grid_sample', 'einsum']
 
 def toDtype(dtype, tensor_para):
     if dtype == 'torch.cuda.FloatTensor':
@@ -291,7 +299,7 @@ def gen_config_code(config, file_name):
                     step_list = [i + 1 for i in range(len(para_list[0]))]
                     idx -= 1
                     para.append(para_vide + str(k) + "=" + str(step_list) + ",\n")
-                elif "key" not in v:
+                elif "key" not in v and name != 'arange':
                     print(f"%%%%%%% miss '{k}' in {name} op while generate {file_name}.py %%%%%%%%%%\n")
                     continue
                 else:
@@ -347,10 +355,10 @@ if __name__ == '__main__':
                        "yolov3_config": det_config.yolov3_d53_320_273e_coco_config,
                        "cascade_rcnn_config": det_config.cascade_rcnn_r50_fpn_1x_coco_config,
                        'atss_config': det_config.atss_r50_fpn_1x_coco_config,
-                       #"fcos_config": det_config.fcos_r50_caffe_fpn_gn_head_1x_coco_config,
+                       "fcos_config": det_config.fcos_r50_caffe_fpn_gn_head_1x_coco_config,
                        "mask_rcnn_config": det_config.mask_rcnn_r50_fpn_1x_coco_config,
                        "solo_config": det_config.solo_r50_fpn_1x_coco_config,
-                       #"detr_config": det_config.detr_r50_8x2_150e_coco_config,
+                       "detr_config": det_config.detr_r50_8x2_150e_coco_config,
                        "centernet_config": det_config.centernet_resnet18_140e_coco_config}
     seg_config_dict = {"unet_config": seg_config.fcn_unet_s5_d16_4x4_512x1024_160k_cityscapes_config,
                        "fcn_config": seg_config.fcn_d6_r50_d16_512x1024_40k_cityscapes_config,
@@ -366,6 +374,6 @@ if __name__ == '__main__':
                          'dbnet_config': other_config.dbnet_resnet18_fpnc_1200e_icdar2015_config,
                          'slowfast_config': other_config.slowfast_r50_16x8x1_22e_sthv1_rgb_config,
                          'tsn_config': other_config.tsn_r50_1x1x8_50e_sthv1_rgb_config}
-    config_dict = det_config_dict
+    config_dict = other_config_dict
     for k, v in config_dict.items():
-        gen_config_code(v, "det_configs/" + k)
+        gen_config_code(v, "other_configs/" + k)
