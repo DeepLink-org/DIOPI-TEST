@@ -125,6 +125,7 @@ func_para = dict(
     max_pool3d={"input": "tensor/grad", "kernel_size": "para", "stride": "para/key", "padding": "para/key",
                 "dilation": "para/key", "ceil_mode": "para/key", "return_indices": "par/key"},
     adaptive_avg_pool3d={"input": "tensor/grad", "output_size": "para"},
+    cholesky_ex={"input": "tensor/grad", "upper": "para/key", "check_errors": 'para/key'},
     #normal
 )
 
@@ -133,12 +134,14 @@ convert_name = {'iadd': "add", 'radd': "add", 'add_': "add", 'rmul': 'mul', 'tru
                 'and': 'logical_and', 'sub_': 'sub', 'div_': 'div', 'imul': 'mul', 'clamp_': 'clamp', 'sigmoid_': 'sigmoid',
                 'itruediv': 'div', 'invert': 'bitwise_not', 'rsub': 'sub', 'expand_as': 'expand', 't': 'transpose',
                 'erfinv_': 'erfinv', 'floordiv': 'div', 'rpow': 'pow', 'isub': 'sub', 'sqrt_': 'sqrt', 'masked_fill_': 'masked_fill',
-                'mod': 'remainder'}
+                'mod': 'remainder', 'cholesky': 'cholesky_ex'}
 inplace_tag = ['iadd', 'imul', 'mul_', 'sub_', 'div_', 'clamp_', 'sigmoid_', 'itruediv', 'erfinv_', 'isub', 'masked_fill_']
 interface_tag = {"sgd": "CustomizedTest", "adamw": "CustomizedTest", 'im2col': 'CustomizedTest', 'adadelta': 'CustomizedTest',
-                 "split": "torch"}
+                 "split": "torch", 'cholesky_ex': 'torch.linalg', "adam": "CustomizedTest"}
 no_output_ref = ['randperm', 'uniform', 'dropout', 'dropout2d']
-saved_args = {"sigmoid": "0", 'softmax': '0', 'log_softmax': '0', 'tanh': '0'}
+saved_args = {"sigmoid": "0", 'softmax': '0', 'log_softmax': '0', 'tanh': '0', 'cholesky_ex': '0'}
+requires_backward = {'cholesky_ex': '0'}
+gen_func = {'cholesky_ex': 'Genfunc.sym_mat'}
 
 tensor_vide = "                    "
 para_vide = "            "
@@ -148,40 +151,37 @@ ignore_list = ['getitem', 'relu_', 'setitem', 'get_rank', 'get_world_size', 'bar
                'load', 'broadcast', 'repeat', 'all_reduce', 'meshgrid', 'eye', 'conj',
                'diagonal', 'grid_sample', 'einsum']
 
-def toDtype(dtype, tensor_para):
+def toDtype(dtype, tensor_para, gen_func=None):
+    gen_fn_str = 'Genfunc.randn'
     if dtype == 'torch.cuda.FloatTensor':
         tensor_para.append(tensor_vide + '"dtype": [Dtype.float32],\n')
-        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.randn,\n')
     elif dtype == 'torch.cuda.DoubleTensor':
         tensor_para.append(tensor_vide + '"dtype": [Dtype.float32],\n')
-        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.randn,\n')
     elif dtype == 'torch.cuda.LongTensor':
         tensor_para.append(tensor_vide + '"dtype": [Dtype.int64],\n')
-        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.randint,\n')
+        gen_fn_str = 'Genfunc.randint'
     elif dtype == 'torch.cuda.BoolTensor':
         tensor_para.append(tensor_vide + '"dtype": [Dtype.bool],\n')
-        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.mask,\n')
+        gen_fn_str = 'Genfunc.mask'
     elif dtype == 'torch.cuda.IntTensor':
         tensor_para.append(tensor_vide + '"dtype": [Dtype.int32],\n')
-        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.randint,\n')
+        gen_fn_str = 'Genfunc.randint'
     elif dtype == 'torch.cuda.ByteTensor':
         tensor_para.append(tensor_vide + '"dtype": [Dtype.uint8],\n')
-        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.randint,\n')
+        gen_fn_str = 'Genfunc.randint'
     elif dtype == 'torch.cuda.CharTensor':
         tensor_para.append(tensor_vide + '"dtype": [Dtype.int8],\n')
-        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.randn,\n')
     elif dtype == 'torch.cuda.HalfTensor':
         tensor_para.append(tensor_vide + '"dtype": [Dtype.float16],\n')
-        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.randn,\n')
     elif dtype == 'torch.cuda.ShortTensor':
         tensor_para.append(tensor_vide + '"dtype": [Dtype.int16],\n')
-        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.randn,\n')
     elif isinstance(dtype, list):
         dtype_list = [ele.replace("torch", "Dtype") for ele in dtype]
         dtype_list = list(set(dtype_list))
         tensor_para.append(tensor_vide + '"dtype": ' + str(dtype_list).replace("'", "") + ',\n')
-        tensor_para.append(tensor_vide + '"gen_fn": Genfunc.randn,\n')
 
+    gen_fn = gen_fn_str if gen_func is None else gen_func
+    tensor_para.append(tensor_vide + '"gen_fn": ' + gen_fn + ',\n')
 
 def gen_config_code(config, file_name):
     content = config
@@ -239,6 +239,8 @@ def gen_config_code(config, file_name):
 
         if name in saved_args.keys():
             config.append(key_vide + 'saved_args=dict(output=' + saved_args[name] + '),\n')
+        if name in requires_backward.keys():
+            config.append(key_vide + 'requires_backward=[' + requires_backward[name] + '],\n')
 
         for k, v in func_para[name].items():
             if idx >= len(para_list) + len(kpara_list):
@@ -265,7 +267,8 @@ def gen_config_code(config, file_name):
                     if ele[0] == 'rand':
                         toDtype(kpara_list['dtype'], tensor_para)
                     elif type_idx < len(type_list):
-                        toDtype(type_list[type_idx], tensor_para)
+                        gen_fn = gen_func[name] if name in gen_func.keys() else None
+                        toDtype(type_list[type_idx], tensor_para, gen_fn)
                         type_idx += 1
                     tensor_para.append(para_vide + "    },\n")
 

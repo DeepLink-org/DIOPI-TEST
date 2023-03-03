@@ -3,7 +3,7 @@ model_list = ['resnet50', 'vgg16', 'resnet101', 'seresnet50', 'densenet', 'mobil
               'retinanet', 'faster_rcnn_r50', 'ssd300', 'yolov3', 'atss', 'fcos', 'mask_rcnn',
               'solo', 'centernet', 'cascade_rcnn', 'detr',
               'unet', 'upernet', 'pspnet', 'fcn', 'deeplabv3', 'deeplabv3plus',
-              'sar', 'dbnet', 'stgcn', 'crnn', 'hrnet']
+              'sar', 'dbnet', 'stgcn', 'crnn', 'hrnet', 'deeppose']
 
 model_op_list = {
     'resnet50': ['sgd', 'randperm', 'conv2d', 'add', 'batch_norm', 'relu', 'adaptive_avg_pool2d', 'linear', 'cross_entropy', 'sum', 'mean', 'mul', 'div', 'max_pool2d', 'softmax'],
@@ -71,4 +71,6 @@ model_op_list = {
     'tsn': ['randperm', 'conv2d', 'batch_norm', 'relu', 'max_pool2d', 'add', 'adaptive_avg_pool2d', 'mean', 'dropout', 'linear', 'cross_entropy', 'mul', 'norm', 'stack', 'div', 'reciprocal', 'clamp', 'sgd'],
     'slowfast': ['randperm', 'interpolate', 'add', 'batch_norm', 'relu', 'cat', 'dropout', 'linear', 'cross_entropy', 'mul', 'mean', 'norm', 'stack', 'div', 'reciprocal', 'clamp', 'sgd',
                  'conv3d', 'max_pool3d', 'adaptive_avg_pool3d'],
+    'deeppose': ['randperm', 'conv2d', 'add', 'batch_norm', 'relu', 'max_pool2d', 'adaptive_avg_pool2d', 'linear', 'sigmoid', 'sub', 'div', 'mul', 'leaky_relu', 'tanh', 'neg', 'exp', 'sum', 'expand', 'eq',
+                 'all', 'cholesky_ex', 'permute', 'triangular_solve', 'pow', 'transpose', 'log', 'abs', 'mean', 'adam'],
 }

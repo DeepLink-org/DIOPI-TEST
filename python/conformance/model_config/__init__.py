@@ -13,12 +13,12 @@ from .cv_configs.vit_config import vit_config # 4.1G
 from .cv_configs.inceptionv3_config import inceptionv3_config # 18G
 
 # 6 models for segmentation
-from .seg_configs.unet_config import unet_config
-from .seg_configs.upernet_config import upernet_config
-from .seg_configs.fcn_config import fcn_config
-from .seg_configs.pspnet_config import pspnet_config
-from .seg_configs.deeplabv3_config import deeplabv3_config
-from .seg_configs.deeplabv3plus_config import deeplabv3plus_config
+from .seg_configs.unet_config import unet_config # 32G
+from .seg_configs.upernet_config import upernet_config #11G
+from .seg_configs.fcn_config import fcn_config # 5.5G
+from .seg_configs.pspnet_config import pspnet_config # 9.7G
+from .seg_configs.deeplabv3_config import deeplabv3_config # 9.5G
+from .seg_configs.deeplabv3plus_config import deeplabv3plus_config #14G
 
 # 11 models for detetcion (miss repeat)
 from .det_configs.faster_rcnn_r50_config import faster_rcnn_r50_config # 16G
@@ -34,7 +34,7 @@ from .det_configs.centernet_config import centernet_config # 7.7G
 from .det_configs.solo_config import solo_config # 24G
 
 # 8 models for action/pose
-from .other_configs.deeppose_config import deeppose_config
+from .other_configs.deeppose_config import deeppose_config #10G
 from .other_configs.hrnet_config import hrnet_config # 7G
 from .other_configs.stgcn_config import stgcn_config # 7.1G
 from .other_configs.sar_config import sar_config # large shape
