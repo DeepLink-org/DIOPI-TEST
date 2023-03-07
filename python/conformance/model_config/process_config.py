@@ -245,6 +245,9 @@ def gen_config_code(config, file_name):
         for k, v in func_para[name].items():
             if idx >= len(para_list) + len(kpara_list):
                 break
+            if k == "index":
+                print(f"Warning: need to to check manually index not out of range for {name} in {file_name}.py %%%%%%%%%%\n")
+
             is_para = True
             if "tensor" in v:
                 if name in ['sgd', 'adamw', 'adam', 'adadelta']:
@@ -377,6 +380,6 @@ if __name__ == '__main__':
                          'dbnet_config': other_config.dbnet_resnet18_fpnc_1200e_icdar2015_config,
                          'slowfast_config': other_config.slowfast_r50_16x8x1_22e_sthv1_rgb_config,
                          'tsn_config': other_config.tsn_r50_1x1x8_50e_sthv1_rgb_config}
-    config_dict = other_config_dict
+    config_dict = cv_config_dict
     for k, v in config_dict.items():
-        gen_config_code(v, "other_configs/" + k)
+        gen_config_code(v, "cv_configs/" + k)

@@ -4,13 +4,13 @@ from .cv_configs.resnet101_config import resnet101_config # 5.0G
 from .cv_configs.mobilenet_v2_config import mobilenet_v2_config # 4.3G
 from .cv_configs.efficientnet_config import efficientnet_config # 12G
 from .cv_configs.seresnet50_config import seresnet50_config # 5.7G
-from .cv_configs.densenet_config import densenet_config # todo
+from .cv_configs.densenet_config import densenet_config # large data
 from .cv_configs.vgg16_config import vgg16_config # 9.8G
 from .cv_configs.repvgg_config import repvgg_config # 4.1G
 from .cv_configs.shufflenet_v2_config import shufflenet_v2_config # 1.9G
 from .cv_configs.swin_transformer_config import swin_transformer_config # 21G
 from .cv_configs.vit_config import vit_config # 4.1G
-from .cv_configs.inceptionv3_config import inceptionv3_config # 18G
+from .cv_configs.inceptionv3_config import inceptionv3_config # 8G
 
 # 6 models for segmentation
 from .seg_configs.unet_config import unet_config # 32G
