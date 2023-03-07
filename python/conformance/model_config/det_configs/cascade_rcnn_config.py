@@ -1213,7 +1213,7 @@ cascade_rcnn_config = {
         para=dict(
             start=[1, 1],
             end=[4, 3],
-            dtype=['Dtype.int64', 'Dtype.int64'],
+            dtype=[Dtype.int64, Dtype.int64],
         ),
     ),
 
@@ -1736,7 +1736,7 @@ cascade_rcnn_config = {
         interface=["torch"],
         para=dict(
             end=[80],
-            dtype=['Dtype.int64'],
+            dtype=[Dtype.int64],
         ),
     ),
 

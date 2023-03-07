@@ -285,7 +285,9 @@ def gen_config_code(config, file_name):
                             kpara_list[k] = [ tuple(e) for e in kpara_list[k]]
                         if not isinstance(kpara_list[k], list):
                             kpara_list[k] = [kpara_list[k]]
-                        para.append(para_vide + str(k) + "=" + str(kpara_list[k]).replace("torch.", "Dtype.").replace('-inf', 'float("-inf")') + ",\n")
+                        if k == "dtype":
+                            kpara_list[k] = str(kpara_list[k]).replace("torch.", "Dtype.").replace("'", "")
+                        para.append(para_vide + str(k) + "=" + str(kpara_list[k]).replace('-inf', 'float("-inf")') + ",\n")
                 elif idx < len(para_list):
                     if name in ['permute', 'expand'] and not isinstance(para_list[idx][0], (tuple, list)):
                         dims_list = []
@@ -380,6 +382,6 @@ if __name__ == '__main__':
                          'dbnet_config': other_config.dbnet_resnet18_fpnc_1200e_icdar2015_config,
                          'slowfast_config': other_config.slowfast_r50_16x8x1_22e_sthv1_rgb_config,
                          'tsn_config': other_config.tsn_r50_1x1x8_50e_sthv1_rgb_config}
-    config_dict = cv_config_dict
+    config_dict = det_config_dict
     for k, v in config_dict.items():
-        gen_config_code(v, "cv_configs/" + k)
+        gen_config_code(v, "det_configs/" + k)

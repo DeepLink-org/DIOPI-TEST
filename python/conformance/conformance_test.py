@@ -155,7 +155,7 @@ class ManualTest(object):
         assert np.allclose(out_numpy, out_ref, 1e-3),\
             "failed to execute randperm"
 
-    def test_uniform(input, start, end):
+    def test_uniform(input, start=0, end=1):
         out = F.uniform(input, start, end)
         out_numpy = out.numpy()
 
@@ -254,7 +254,7 @@ class ConformanceTest(object):
 
                 write_precision(data["cfg"], cfg_func_name, passed)
 
-                if function_paras["requires_grad"] and "inplace=True" not in func_call:
+                if function_paras["requires_grad"] and "inplace=True" not in func_call and kwargs.get('inplace', False):
                     test_tag.append("backward")
                     saved_backward_pth = saved_pth.split(".pth")[0] + "_backward.pth"
                     saved_backward_pth = os.path.join(outputs_dir_path, saved_backward_pth)

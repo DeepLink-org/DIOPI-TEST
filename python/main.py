@@ -32,6 +32,16 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
 
+    # cv_model_list = ['resnet50', 'vgg16', 'resnet101', 'seresnet50', 'densenet', 'mobilenet_v2',
+    #                  'efficientnet', 'shufflenet_v2', 'repvgg', 'swin_transformer', 'vit', 'inceptionv3']
+    # import os
+    # for ele in cv_model_list:
+    #     logger.info(f"{ele} model test starts...")
+    #     cf.GenInputData.run("all_ops", ele, [])
+    #     cf.GenOutputData.run("all_ops", ele, [])
+    #     cf.ConformanceTest.run("all_ops", ele, [])
+    #     os.system(f"rm -rf data/{ele}")
+    #     print("Error", error_counter[0])
     if args.get_model_list:
         print(f"The supported model_list: {model_list}")
 

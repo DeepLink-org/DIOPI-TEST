@@ -214,7 +214,7 @@ detr_config = {
         interface=["torch.Tensor"],
         para=dict(
             dim=[1, 2, 1, 2],
-            dtype=['Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32'],
+            dtype=[Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32],
         ),
         tensor_para=dict(
             args=[
@@ -290,7 +290,7 @@ detr_config = {
         interface=["torch"],
         para=dict(
             end=[128],
-            dtype=['Dtype.float32'],
+            dtype=[Dtype.float32],
         ),
     ),
 

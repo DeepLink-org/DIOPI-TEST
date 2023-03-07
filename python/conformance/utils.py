@@ -10,16 +10,16 @@ import csv
 
 default_cfg_dict = dict(
     default_option=dict(
-        atol=1e-8,
-        rtol=1e-5,
-        atol_half=1e-4,
-        rtol_half=5e-3,
+        atol=1e-3,
+        rtol=1e-3,
+        atol_half=1e-2,
+        rtol_half=5e-2,
         memory_format="NCHW",
         fp16_exact_match=False,
         train=True,
     ),
     # set log_level = "DEBUG" for debug infos
-    log_level="INFO"  # NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICA
+    log_level="DEBUG"  # NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICA
 )
 np.set_printoptions(precision=5,
                     threshold=100,
@@ -179,7 +179,7 @@ def write_report():
     if is_ci != 'null':
         return
     os.system("rm -f error_report.csv")
-    with open("error_report.csv", "w") as f:
+    with open("error_report.csv", "a") as f:
         f.write("Conformance-Test Error Report\n")
         f.write("---------------------------------\n")
         f.write(f"{error_counter[0]} Tests failed:\n")

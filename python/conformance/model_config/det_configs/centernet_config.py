@@ -454,7 +454,7 @@ centernet_config = {
         para=dict(
             start=[-10, -9, -8, -15, -4, -3, -11, -21, -5, -20, 0, -1, -6, -2, -7, -18, -23, -24, -16, -13, -14, -19, -25],
             end=[11, 10, 9, 16, 5, 4, 12, 22, 6, 21, 1, 2, 7, 3, 8, 19, 24, 25, 17, 14, 15, 20, 26],
-            dtype=['Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32', 'Dtype.float32'],
+            dtype=[Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32, Dtype.float32],
         ),
     ),
 

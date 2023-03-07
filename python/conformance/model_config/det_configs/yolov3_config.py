@@ -1300,7 +1300,7 @@ yolov3_config = {
         interface=["torch"],
         para=dict(
             end=[80],
-            dtype=['Dtype.int64'],
+            dtype=[Dtype.int64],
         ),
     ),
 

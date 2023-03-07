@@ -86,7 +86,7 @@ diopi_configs = {
     ),
 
     'hardtanh': dict(
-        name=["hardtanh"],
+        name=["hardtanh1"],
         is_inplace=True,
         para=dict(
             min_val=[0.0, 0.0, 0.1, 1.0],
@@ -3040,4 +3040,33 @@ diopi_configs = {
         saved_args=dict(output=0),
     ),
 
+    'hardtanh1': dict(
+        name=["hardtanh"],
+        para=dict(
+            min_val=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            max_val=[6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0],
+            #inplace=[True, True, True, True, True, True, True, True, True, True, True, True],
+        ),
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ["input"],
+                    "requires_grad": [True],
+                    "shape": [(32, 32, 112, 112), (32, 96, 112, 112), (32, 96, 56, 56), (32, 144, 56, 56), (32, 144, 28, 28), (32, 192, 28, 28), (32, 192, 14, 14), (32, 384, 14, 14), (32, 576, 14, 14), (32, 576, 7, 7), (32, 960, 7, 7), (32, 1280, 7, 7)],
+                    "dtype": [Dtype.float32],
+                    "gen_fn": Genfunc.randn,
+                },
+            ],
+        ),
+    ),
+
+    'arange_1': dict(
+        name=["arange"],
+        interface=["torch"],
+        para=dict(
+            start=[1, 1],
+            end=[3, 11],
+            dtype=['Dtype.int64', 'Dtype.int64'],
+        ),
+    ),
 }

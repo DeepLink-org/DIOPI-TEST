@@ -2419,7 +2419,7 @@ def conv3d_backward(input, grad_outputs, weight, bias=None, stride=1,
 def expand(input, size) -> Tensor:
     SizeI = input.size()
     size = list(size)
-    for i in (-1, -len(SizeI)):
+    for i in range(-1, -len(SizeI)-1, -1):
         if size[i] == -1:
             size[i] = SizeI[i]
         else:
