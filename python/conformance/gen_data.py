@@ -194,8 +194,6 @@ def gen_tensor(arg: dict, cfg_dict: dict) -> np.ndarray:
         return None
     try:
         shape = arg["shape"]
-        if shape == ():
-            shape = (1,)
         if isinstance(arg["gen_fn"], int):
             gen_fn = arg["gen_fn"]
             if gen_fn == Genfunc.randint:
@@ -212,9 +210,9 @@ def gen_tensor(arg: dict, cfg_dict: dict) -> np.ndarray:
             cfg_dict['tag'].append("empty")
 
         if gen_fn == Genfunc.randn:
-            value = np.random.randn(*shape).astype(dtype)
+            value = np.array(np.random.randn(*shape)).astype(dtype)
         elif gen_fn == Genfunc.rand:
-            value = np.random.rand(*shape).astype(dtype)
+            value = np.array(np.random.rand(*shape)).astype(dtype)
         elif gen_fn == Genfunc.ones:
             value = np.ones(shape, dtype=dtype)
         elif gen_fn == Genfunc.zeros:
@@ -226,13 +224,13 @@ def gen_tensor(arg: dict, cfg_dict: dict) -> np.ndarray:
         elif gen_fn == Genfunc.empty:
             value = np.empty(shape, dtype=dtype)
         elif gen_fn == Genfunc.positive:
-            value = np.abs(np.random.randn(*shape).astype(dtype))
+            value = np.abs(np.array(np.random.randn(*shape)).astype(dtype))
         elif gen_fn == Genfunc.sym_mat:
             axis = (0, 2, 1) if len(shape) == 3 else (0, 1)
             mat = np.random.randn(*shape).astype(dtype)
             value = mat @ mat.transpose(axis)
         else:
-            value = np.random.randn(*shape).astype(dtype)
+            value = np.array(np.random.randn(*shape)).astype(dtype)
 
         if "no_contiguous" in arg:
             value = value.transpose()
