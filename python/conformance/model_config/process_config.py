@@ -95,7 +95,7 @@ func_para = dict(
     expand={'input': 'tensor', 'size': 'para'},
     tanh={'input': "tensor/grad"},
     pow={'input': 'tensor/para', 'exponent': 'tensor/para'},
-    index_select={'input': 'tensor', 'dim': 'para', 'index': 'tensor'}, # to check manually index not out of range
+    index_select={'input': 'tensor', 'dim': 'para', 'index': 'tensor'},  # to check manually index not out of range
     split={'tensor': 'tensor', 'split_size_or_sections': 'para', 'dim': 'para/key'},
     mse_loss={'input': 'tensor', 'target': 'tensor', 'size_average': 'para/key', 'reduce': 'para/key', 'reduction': 'para/key'},
     binary_cross_entropy_with_logits={'input': 'tensor', 'target': 'tensor', 'weight': 'tensor/none', 'size_average': 'para/key',
@@ -113,13 +113,13 @@ func_para = dict(
     bmm={'input': 'tensor', 'mat2': 'tensor'},
     cumsum={'input': 'tensor', 'dim': 'para', 'dtype': 'para/key'},
     adam={'param", "param_grad': "tensor", 'exp_avg", "exp_avg_sq", "max_exp_avg_sq': "tensor", 'step': 'para',
-           "amsgrad": "para/key", "beta1": "para/key", "beta2": "para/key", "lr": "para/key", "weight_decay": "para/key", "eps": "para/key"},
+          "amsgrad": "para/key", "beta1": "para/key", "beta2": "para/key", "lr": "para/key", "weight_decay": "para/key", "eps": "para/key"},
     embedding={'input': 'tensor', 'weight': 'tensor/grad', "padding_idx": 'para/key', 'max_norm': 'para/key', "norm_type": 'para/key',
                'scale_grad_by_freq': 'para/key', 'sparse': 'para/key'},
     smooth_l1_loss={'input': 'tensor/grad', 'target': 'tensor', 'size_average': 'para/key', 'reduce': 'para/key', 'reduction': 'para/key', 'beta': 'para/key'},
     adadelta={'param", "param_grad': "tensor", 'square_avg", "acc_delta': 'tensor', 'lr': 'para', 'rho': 'para', 'eps': 'para', 'weight_decay': 'para'},
     triangular_solve={'input': 'tensor/grad', 'A': 'tensor/grad', 'upper': 'para/key', 'transpose': 'para/key', 'unitriangular': 'para/key'},
-    gather={'input': 'tensor', 'dim': 'para', 'index': 'tensor'}, # to check manually index not out of range
+    gather={'input': 'tensor', 'dim': 'para', 'index': 'tensor'},  # to check manually index not out of range
     conv3d={"input": "tensor/grad", "weight": "tensor/grad", "bias": "tensor/none/grad",
             "stride": "para/key", "padding": "para/key", "dilation": "para/key", "groups": "para/key"},
     max_pool3d={"input": "tensor/grad", "kernel_size": "para", "stride": "para/key", "padding": "para/key",
@@ -185,6 +185,7 @@ def toDtype(dtype, tensor_para, gen_func=None):
 
     gen_fn = gen_fn_str if gen_func is None else gen_func
     tensor_para.append(tensor_vide + '"gen_fn": ' + gen_fn + ',\n')
+
 
 def gen_config_code(config, file_name):
     content = config
@@ -284,8 +285,8 @@ def gen_config_code(config, file_name):
                         kpara_list[k] = kpara_list[k][0] if isinstance(kpara_list[k], list) else kpara_list[k]
                         para.append(para_vide + str(k) + "=[" + str(kpara_list[k]) + f" for i in range({len(para_list[0])})],\n")
                     else:
-                        if k == 'size' and type(kpara_list[k][0]) == torch.Size: # convert torch.Size to tuple
-                            kpara_list[k] = [ tuple(e) for e in kpara_list[k]]
+                        if k == 'size' and type(kpara_list[k][0]) == torch.Size:  # convert torch.Size to tuple
+                            kpara_list[k] = [tuple(e) for e in kpara_list[k]]
                         if not isinstance(kpara_list[k], list):
                             kpara_list[k] = [kpara_list[k]]
                         if k == "dtype":
@@ -299,11 +300,11 @@ def gen_config_code(config, file_name):
                             dims_list.append(tuple(dims))
                         para_list[idx] = dims_list
 
-                    if name == 'arange' and idx == len(para_list)-1 and k == 'start':
+                    if name == 'arange' and idx == len(para_list) - 1 and k == 'start':
                         k = 'end'
 
-                    if k == 'size' and type(para_list[idx][0]) == torch.Size: # convert torch.Size to tuple
-                        para_list[idx] = [ tuple(e) for e in para_list[idx]]
+                    if k == 'size' and type(para_list[idx][0]) == torch.Size:  # convert torch.Size to tuple
+                        para_list[idx] = [tuple(e) for e in para_list[idx]]
 
                     para.append(para_vide + str(k) + "=" + str(para_list[idx]).replace('-inf', 'float("-inf")') + ",\n")
                 elif name in ['adamw', 'adam'] and k == 'step':
@@ -349,17 +350,17 @@ def gen_config_code(config, file_name):
 
 if __name__ == '__main__':
     cv_config_dict = {"resnet50_config": cv_config.resnet50_8xb32_in1k_config,
-                   'resnet101_config': cv_config.resnet101_8xb32_in1k_config,
-                   'densenet_config': cv_config.densenet121_4xb256_in1k_config,
-                   'seresnet50_config': cv_config.seresnet50_8xb32_in1k_config,
-                   'efficientnet_config': cv_config.efficientnet_b2_8xb32_in1k_config,
-                   "mobilenet_v2_config": cv_config.mobilenet_v2_8xb32_in1k_config,
-                   "repvgg_config": cv_config.repvgg_A0_4xb64_coslr_120e_in1k_config,
-                   "shufflenet_v2_config": cv_config.shufflenet_v2_1x_16xb64_in1k_config,
-                   "swin_transformer_config": cv_config.swin_base_16xb64_in1k_config,
-                   "vit_config": cv_config.vit_base_p16_pt_64xb64_in1k_224_config,
-                   "vgg16_config": cv_config.vgg16_8xb32_in1k_config,
-                   "inceptionv3_config": cv_config.inception_v3_8xb32_in1k_config}
+                      'resnet101_config': cv_config.resnet101_8xb32_in1k_config,
+                      'densenet_config': cv_config.densenet121_4xb256_in1k_config,
+                      'seresnet50_config': cv_config.seresnet50_8xb32_in1k_config,
+                      'efficientnet_config': cv_config.efficientnet_b2_8xb32_in1k_config,
+                      "mobilenet_v2_config": cv_config.mobilenet_v2_8xb32_in1k_config,
+                      "repvgg_config": cv_config.repvgg_A0_4xb64_coslr_120e_in1k_config,
+                      "shufflenet_v2_config": cv_config.shufflenet_v2_1x_16xb64_in1k_config,
+                      "swin_transformer_config": cv_config.swin_base_16xb64_in1k_config,
+                      "vit_config": cv_config.vit_base_p16_pt_64xb64_in1k_224_config,
+                      "vgg16_config": cv_config.vgg16_8xb32_in1k_config,
+                      "inceptionv3_config": cv_config.inception_v3_8xb32_in1k_config}
     det_config_dict = {"faster_rcnn_r50_config": det_config.faster_rcnn_r101_fpn_1x_coco_config,
                        "retinanet_config": det_config.retinanet_r50_fpn_1x_coco_config,
                        "ssd300_config": det_config.ssd300_coco_config,

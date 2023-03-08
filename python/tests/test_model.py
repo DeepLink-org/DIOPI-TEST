@@ -21,9 +21,8 @@ class TestModel(object):
             os.system(f"du -h data/ && rm -rf data/{ele}")
             logger.info(f"Error : {error_counter}")
             write_report()
-            #if error_counter[0] != 0:
-                #raise DiopiException(str(error_counter[0]) + " errors during this program")
-
+            if error_counter[0] != 0:
+                raise DiopiException(str(error_counter[0]) + " errors during this program")
 
     def test_cv_models(self, test_all):
         # 'densenet'
@@ -31,18 +30,15 @@ class TestModel(object):
                          'efficientnet', 'shufflenet_v2', 'repvgg', 'swin_transformer', 'vit', 'inceptionv3']
         self._test_model(cv_model_list, test_all)
 
-
     def test_det_models(self, test_all):
         det_model_list = ['retinanet', 'faster_rcnn_r50', 'ssd300', 'yolov3', 'atss', 'fcos', 'mask_rcnn',
                           'solo', 'centernet', 'cascade_rcnn', 'detr']
         self._test_model(det_model_list, test_all)
 
-
     def test_seg_models(self, test_all):
         seg_model_list = ['unet', 'upernet', 'pspnet', 'fcn', 'deeplabv3', 'deeplabv3plus']
         self._test_model(seg_model_list, test_all)
 
-
     def test_other_models(self, test_all):
-        other_model_list = ['dbnet', 'stgcn', 'crnn', 'hrnet', 'deeppose','tsn', 'slowfast'] # sar
+        other_model_list = ['dbnet', 'stgcn', 'crnn', 'hrnet', 'deeppose', 'tsn', 'slowfast']   # sar
         self._test_model(other_model_list, test_all)

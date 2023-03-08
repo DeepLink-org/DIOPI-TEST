@@ -2205,6 +2205,7 @@ def conv_transpose2d(input, weight, bias=None, stride=1,
     sizeO = []
     sizeO.append(sizeI[0])
     sizeO.append(sizeW[1] * groups)
+
     if isinstance(stride, int):
         stride = (stride, stride)
     if isinstance(padding, int):
@@ -2249,7 +2250,7 @@ def cumsum(input, dim, dtype=None):
 def cdist(x1, x2, p, compute_mode=None):
     sizeX1 = list(x1.size())
     sizeX2 = x2.size()
-    assert len(sizeX1) ==  len(sizeX2) and len(sizeX1) > 1, "cdist only supports at least 2D tensors"
+    assert len(sizeX1) == len(sizeX2) and len(sizeX1) > 1, "cdist only supports at least 2D tensors"
     assert sizeX1[-1] == sizeX2[-1], "X1 and X2 must have the same number of elements at the last dimension"
 
     if compute_mode is not None:
@@ -2273,7 +2274,7 @@ def cdist_backward(x1, grad_outputs, output, x2, p, **kwargs):
     assert len(grad_outputs) == 1, "only accept 1 gradient to do backward"
     sizeX1 = x1.size()
     sizeX2 = x2.size()
-    assert len(sizeX1) ==  len(sizeX2) and len(sizeX1) > 1, "cdist only supports at least 2D tensors"
+    assert len(sizeX1) == len(sizeX2) and len(sizeX1) > 1, "cdist only supports at least 2D tensors"
     assert sizeX1[-1] == sizeX2[-1], "X1 and X2 must have the same number of elements at the last dimension"
 
     grad_x1 = raw_like(x1)
@@ -2312,7 +2313,7 @@ def bitwise_and(input, other, inplace=False):
     assert input.get_dtype() in [Dtype.bool, Dtype.int8, Dtype.int16, Dtype.int32, glob_vars.int_type], \
         "input tensor must be of integral or boolean"
     if isinstance(other, Tensor):
-        assert other_type in [Dtype.bool, Dtype.int8, Dtype.int16, Dtype.int32, glob_vars.int_type], \
+        assert other.get_dtype() in [Dtype.bool, Dtype.int8, Dtype.int16, Dtype.int32, glob_vars.int_type], \
             "other tensor must be of integral or boolean"
     else:
         assert isinstance(other, int), "other must be of integral or boolean"
@@ -2324,7 +2325,7 @@ def bitwise_or(input, other, inplace=False):
     assert input.get_dtype() in [Dtype.bool, Dtype.int8, Dtype.int16, Dtype.int32, glob_vars.int_type], \
         "input tensor must be of integral or boolean"
     if isinstance(other, Tensor):
-        assert other_type in [Dtype.bool, Dtype.int8, Dtype.int16, Dtype.int32, glob_vars.int_type], \
+        assert other.get_dtype() in [Dtype.bool, Dtype.int8, Dtype.int16, Dtype.int32, glob_vars.int_type], \
             "other tensor must be of integral or boolean"
     else:
         assert isinstance(other, int), "other must be of integral or boolean"
@@ -2514,7 +2515,7 @@ def conv3d_backward(input, grad_outputs, weight, bias=None, stride=1,
 def expand(input, size) -> Tensor:
     SizeI = input.size()
     size = list(size)
-    for i in range(-1, -len(SizeI)-1, -1):
+    for i in range(-1, -len(SizeI) - 1, -1):
         if size[i] == -1:
             size[i] = SizeI[i]
         else:
@@ -3110,7 +3111,7 @@ def interpolate(input, size=None, scale_factor=None, mode="nearest", align_corne
         if not isinstance(scale_factor, tuple):
             scale_factor = [scale_factor for _ in range(dim)]
         for i in range(2, dim + 2):
-            sizeI[i] = int(scale_factor[i-2] * sizeI[i])
+            sizeI[i] = int(scale_factor[i - 2] * sizeI[i])
 
     nhwc_stride = compute_nhwc_stride(sizeI) if glob_vars.nhwc else None
     out = Tensor(sizeI, input.get_dtype(), stride=nhwc_stride)

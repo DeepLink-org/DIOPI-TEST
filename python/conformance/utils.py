@@ -1,7 +1,6 @@
 import logging
 from . import diopi_runtime
 from .diopi_runtime import get_last_error
-from .model_list import model_op_list
 from .dtype import Dtype
 import os
 import numpy as np
@@ -155,9 +154,9 @@ def wrap_logger_error(func):
         error_content.append(f"{error_counter[0]}--{args[0]}.   TestTag: {tag}  TensorInfo : {info}\n")
         error_content.append("---------------------------------\n")
         func(*args, **kwargs)
-        #if default_cfg_dict['log_level'] == "DEBUG":
-            #write_report()
-           # exit()
+        if default_cfg_dict['log_level'] == "DEBUG":
+            write_report()
+            exit()
     return inner
 
 
@@ -236,17 +235,16 @@ def squeeze(input: diopi_runtime.Tensor, dim=None):
 
     input.reset_shape(new_size)
 
-no_op_list=[]
+
+real_op_list = []
+
+
 def need_process_func(cfg_func_name, func_name, model_name):
     if model_name != '':
-        op_list = model_op_list[model_name]
-        if cfg_func_name not in op_list:
-            if cfg_func_name not in no_op_list:
-                no_op_list.append(cfg_func_name)
-            return False
-    elif func_name not in ['all_ops', cfg_func_name]:
+        if cfg_func_name not in real_op_list:
+            real_op_list.append(cfg_func_name)
+    if func_name not in ['all_ops', cfg_func_name]:
         return False
-
     return True
 
 

@@ -2,7 +2,7 @@ import subprocess
 import argparse
 import shlex
 import conformance as cf
-from conformance.utils import is_ci, error_counter, DiopiException, write_report, no_op_list
+from conformance.utils import is_ci, error_counter, DiopiException, write_report, real_op_list
 from conformance.utils import logger, nhwc_op, dtype_op, dtype_out_op, glob_vars
 from conformance.model_list import model_list, model_op_list
 
@@ -32,22 +32,12 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
 
-    # cv_model_list = ['resnet50', 'vgg16', 'resnet101', 'seresnet50', 'densenet', 'mobilenet_v2',
-    #                  'efficientnet', 'shufflenet_v2', 'repvgg', 'swin_transformer', 'vit', 'inceptionv3']
-    # import os
-    # for ele in cv_model_list:
-    #     logger.info(f"{ele} model test starts...")
-    #     cf.GenInputData.run("all_ops", ele, [])
-    #     cf.GenOutputData.run("all_ops", ele, [])
-    #     cf.ConformanceTest.run("all_ops", ele, [])
-    #     os.system(f"rm -rf data/{ele}")
-    #     print("Error", error_counter[0])
     if args.get_model_list:
         print(f"The supported model_list: {model_list}")
 
         for model_name in model_op_list.keys():
             op_list = model_op_list[model_name]
-            print(f"The model {model_name}'s op_list: {op_list}")
+            print(f"The model {model_name}'s refrence op_list: {op_list}")
         exit(0)
 
     if args.filter_dtype:
@@ -59,23 +49,20 @@ if __name__ == "__main__":
                 exit(0)
 
     if args.nhwc:
-        print(f"The op_list using nhwc layout: {list(nhwc_op.keys())}",)
+        logger.info(f"The op_list using nhwc layout: {list(nhwc_op.keys())}",)
         glob_vars.set_nhwc()
         glob_vars.set_nhwc_min_dim(args.nhwc_min_dim)
 
     if args.four_bytes:
-        print(f"The op_list using 32-bit type: {list(dtype_op.keys()) + list(dtype_out_op.keys())}")
+        logger.info(f"The op_list using 32-bit type: {list(dtype_op.keys()) + list(dtype_out_op.keys())}")
         glob_vars.set_four_bytes()
 
     if args.mode == 'gen_data':
-        if args.model_name != '':
-            logger.info(f"Now, fname will be disabled, and all {args.model_name}'s ops will be processed.")
         cf.GenInputData.run(args.fname, args.model_name.lower(), args.filter_dtype)
         cf.GenOutputData.run(args.fname, args.model_name.lower(), args.filter_dtype)
-        print(no_op_list)
-    elif args.mode == 'run_test':
         if args.model_name != '':
-            logger.info(f"Now, fname will be disabled, and all {args.model_name}'s ops will be processed.")
+            logger.info(f"the op list of {args.model_name}: {real_op_list}")
+    elif args.mode == 'run_test':
         cf.ConformanceTest.run(args.fname, args.model_name.lower(), args.filter_dtype)
         write_report()
     elif args.mode == 'utest':

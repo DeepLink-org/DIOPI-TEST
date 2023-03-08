@@ -4,13 +4,12 @@ import copy
 import pickle
 import numpy as np
 
-from . import to_numpy_dtype
+from . import to_numpy_dtype, model_config
 from .utils import logger
 from .utils import need_process_func
 from .config import Genfunc, dict_elem_length, Config
 from . import diopi_configs
 from .dtype import from_dtype_str
-from .model_config import *
 import torch
 import torchvision
 
@@ -192,6 +191,7 @@ def gen_tensor(arg: dict, cfg_dict: dict) -> np.ndarray:
 
     if arg["shape"] is None:
         return None
+
     try:
         shape = arg["shape"]
         if isinstance(arg["gen_fn"], int):
@@ -336,7 +336,7 @@ class GenInputData(object):
     def run(func_name, model_name, filter_dtype_str_list):
 
         if model_name != "":
-            diopi_config = model_name + "_config"
+            diopi_config = "model_config." + model_name + "_config"
             configs = Config.process_configs(eval(diopi_config))
         else:
             configs = Config.process_configs(diopi_configs)
