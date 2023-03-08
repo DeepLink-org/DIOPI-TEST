@@ -9,9 +9,8 @@ model_op_list = {
     'resnet50': ['sgd', 'randperm', 'conv2d', 'add', 'batch_norm', 'relu', 'adaptive_avg_pool2d', 'linear', 'cross_entropy', 'sum', 'mean', 'mul', 'div', 'max_pool2d', 'softmax'],
     'resnet101': ['sgd', 'randperm', 'conv2d', 'add', 'batch_norm', 'relu', 'adaptive_avg_pool2d', 'linear', 'cross_entropy', 'sum', 'mean', 'mul', 'div', 'max_pool2d', 'softmax'],
     'seresnet50': ['sgd', 'randperm', 'conv2d', 'add', 'batch_norm', 'relu', 'adaptive_avg_pool2d', 'sigmoid', 'linear', 'cross_entropy', 'sum', 'mean', 'mul', 'div', 'max_pool2d', 'softmax'],
-    # densenet is too large to train on 1 GPU
-    'densenet': ['randperm', 'conv2d', 'add', 'batch_norm', 'relu', 'max_pool2d', 'cat', 'avg_pool2d'],
-
+    'densenet': ['mean', 'normal_', 'fill_', 'randperm', 'flip', 'sub', 'div', 'conv2d', 'add', 'batch_norm', 'relu', 'max_pool2d', 'cat', 'avg_pool2d', 'adaptive_avg_pool2d',
+                 'linear', 'cross_entropy', 'sum', 'mul', 'sgd', 'arange'],
     'mobilenet_v2': ['sgd', 'randperm', 'conv2d', 'add', 'batch_norm', 'adaptive_avg_pool2d', 'linear', 'cross_entropy', 'hardtanh', 'sum', 'mean', 'mul', 'div', 'softmax'],
     'efficientnet': ['sgd', 'randperm', 'conv2d', 'add', 'batch_norm', 'adaptive_avg_pool2d', 'linear', 'cross_entropy', 'linspace', 'pad', 'sigmoid', 'sum', 'mean', 'mul', 'div', 'softmax'],
     'vgg16': ['sgd', 'randperm', 'conv2d', 'relu', 'batch_norm', 'max_pool2d', 'linear', 'dropout', 'cross_entropy', 'sum', 'mean', 'add', 'mul', 'div', 'softmax'],
@@ -51,7 +50,6 @@ model_op_list = {
                      'unique', 'randperm', 'log', 'permute', 'ne', 'binary_cross_entropy_with_logits', 'sum', 'abs', 'where', 'sigmoid', 'sort', 'exp', 'all', 'sqrt', 'log2', 'floor', 'linear', 'cross_entropy', 'topk', 'transpose', 'argmax', 'mean', 'sgd', 'split', 'softmax'],
     'centernet': ['conv2d', 'add', 'batch_norm', 'relu', 'max_pool2d', 'conv_transpose2d', 'sigmoid', 'mul', 'div', 'cat', 'sub', 'pow', 'lt', 'arange', 'neg', 'exp', 'max', 'gt', 'maximum', 'eq', 'sum', 'log', 'abs',
                   'mean', 'norm', 'stack', 'reciprocal', 'clamp', 'sgd', 'topk', 'permute', 'gather', 'remainder'],
-
     # seg
     'unet': ['dropout2d', 'randperm', 'conv2d', 'add', 'batch_norm', 'relu', 'max_pool2d', 'interpolate', 'cat', 'cross_entropy', 'mean', 'mul', 'topk', 'transpose', 'expand', 'eq', 'ne', 'sum', 'div', 'sgd'],
     'upernet': ['dropout2d', 'randperm', 'conv2d', 'add', 'batch_norm', 'relu', 'max_pool2d', 'adaptive_avg_pool2d', 'interpolate', 'cat', 'cross_entropy', 'mean', 'mul', 'topk', 'transpose', 'expand', 'eq', 'ne', 'sum', 'div', 'sgd'],
@@ -59,7 +57,6 @@ model_op_list = {
     'fcn': ['dropout2d', 'randperm', 'conv2d', 'add', 'batch_norm', 'relu', 'max_pool2d', 'cat', 'interpolate', 'cross_entropy', 'mean', 'mul', 'topk', 'transpose', 'expand', 'eq', 'ne', 'sum', 'div', 'sgd'],
     'deeplabv3': ['dropout2d', 'randperm', 'conv2d', 'add', 'batch_norm', 'relu', 'max_pool2d', 'adaptive_avg_pool2d', 'interpolate', 'cat', 'cross_entropy', 'mean', 'mul', 'topk', 'transpose', 'expand', 'eq', 'ne', 'sum', 'div', 'sgd'],
     'deeplabv3plus': ['dropout2d', 'randperm', 'conv2d', 'add', 'batch_norm', 'relu', 'max_pool2d', 'adaptive_avg_pool2d', 'interpolate', 'cat', 'cross_entropy', 'mean', 'mul', 'topk', 'transpose', 'expand', 'eq', 'ne', 'sum', 'div', 'sgd'],
-
     # other
     'dbnet': ['mean', 'randperm', 'sub', 'div', 'stack', 'conv2d', 'add', 'batch_norm', 'relu', 'max_pool2d', 'interpolate', 'cat', 'conv_transpose2d', 'sigmoid', 'mul', 'exp', 'reciprocal', 'nonzero', 'bitwise_not', 'sum', 'max', 'le',
               'min', 'ge', 'binary_cross_entropy_with_logits', 'topk', 'smooth_l1_loss', 'sgd'],
