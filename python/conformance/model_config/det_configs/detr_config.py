@@ -841,6 +841,7 @@ detr_config = {
     'cdist': dict(
         name=["cdist"],
         interface=["torch"],
+        saved_args=dict(output=0),
         para=dict(
             p=[1, 1],
         ),
@@ -855,7 +856,6 @@ detr_config = {
                 },
                 {
                     "ins": ["x2"],
-                    "requires_grad": [True],
                     "shape": [(14, 4), (1, 4)],
                     "dtype": [Dtype.float32],
                     "gen_fn": Genfunc.randn,

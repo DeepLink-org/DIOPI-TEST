@@ -155,9 +155,9 @@ def wrap_logger_error(func):
         error_content.append(f"{error_counter[0]}--{args[0]}.   TestTag: {tag}  TensorInfo : {info}\n")
         error_content.append("---------------------------------\n")
         func(*args, **kwargs)
-        if default_cfg_dict['log_level'] == "DEBUG":
-            write_report()
-            exit()
+        #if default_cfg_dict['log_level'] == "DEBUG":
+            #write_report()
+           # exit()
     return inner
 
 

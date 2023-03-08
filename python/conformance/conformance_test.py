@@ -123,19 +123,23 @@ class ManualTest(object):
         out_numpy = out.numpy()
         mask_numpy = mask.numpy()
 
-        # compute ratio
-        real_ratio = np.sum(mask_numpy) / mask.numel()
-        # check data
-        if func == F.dropout2d:
-            tmp = np.ones(input.shape)
-            mask_numpy = mask_numpy * tmp
-        remains = out_numpy[mask_numpy == 1]
-        ref = input_numpy[mask_numpy == 1]
-        assert np.allclose(remains, ref / (1 - p), rtol=1e-4, atol=1e-5),\
-            f"failed to execute {name}"
+        if training:
+            # compute ratio
+            real_ratio = np.sum(mask_numpy) / mask.numel()
+            # check data
+            if func == F.dropout2d:
+                tmp = np.ones(input.shape)
+                mask_numpy = mask_numpy * tmp
+            remains = out_numpy[mask_numpy == 1]
+            ref = input_numpy[mask_numpy == 1]
+            assert np.allclose(remains, ref / (1 - p), rtol=1e-4, atol=1e-5),\
+                f"failed to execute {name}"
 
-        assert np.abs(real_ratio - (1 - p)) < 3e-2,\
-            f"failed to execute {name} "
+            assert np.abs(real_ratio - (1 - p)) < 3e-2,\
+                f"failed to execute {name} "
+        else:
+            assert np.allclose(input_numpy, out_numpy, rtol=1e-4, atol=1e-5),\
+                "failed to execute dropout"
 
     def test_dropout(input, p=0.5, training=True, inplace=False):
         ManualTest.test_dropout_(F.dropout, input, p, training, inplace)
@@ -185,6 +189,27 @@ class ManualTest(object):
             assert (out_numpy <= end - 1).all(),\
                 "failed to execute random"
 
+    def test_normal(mean, std, size=None):
+        from scipy import stats
+        out = F.normal(mean, std, size)
+        out_numpy = out.numpy()
+        if isinstance(mean, Tensor):
+            mean_numpy = mean.numpy()
+            out_numpy -= mean_numpy
+            mean = 0.0
+        if isinstance(std, Tensor):
+            out_numpy -= mean
+            std_numpy = std.numpy()
+            out_numpy /= std_numpy
+            mean = 0.0
+            std = 1.
+        out_numpy = out_numpy.flatten()
+        p_value = stats.kstest(out_numpy, 'norm', args=(mean, std))[1]
+        assert p_value > 0.05, "failed to execute normal"
+
+    def test_normal_(mean, std, size):
+        test_normal(mean, std, size)
+
 
 class ConformanceTest(object):
     r'''
@@ -230,7 +255,7 @@ class ConformanceTest(object):
 
             for func_call in func_call_list:
                 if "inplace=True" in func_call:
-                    if test_tag[-1] == 'backward':
+                    if test_tag and test_tag[-1] == 'backward':
                         test_tag.pop()
                     test_tag.append("inplace")
                 try:
@@ -254,7 +279,7 @@ class ConformanceTest(object):
 
                 write_precision(data["cfg"], cfg_func_name, passed)
 
-                if function_paras["requires_grad"] and "inplace=True" not in func_call and kwargs.get('inplace', False):
+                if function_paras["requires_grad"] and "inplace=True" not in func_call and not kwargs.get('inplace', False):
                     test_tag.append("backward")
                     saved_backward_pth = saved_pth.split(".pth")[0] + "_backward.pth"
                     saved_backward_pth = os.path.join(outputs_dir_path, saved_backward_pth)

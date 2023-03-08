@@ -17,6 +17,16 @@ densenet_config = {
         ),
     ),
 
+    'normal_': dict(
+        name=["normal_"],
+        no_output_ref=True,
+        para=dict(
+            size=[(1000, 1024)],
+            mean=[0],
+            std=[0.01],
+        ),
+    ),
+
     'fill_': dict(
         name=["fill_"],
         interface=["torch.Tensor"],

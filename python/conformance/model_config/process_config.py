@@ -109,7 +109,7 @@ func_para = dict(
     topk={'input': 'tensor', 'k': 'para', 'dim': 'para/key', 'largest': 'para/key', 'sorted': 'para/key'},
     adamw={'param", "param_grad': "tensor", 'exp_avg", "exp_avg_sq", "max_exp_avg_sq': "tensor", 'step': 'para',
            "amsgrad": "para/key", "beta1": "para/key", "beta2": "para/key", "lr": "para/key", "weight_decay": "para/key", "eps": "para/key"},
-    cdist={'x1': 'tensor/grad', 'x2': 'tensor/grad', 'p': 'para/key', 'compute_mode': 'para/key'},
+    cdist={'x1': 'tensor/grad', 'x2': 'tensor', 'p': 'para/key', 'compute_mode': 'para/key'},
     bmm={'input': 'tensor', 'mat2': 'tensor'},
     cumsum={'input': 'tensor', 'dim': 'para', 'dtype': 'para/key'},
     adam={'param", "param_grad': "tensor", 'exp_avg", "exp_avg_sq", "max_exp_avg_sq': "tensor", 'step': 'para',
@@ -126,7 +126,8 @@ func_para = dict(
                 "dilation": "para/key", "ceil_mode": "para/key", "return_indices": "par/key"},
     adaptive_avg_pool3d={"input": "tensor/grad", "output_size": "para"},
     cholesky_ex={"input": "tensor/grad", "upper": "para/key", "check_errors": 'para/key'},
-    #normal
+    normal={'mean': 'tensor/para', 'std': 'tensor/para', 'size': 'para/key'},
+    normal_={'size': 'para/key', 'mean': 'tensor/para', 'std': 'tensor/para'},
 )
 
 convert_name = {'iadd': "add", 'radd': "add", 'add_': "add", 'rmul': 'mul', 'truediv': 'div', 'rtruediv': 'div',
@@ -138,10 +139,11 @@ convert_name = {'iadd': "add", 'radd': "add", 'add_': "add", 'rmul': 'mul', 'tru
 inplace_tag = ['iadd', 'imul', 'mul_', 'sub_', 'div_', 'clamp_', 'sigmoid_', 'itruediv', 'erfinv_', 'isub', 'masked_fill_']
 interface_tag = {"sgd": "CustomizedTest", "adamw": "CustomizedTest", 'im2col': 'CustomizedTest', 'adadelta': 'CustomizedTest',
                  "split": "torch", 'cholesky_ex': 'torch.linalg', "adam": "CustomizedTest"}
-no_output_ref = ['randperm', 'uniform', 'dropout', 'dropout2d']
-saved_args = {"sigmoid": "0", 'softmax': '0', 'log_softmax': '0', 'tanh': '0', 'cholesky_ex': '0'}
+no_output_ref = ['randperm', 'uniform', 'dropout', 'dropout2d', 'normal', 'normal_']
+saved_args = {"sigmoid": "0", 'softmax': '0', 'log_softmax': '0', 'tanh': '0', 'cholesky_ex': '0', 'cdist': '0',
+              'triangular_solve': '0'}
 requires_backward = {'cholesky_ex': '0'}
-gen_func = {'cholesky_ex': 'Genfunc.sym_mat'}
+gen_func = {'cholesky_ex': 'Genfunc.sym_mat', 'normal': 'Genfunc.positive'}
 
 tensor_vide = "                    "
 para_vide = "            "
@@ -382,6 +384,6 @@ if __name__ == '__main__':
                          'dbnet_config': other_config.dbnet_resnet18_fpnc_1200e_icdar2015_config,
                          'slowfast_config': other_config.slowfast_r50_16x8x1_22e_sthv1_rgb_config,
                          'tsn_config': other_config.tsn_r50_1x1x8_50e_sthv1_rgb_config}
-    config_dict = det_config_dict
+    config_dict = cv_config_dict
     for k, v in config_dict.items():
-        gen_config_code(v, "det_configs/" + k)
+        gen_config_code(v, "cv_configs/" + k)
