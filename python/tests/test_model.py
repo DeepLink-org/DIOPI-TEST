@@ -18,7 +18,7 @@ class TestModel(object):
             cf.GenInputData.run("all_ops", ele, [])
             cf.GenOutputData.run("all_ops", ele, [])
             cf.ConformanceTest.run("all_ops", ele, [])
-            os.system(f"rm -rf data/{ele}")
+            os.system(f"du -h data/ && rm -rf data/{ele}")
             logger.info(f"Error : {error_counter}")
             write_report()
             #if error_counter[0] != 0:
@@ -26,24 +26,23 @@ class TestModel(object):
 
 
     def test_cv_models(self, test_all):
-        cv_model_list = []#['mobilenet_v2', #'densenet', 'resnet50', 'vgg16', 'resnet101', 'seresnet50',
-                         #'efficientnet', 'shufflenet_v2', 'repvgg', 'swin_transformer', 'vit', 'inceptionv3']
+        # 'densenet'
+        cv_model_list = ['mobilenet_v2', 'resnet50', 'vgg16', 'resnet101', 'seresnet50',
+                         'efficientnet', 'shufflenet_v2', 'repvgg', 'swin_transformer', 'vit', 'inceptionv3']
         self._test_model(cv_model_list, test_all)
 
 
     def test_det_models(self, test_all):
-        #'retinanet', 'faster_rcnn_r50', 'ssd300', 'yolov3', 'atss',
-        det_model_list = []#['fcos', 'mask_rcnn',
-                          #'solo', 'centernet', 'cascade_rcnn', 'detr']
+        det_model_list = ['retinanet', 'faster_rcnn_r50', 'ssd300', 'yolov3', 'atss', 'fcos', 'mask_rcnn',
+                          'solo', 'centernet', 'cascade_rcnn', 'detr']
         self._test_model(det_model_list, test_all)
 
 
     def test_seg_models(self, test_all):
-        seg_model_list = []#['unet', 'upernet', 'pspnet', 'fcn', 'deeplabv3', 'deeplabv3plus']
+        seg_model_list = ['unet', 'upernet', 'pspnet', 'fcn', 'deeplabv3', 'deeplabv3plus']
         self._test_model(seg_model_list, test_all)
 
 
     def test_other_models(self, test_all):
-        # 'dbnet',
-        other_model_list = ['stgcn', 'crnn', 'hrnet', 'deeppose','tsn', 'slowfast'] # sar
+        other_model_list = ['dbnet', 'stgcn', 'crnn', 'hrnet', 'deeppose','tsn', 'slowfast'] # sar
         self._test_model(other_model_list, test_all)

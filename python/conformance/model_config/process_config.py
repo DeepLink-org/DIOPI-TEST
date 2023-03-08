@@ -153,6 +153,7 @@ ignore_list = ['getitem', 'relu_', 'setitem', 'get_rank', 'get_world_size', 'bar
                'load', 'broadcast', 'repeat', 'all_reduce', 'meshgrid', 'eye', 'conj',
                'diagonal', 'grid_sample', 'einsum']
 
+
 def toDtype(dtype, tensor_para, gen_func=None):
     gen_fn_str = 'Genfunc.randn'
     if dtype == 'torch.cuda.FloatTensor':
