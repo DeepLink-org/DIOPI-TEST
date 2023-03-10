@@ -6,6 +6,10 @@ case $1 in
     (rm -rf build && mkdir build && cd build \
         && cmake .. -DCUDA_ARCH_AUTO=ON -DIMPL_OPT=CUDA && make -j4) \
     || exit -1;;
+  cuda_no_runtime)
+    (rm -rf build && mkdir build && cd build \
+        && cmake .. -DCUDA_ARCH_AUTO=ON -DIMPL_OPT=CUDA -DRUNTIME=OFF -DCMAKE_BUILD_TYPE=Debug && make -j4) \
+    || exit -1;;
   torch)
     (rm -rf build && mkdir build && cd build \
       && cmake .. -DIMPL_OPT=TORCH \
