@@ -8,13 +8,13 @@ case $1 in
     || exit -1;;
   torch)
     (rm -rf build && mkdir build && cd build \
-      && cmake .. -DIMPL_OPT=TORCH \
+      && cmake .. -DIMPL_OPT=TORCH -DDEBUG=ON -DCMAKE_DISABLE_FIND_PACKAGE_MKL=TRUE \
       -DCMAKE_PREFIX_PATH=`python -c 'import torch;print(torch.utils.cmake_prefix_path)'` \
       && make -j4) \
     || exit -1;;
   torch_dyload)
     (rm -rf build && mkdir build && cd build \
-      && cmake .. -DIMPL_OPT=TORCH -DDYLOAD=ON \
+      && cmake .. -DIMPL_OPT=TORCH -DDYLOAD=ON  -DCMAKE_DISABLE_FIND_PACKAGE_MKL=TRUE -DRUNTIME=OFF \
       -DCMAKE_PREFIX_PATH=`python -c 'import torch;print(torch.utils.cmake_prefix_path)'` \
       && make -j4) \
     || exit -1;;

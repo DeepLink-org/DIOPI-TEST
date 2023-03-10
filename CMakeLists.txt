@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.4)
 project(diopi_conformance_test)
 
+IF(CMAKE_COMPILER_IS_GNUCC)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
+ENDIF(CMAKE_COMPILER_IS_GNUCC)
+SET(CMAKE_BUILD_TYPE Debug)
 option(USE_CXX "Whether to use cxx impl, or use c impl" ON)
 option(RUNTIME "Whether to compile DIOPI with runtime" ON)
 option(ATTR_WEAK "Whether to use weak symbol for diopi functions" OFF)
