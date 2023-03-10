@@ -10,6 +10,8 @@ from .utils import need_process_func
 from .config import Genfunc, dict_elem_length, Config
 from . import diopi_configs
 from .dtype import from_dtype_str
+import torch
+import torchvision
 
 
 _cur_dir = os.path.dirname(os.path.abspath(__file__))
@@ -183,7 +185,7 @@ def delete_fn(cfg_dict):
     return cfg_dict
 
 
-def gen_tensor(arg: dict) -> np.ndarray:
+def gen_tensor(arg: dict, cfg_dict: dict) -> np.ndarray:
     if "value" in arg.keys():
         dtype = to_numpy_dtype(arg.get("dtype", None))
         value = np.array(arg["value"], dtype=dtype)
@@ -196,12 +198,18 @@ def gen_tensor(arg: dict) -> np.ndarray:
         shape = arg["shape"]
         if isinstance(arg["gen_fn"], int):
             gen_fn = arg["gen_fn"]
+            if gen_fn == Genfunc.randint:
+                low = 0
+                high = 10
         else:
             gen_fn = arg["gen_fn"]["fn"]
             assert (gen_fn == Genfunc.randint), "only randint needs args"
             low = arg["gen_fn"].get("low", 0)
             high = arg["gen_fn"].get("high", 10)
         dtype = to_numpy_dtype(arg["dtype"])
+
+        if 0 in shape and "empty" not in cfg_dict['tag']:
+            cfg_dict['tag'].append("empty")
 
         if gen_fn == Genfunc.randn:
             value = np.random.randn(*shape).astype(dtype)
@@ -214,7 +222,7 @@ def gen_tensor(arg: dict) -> np.ndarray:
         elif gen_fn == Genfunc.mask:
             value = np.random.randint(low=0, high=2, size=shape).astype(dtype)
         elif gen_fn == Genfunc.randint:
-            value = np.random.randint(low=low, high=high, size=shape, dtype=dtype)
+            value = np.random.randint(low=low, high=high, size=shape).astype(dtype)
         elif gen_fn == Genfunc.empty:
             value = np.empty(shape, dtype=dtype)
         elif gen_fn == Genfunc.positive:
@@ -254,7 +262,7 @@ def gen_and_dump_data(dir_path: str, cfg_name: str, cfg_expand_list: list, cfg_s
             name = arg["ins"]
             # length of gen_num_range must be 2, otherwise ignore gen_num_range
             if len(arg["gen_num_range"]) != 2:
-                value = gen_tensor(arg)
+                value = gen_tensor(arg, cfg_dict)
                 function_paras["kwargs"][name] = value
                 if arg["requires_grad"] == [True] and arg["shape"] is not None:
                     function_paras["requires_grad"][name] = arg["requires_grad"]
@@ -263,7 +271,7 @@ def gen_and_dump_data(dir_path: str, cfg_name: str, cfg_expand_list: list, cfg_s
                                                 arg['gen_num_range'][1])
                 arg.setdefault("tensors_num", tensors_num)
                 for _ in range(tensors_num):
-                    value = gen_tensor(arg)
+                    value = gen_tensor(arg, cfg_dict)
                     tensor_list.append(value)
                 assert (cfg_dict["tensor_para"]["seq_name"] != ""), "need a name the list of tensors"
         # tie all the function_paras in a list named seq_name
@@ -352,7 +360,6 @@ class GenInputData(object):
 
 class CustomizedTest(object):
     def slice_op(input, dim, index):
-        import torch
         sizeI = input.size()
         slice_args = []
         for i in range(len(sizeI)):
@@ -361,7 +368,6 @@ class CustomizedTest(object):
         return torch.Tensor.__getitem__(input, slice_args)
 
     def index(input, **kwargs):
-        import torch
         new_args = []
         for ele in kwargs.values():
             if ele is None:
@@ -373,7 +379,6 @@ class CustomizedTest(object):
         return torch.Tensor.__getitem__(input, new_args)
 
     def sgd(param, param_grad, buf, lr, momentum=0, dampening=0, weight_decay=0, nesterov=False):
-        import torch
         param.requires_grad = True
         param.grad = param_grad
         optimizer = torch.optim.SGD([param, ], lr, momentum, dampening, weight_decay, nesterov)
@@ -382,8 +387,6 @@ class CustomizedTest(object):
         return param, buf
 
     def adam(param, param_grad, exp_avg, exp_avg_sq, max_exp_avg_sq, lr, beta1, beta2, eps, weight_decay, step, amsgrad):
-        import torch
-
         params_with_grad = [param]
         grads = [param_grad]
         exp_avgs = [exp_avg]
@@ -406,8 +409,6 @@ class CustomizedTest(object):
         return param, param_grad, exp_avg, exp_avg_sq, max_exp_avg_sq
 
     def adamw(param, param_grad, exp_avg, exp_avg_sq, max_exp_avg_sq, lr, beta1, beta2, eps, step, weight_decay, amsgrad):
-        import torch
-
         params_with_grad = [param]
         grads = [param_grad]
         exp_avgs = [exp_avg]
@@ -430,8 +431,6 @@ class CustomizedTest(object):
         return param, param_grad, exp_avg, exp_avg_sq, max_exp_avg_sq
 
     def adadelta(param, param_grad, square_avg, acc_delta, lr, rho, eps, weight_decay):
-        import torch
-
         params_with_grad = [param]
         grads = [param_grad]
         square_avgs = [square_avg]
@@ -447,8 +446,27 @@ class CustomizedTest(object):
                                          weight_decay=weight_decay)
         return param, param_grad, square_avg, acc_delta
 
+    def rmsprop(param, param_grad, square_avg, grad_avg, momentum_buffer, lr, alpha, eps, weight_decay, momentum, centered):
+        params = [param]
+        grads = [param_grad]
+        square_avgs = [square_avg]
+        grad_avgs = [grad_avg]
+        momentum_buffer_list = [momentum_buffer]
+
+        torch.optim._functional.rmsprop(params,
+                                        grads,
+                                        square_avgs,
+                                        grad_avgs,
+                                        momentum_buffer_list,
+                                        lr=lr,
+                                        alpha=alpha,
+                                        eps=eps,
+                                        weight_decay=weight_decay,
+                                        momentum=momentum,
+                                        centered=centered)
+        return param, param_grad, square_avg, grad_avg, momentum_buffer
+
     def index_put(input, values, indices1, indices2=None, accumulate=False):
-        import torch
         if indices2 is not None:
             indices = [indices1, indices2]
         else:
@@ -456,16 +474,23 @@ class CustomizedTest(object):
         return torch.index_put(input, indices, values, accumulate)
 
     def im2col(input, kernel_size, dilation=1, padding=0, stride=1):
-        import torch
         return torch.nn.Unfold(kernel_size, dilation, padding, stride)(input)
 
     def col2im(input, output_size, kernel_size, dilation=1, padding=0, stride=1):
-        import torch
         return torch.nn.Fold(output_size, kernel_size, dilation, padding, stride)(input)
+
+    def clip_grad_norm_(tensors, max_norm, norm_type=2.0, error_if_nonfinite=False):
+        parameters = []
+        if torch.is_tensor(tensors):
+            tensors = [tensors]
+        for grad in tensors:
+            tensor = torch.empty_like(grad)
+            tensor.grad = grad
+            parameters.append(tensor)
+        return torch.nn.utils.clip_grad_norm_(parameters, max_norm, norm_type, error_if_nonfinite)
 
 
 def transfer_tensor_to_device(function_paras: dict):
-    import torch
     for para in function_paras["kwargs"].keys():
         if isinstance(function_paras['kwargs'][para], np.ndarray):
             tensor = torch.from_numpy(function_paras['kwargs'][para])
@@ -494,7 +519,6 @@ def get_name_and_data_for_grad(function_paras):
 
 
 def to_numpy(tensors):
-    import torch
     if isinstance(tensors, torch.Tensor):
         ndarrays = tensors.detach().cpu().numpy()
     elif isinstance(tensors, (list, tuple)):
@@ -527,8 +551,6 @@ class GenOutputData(object):
 
     @staticmethod
     def run(func_name, model_name, filter_dtype_str_list):
-        import torch
-        import torchvision
         if not os.path.exists(inputs_dir_path):
             logger.error("Input data is not generated!")
             sys.exit(0)
