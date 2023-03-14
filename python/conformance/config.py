@@ -1,3 +1,4 @@
+# Copyright (c) 2023, SenseTime Inc.
 import copy
 import pickle
 

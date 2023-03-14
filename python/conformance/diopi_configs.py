@@ -1,3 +1,4 @@
+# Copyright (c) 2023, SenseTime Inc.
 from .config import Genfunc
 from .dtype import Dtype
 

@@ -1,3 +1,4 @@
+# Copyright (c) 2023, SenseTime Inc.
 from ctypes import (
     c_int64,
     c_uint64,

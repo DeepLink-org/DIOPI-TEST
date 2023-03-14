@@ -1,3 +1,4 @@
+# Copyright (c) 2023, SenseTime Inc.
 # -*- coding: UTF-8 -*-
 import math
 

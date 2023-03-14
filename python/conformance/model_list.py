@@ -1,3 +1,4 @@
+# Copyright (c) 2023, SenseTime Inc.
 model_list = ['ResNet50', 'VGG16']
 
 model_op_list = {
