@@ -1114,7 +1114,29 @@ diopi_configs = {
                               (2, 4, 100, 152),
                               (384, 128)),
                     "dtype": [Dtype.float32, Dtype.float64, Dtype.float16, Dtype.int16,
-                              Dtype.int32, Dtype.int64, Dtype.uint8, Dtype.int8],
+                              Dtype.int32, Dtype.int64, Dtype.int8],
+                    "gen_fn": Genfunc.randn,
+                },
+            ],
+        ),
+    ),
+
+    'clamp_uint8': dict(
+        name=['clamp'],
+        interface=['torch'],
+        is_inplace=True,
+        atol=1e-4,
+        rtol=1e-5,
+        para=dict(
+            min=[2],
+            max=[5],
+        ),
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((384, 128)),
+                    "dtype": [Dtype.uint8],
                     "gen_fn": Genfunc.randn,
                 },
             ],
