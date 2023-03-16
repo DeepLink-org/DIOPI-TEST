@@ -1135,7 +1135,7 @@ diopi_configs = {
             args=[
                 {
                     "ins": ['input'],
-                    "shape": ((384, 128)),
+                    "shape": ((384, 128),),
                     "dtype": [Dtype.uint8],
                     "gen_fn": Genfunc.randn,
                 },
