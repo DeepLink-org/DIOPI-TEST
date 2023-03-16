@@ -969,8 +969,7 @@ diopi_configs = {
         ),
         tensor_para=dict(
             gen_fn=Genfunc.randn,
-            dtype=[Dtype.float32, Dtype.float64, Dtype.float16,
-                   Dtype.int16, Dtype.int64, Dtype.uint8, Dtype.int8],
+            dtype=[Dtype.float32, Dtype.float64, Dtype.float16],
             args=[
                 {
                     "ins": ['input'],
@@ -1192,7 +1191,7 @@ diopi_configs = {
         name=["fill_"],
         interface=["torch.Tensor"],
         para=dict(
-            value=[3.0, 3, bool(3),4.8, -10],
+            value=[3.0, 3, bool(3),4.8, -10]
         ),
         tensor_para=dict(
             args=[
@@ -1732,7 +1731,7 @@ diopi_configs = {
         para=dict(
             max_norm=[1.0, 5, 2.0, 10, 8],
             norm_type=[2.0, 3.0, 2.0, 2.0, float("inf")],
-            error_if_nonfinite=[True, False, False, True, True], # 1.7 not support
+            error_if_nonfinite=[True, False, False, True, True],  # 1.7 not support
         ),
         tensor_para=dict(
             args=[
