@@ -218,7 +218,7 @@ def cos(input, inplace=False) -> Tensor:
 
 
 def tanh(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiTanh')
+    return unary_op(input, inplace, 'diopiTanh', promote_type(input.get_dtype(), Dtype.float32))
 
 
 def exp(input, inplace=False) -> Tensor:
@@ -2216,9 +2216,8 @@ def cumsum(input, dim, dtype=None):
     sizeI = list(input.size())
     assert dim < len(sizeI), "dim out of index"
     if dtype is None:
-        dtype = input.get_dtype()
-
-    out = raw_like(input)
+        dtype = promote_type(input.get_dtype(), Dtype.int64)
+    out = Tensor(input.size(), dtype=dtype)
     func = check_function("diopiCumsum")
     ret = func(input.context_handle, out.tensor_handle, input.tensor_handle,
                c_int64(dim), c_int32(dtype.value))
@@ -2271,7 +2270,7 @@ def reciprocal(input, inplace=False) -> Tensor:
         func = check_function(call)
         ret = func(input.context_handle, input.tensor_handle)
     else:
-        out = raw_like(input)
+        out = Tensor(input.size(), promote_type(input.get_dtype(), Dtype.float32))
         func = check_function(call)
         ret = func(input.context_handle, out.tensor_handle, input.tensor_handle)
 
