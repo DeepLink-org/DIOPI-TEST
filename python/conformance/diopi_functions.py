@@ -3178,7 +3178,7 @@ def prod(input, dim=None, keepdim=False, dtype=None) -> Tensor:
     assert isinstance(dim, (int)) or dim is None,\
         "dim should be int"
 
-    _, out = reduce_op_process(input, dim, keepdim, dtype)
+    _, out = reduce_op_process(input, dim, keepdim, promote_type(dtype, Dtype.int64))
     if dim is None:
         dim = c_void_p()
     else:
