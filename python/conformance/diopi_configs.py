@@ -3693,5 +3693,24 @@ diopi_configs = {
             ]
         ),
     ),
-
+    'normal_': dict(
+            name=["normal_"],
+            no_output_ref=True,  
+            para=dict(
+                mean=[0, 0.1],
+                std=[1, 2],
+              #  shape=[(32,8), (32,2,3,3)],  ??这个 shape
+            ),
+            tensor_para=dict(
+                gen_fn=Genfunc.randn,
+                args=[
+                    {
+                        "ins": ['input'],
+                        "shape": [(32,8 ), (16,64,32)],
+                        "dtype": [Dtype.float32, Dtype.float64],
+                    },
+                ]
+            ),
+        ),   
+    
 }
