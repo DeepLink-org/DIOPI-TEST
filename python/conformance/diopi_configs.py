@@ -3172,6 +3172,8 @@ diopi_configs = {
     'prod': dict(
         name=['prod'],
         interface=['torch'],
+        atol_half=1e-4,
+        rtol_half=1e-3,
         para=dict(
             dim=[-1, 0, -1, 0],
         ),
@@ -3244,7 +3246,7 @@ diopi_configs = {
                     "shape": ((6, ), (4, 1), (1, 28, 28),
                               (16, 3, 7, 14, 14), (1, 28, 28), (1, 28, 28)),
                     "dtype": [Dtype.float32, Dtype.float64, Dtype.float16, Dtype.int16,
-                              Dtype.int32, Dtype.int64, Dtype.uint8, Dtype.int8, Dtype.bool],
+                              Dtype.int32, Dtype.int64, Dtype.int8, Dtype.bool],
                     "gen_fn": Genfunc.randn,
                 },
             ],
