@@ -1,9 +1,9 @@
-/**************************************************************************************************
-* Copyright (c) 2023, SenseTime Inc.
-*
-* A reference implemention for DIOPI runtime, which is utilized
-* to support conformance test suite ofDIOPI
-*************************************************************************************************/
+/**
+ * @file
+ * @author pjlab
+ * @copyright  (c) 2023, SenseTime Inc.
+ * @brief A reference implemention for DIOPI runtime, which is utilized to support conformance test suite of DIOPI
+ */
 
 #include <diopi/diopirt.h>
 #include <diopi_register.h>
