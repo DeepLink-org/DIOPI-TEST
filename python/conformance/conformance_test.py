@@ -199,7 +199,6 @@ class ManualTest(object):
         assert p_value > 0.05, "failed to execute normal"
 
     def test_normal_(input,mean, std, shape=None):
-        # todo: 输入Input
         from scipy import stats
         out = F.normal_(input,mean, std, shape)
         out_numpy = out.numpy()
@@ -216,6 +215,15 @@ class ManualTest(object):
         out_numpy = out_numpy.flatten()
         p_value = stats.kstest(out_numpy, 'norm', args=(mean, std))[1]
         assert p_value > 0.05, "failed to execute normal_"
+
+    # def test_hardswish(input, inplace=False):
+    #     # todo: 把输出的out和
+    #     from scipy import stats
+    #     out = F.normal_(input,inplace)
+    #     out_numpy = out.numpy()
+    #     out_numpy = out_numpy.flatten()
+    #     p_value = stats.kstest(out_numpy, 'hardwish')[1]
+    #     assert abs(p_value) > 1e-8, "failed to execute normal_"
 
 
 class ConformanceTest(object):

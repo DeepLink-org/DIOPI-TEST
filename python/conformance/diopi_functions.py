@@ -1303,6 +1303,9 @@ def hardtanh(input, min_val=- 1.0, max_val=1.0, inplace=False) -> Tensor:
     check_returncode(ret)
     return out
 
+def hardswish(input, inplace=False) -> Tensor:
+    return unary_op(input, inplace, 'diopiHardswish')
+
 
 def threshold(input, threshold, value, inplace=False) -> Tensor:
     call = "diopiThreshold"
