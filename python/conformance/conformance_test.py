@@ -195,7 +195,8 @@ class ManualTest(object):
             std = 1.
         out_numpy = out_numpy.flatten()
         p_value = stats.kstest(out_numpy, 'norm', args=(mean, std))[1]
-        assert p_value > 0.05, "failed to execute normal"
+        # pytorch use 0.0001, but stats.kstest use 0.05 as threshold
+        assert p_value > 0.001, "failed to execute normal"
 
     def test_normal_(mean, std, size):
         ManualTest.test_normal(mean, std, size)
