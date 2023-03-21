@@ -143,7 +143,8 @@ no_output_ref = ['randperm', 'uniform', 'dropout', 'dropout2d', 'normal', 'norma
 saved_args = {"sigmoid": "0", 'softmax': '0', 'log_softmax': '0', 'tanh': '0', 'cholesky_ex': '0', 'cdist': '0',
               'triangular_solve': '0'}
 requires_backward = {'cholesky_ex': '0'}
-gen_func = {'cholesky_ex': 'Genfunc.sym_mat', 'normal': 'Genfunc.positive'}
+gen_func = {'cholesky_ex/input': 'Genfunc.sym_mat', 'normal/std': 'Genfunc.positive',
+            'adadelta/square_avg", "acc_delta': 'Genfunc.positive'}
 
 tensor_vide = "                    "
 para_vide = "            "
@@ -274,7 +275,8 @@ def gen_config_code(config, file_name):
                     if ele[0] == 'rand':
                         toDtype(kpara_list['dtype'], tensor_para)
                     elif type_idx < len(type_list):
-                        gen_fn = gen_func[name] if name in gen_func.keys() else None
+                        gen_func_key = name + '/' + k
+                        gen_fn = gen_func[gen_func_key] if gen_func_key in gen_func.keys() else None
                         toDtype(type_list[type_idx], tensor_para, gen_fn)
                         type_idx += 1
                     tensor_para.append(para_vide + "    },\n")
@@ -386,6 +388,6 @@ if __name__ == '__main__':
                          'dbnet_config': other_config.dbnet_resnet18_fpnc_1200e_icdar2015_config,
                          'slowfast_config': other_config.slowfast_r50_16x8x1_22e_sthv1_rgb_config,
                          'tsn_config': other_config.tsn_r50_1x1x8_50e_sthv1_rgb_config}
-    config_dict = cv_config_dict
+    config_dict = other_config_dict
     for k, v in config_dict.items():
-        gen_config_code(v, "cv_configs/" + k)
+        gen_config_code(v, "other_configs/" + k)

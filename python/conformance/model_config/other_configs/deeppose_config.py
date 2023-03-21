@@ -618,6 +618,7 @@ deeppose_config = {
     'triangular_solve': dict(
         name=["triangular_solve"],
         interface=["torch"],
+        saved_args=dict(output=0),
         para=dict(
             upper=[False],
         ),

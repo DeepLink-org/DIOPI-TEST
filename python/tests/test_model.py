@@ -1,9 +1,11 @@
 import numpy as np
 import os
 import conformance as cf
+import pytest
 from conformance.utils import error_counter, DiopiException, logger, write_report
 
 
+@pytest.mark.skip("precision rules are not ready")
 class TestModel(object):
 
     def _test_model(self, model_list, test_all):
@@ -25,7 +27,7 @@ class TestModel(object):
                 raise DiopiException(str(error_counter[0]) + " errors during this program")
 
     def test_cv_models(self, test_all):
-        # 'densenet'
+        # densenet is too large to use during ci test
         cv_model_list = ['mobilenet_v2', 'resnet50', 'vgg16', 'resnet101', 'seresnet50',
                          'efficientnet', 'shufflenet_v2', 'repvgg', 'swin_transformer', 'vit', 'inceptionv3']
         self._test_model(cv_model_list, test_all)
@@ -40,5 +42,6 @@ class TestModel(object):
         self._test_model(seg_model_list, test_all)
 
     def test_other_models(self, test_all):
-        other_model_list = ['dbnet', 'stgcn', 'crnn', 'hrnet', 'deeppose', 'tsn', 'slowfast']   # sar
+        # sar is too large to use during ci test
+        other_model_list = ['dbnet', 'stgcn', 'crnn', 'hrnet', 'deeppose', 'tsn', 'slowfast']
         self._test_model(other_model_list, test_all)

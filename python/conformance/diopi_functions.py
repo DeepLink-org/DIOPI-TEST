@@ -1597,7 +1597,9 @@ def index(input, **kwargs) -> Tensor:
 def sgd(param, param_grad, buf, lr, momentum=0, dampening=0, weight_decay=0, nesterov=False):
     # note: buf, param_grad are mutable
     func = check_function("diopiSgd")
-    ret = func(param.context_handle, param.tensor_handle, param_grad.tensor_handle, buf.tensor_handle,
+
+    arg_buf = c_void_p() if buf is None else buf.tensor_handle
+    ret = func(param.context_handle, param.tensor_handle, param_grad.tensor_handle, arg_buf,
                c_double(lr), c_double(momentum), c_double(dampening), c_double(weight_decay), c_bool(nesterov))
     check_returncode(ret)
     return param, buf
