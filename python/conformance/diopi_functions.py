@@ -2233,7 +2233,7 @@ def cumsum(input, dim, dtype=None):
     sizeI = list(input.size())
     assert dim < len(sizeI), "dim out of index"
     if dtype is None:
-        dtype = promote_type(input.get_dtype(), Dtype.int64)
+        dtype = promote_type(input, Dtype.int64)
     out = Tensor(input.size(), dtype=dtype)
     func = check_function("diopiCumsum")
     ret = func(input.context_handle, out.tensor_handle, input.tensor_handle,
@@ -2244,7 +2244,7 @@ def cumsum(input, dim, dtype=None):
 
 def cdist(x1, x2, p, compute_mode=None):
     sizeX1 = list(x1.size())
-    sizeX2 = x2.size()
+    sizeX2 = list(x2.size())
     assert len(sizeX1) == len(sizeX2) and len(sizeX1) > 1, "cdist only supports at least 2D tensors"
     assert sizeX1[-1] == sizeX2[-1], "X1 and X2 must have the same number of elements at the last dimension"
 
@@ -2257,8 +2257,20 @@ def cdist(x1, x2, p, compute_mode=None):
     else:
         compute_mode = c_void_p()
 
-    sizeX1[-1] = sizeX2[-2]
-    out = Tensor(sizeX1, x1.get_dtype())
+    sizeO = sizeX1 if len(sizeX1) > len(sizeX2) else sizeX2
+    length = len(sizeX2) if len(sizeX1) > len(sizeX2) else len(sizeX1)
+    idx = -3
+    length -= 2
+    while length > 0:
+        assert sizeX1[idx] == sizeX2[idx] or sizeX1[idx] == 1 or sizeX2[idx] == 1,\
+            "size1 and size2 must be broadcastable"
+        sizeO[idx] = sizeX1[idx] if sizeX2[idx] == 1 else sizeX2[idx]
+        idx -= 1
+        length -= 1
+    sizeO[-1] = sizeX2[-2]
+    sizeO[-2] = sizeX1[-2]
+    print(sizeO)
+    out = Tensor(sizeO, x1.get_dtype())
     func = check_function("diopiCdist")
     ret = func(x1.context_handle, out.tensor_handle, x1.tensor_handle, x2.tensor_handle, c_double(p), compute_mode)
     check_returncode(ret)
@@ -2290,7 +2302,7 @@ def reciprocal(input, inplace=False) -> Tensor:
         func = check_function(call)
         ret = func(input.context_handle, input.tensor_handle)
     else:
-        out = Tensor(input.size(), promote_type(input.get_dtype(), Dtype.float32))
+        out = Tensor(input.size(), promote_type(input, Dtype.float32))
         func = check_function(call)
         ret = func(input.context_handle, out.tensor_handle, input.tensor_handle)
 
@@ -3123,9 +3135,9 @@ def interpolate(input, size=None, scale_factor=None, mode="nearest", align_corne
     return out
 
 
-def interpolate_backward(input, grad_outputs, size, mode="nearest", align_corners=None) -> Tensor:
+def interpolate_backward(input, grad_outputs, size, mode="nearest", align_corners=None, **kwargs) -> Tensor:
     in_size = Sizes(input.size())
-    out_size = Sizes(tuple(size))
+    out_size = Sizes(grad_outputs[0].size()[2:])
     grad_input = raw_like(input)
 
     if mode == "nearest":
@@ -3208,7 +3220,7 @@ def prod(input, dim=None, keepdim=False, dtype=None) -> Tensor:
     assert isinstance(dim, (int)) or dim is None,\
         "dim should be int"
 
-    _, out = reduce_op_process(input, dim, keepdim, promote_type(dtype, Dtype.int64))
+    _, out = reduce_op_process(input, dim, keepdim, promote_type(input, Dtype.int64))
     if dim is None:
         dim = c_void_p()
     else:
