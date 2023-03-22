@@ -1,4 +1,4 @@
-# Copyright (c) 2023, SenseTime Inc.
+# Copyright (c) 2023, OpenComputeLab.
 from .config import Genfunc
 from .dtype import Dtype
 

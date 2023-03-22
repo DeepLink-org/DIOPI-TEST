@@ -1,4 +1,4 @@
-# Copyright (c) 2023, SenseTime Inc.
+# Copyright (c) 2023, OpenComputeLab.
 from .diopi_runtime import Tensor, Context, Dtype, Device, raw_like
 from .diopi_runtime import get_last_error, device
 from .diopi_runtime import from_numpy_dtype, to_numpy_dtype

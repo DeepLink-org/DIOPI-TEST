@@ -1,4 +1,4 @@
-# Copyright (c) 2023, SenseTime Inc.
+# Copyright (c) 2023, OpenComputeLab.
 import os
 from enum import Enum, unique
 from ctypes import (cdll, byref, Structure, Union, POINTER)

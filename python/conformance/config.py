@@ -1,4 +1,4 @@
-# Copyright (c) 2023, SenseTime Inc.
+# Copyright (c) 2023, OpenComputeLab.
 import copy
 import pickle
 

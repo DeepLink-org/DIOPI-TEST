@@ -1,4 +1,4 @@
-# Copyright (c) 2023, SenseTime Inc.
+# Copyright (c) 2023, OpenComputeLab.
 import logging
 from . import diopi_runtime
 from .diopi_runtime import get_last_error
