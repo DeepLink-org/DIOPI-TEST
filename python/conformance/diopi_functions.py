@@ -2382,8 +2382,8 @@ def smooth_l1_loss_backward(input, grad_outputs, target, reduction='mean', beta=
 
 
 def maximum(input, other) -> Tensor:
-    sizeO = broadcast_out_size(list(input.size()), list(other.size()))
-    out = Tensor(sizeO, input.get_dtype())
+    size = broadcast_out_size(list(input.size()), list(other.size()))
+    out = Tensor(size, common_dtype(input.get_dtype(), other.get_dtype()))
 
     func = check_function("diopiMaximum")
     ret = func(input.context_handle, out.tensor_handle,
@@ -2393,8 +2393,8 @@ def maximum(input, other) -> Tensor:
 
 
 def minimum(input, other) -> Tensor:
-    sizeO = broadcast_out_size(list(input.size()), list(other.size()))
-    out = Tensor(sizeO, input.get_dtype())
+    size = broadcast_out_size(list(input.size()), list(other.size()))
+    out = Tensor(size, common_dtype(input.get_dtype(), other.get_dtype()))
 
     func = check_function("diopiMinimum")
     ret = func(input.context_handle, out.tensor_handle,
