@@ -1373,7 +1373,7 @@ diopi_configs = {
             ],
         ),
     ),
-    
+
     'reduce_partial_op_5': dict(
         name=['any', 'all'],
         interface=['torch'],
@@ -1396,7 +1396,7 @@ diopi_configs = {
         ),
     ),
 
-    'reduce_partial_op_5': dict(
+    'reduce_partial_op_6': dict(
         name=['any', 'all'],
         interface=['torch'],
         para=dict(
@@ -2569,7 +2569,7 @@ diopi_configs = {
         ),
     ),
 
-    'unfold': dict(
+    'unfold_int': dict(
         name=["unfold"],
         interface=['torch.Tensor'],
         atol=1e-4,
@@ -2585,7 +2585,7 @@ diopi_configs = {
                 {
                     "ins": ['input'],
                     "shape": ((2, 128, 56, 56), (2, 512, 14, 14), (2, 96, 200, 304), (2, 128, 36), (16,)),
-                    "dtype": [Dtype.bool,Dtype.int64, Dtype.int32, Dtype.int16, Dtype.int8, Dtype.uint8],
+                    "dtype": [Dtype.bool, Dtype.int64, Dtype.int32, Dtype.int16, Dtype.int8, Dtype.uint8],
                 },
             ],
         ),
@@ -3902,7 +3902,7 @@ diopi_configs = {
         para=dict(
             mode=['nearest', 'bilinear', 'nearest', 'bicubic', 'trilinear', 'linear', 'nearest', 'nearest'],
             size=[(50, 76), (25, 38), (4, 224, 224), (64, 64), (4, 224, 112), (64, ), None, 32],
-            scale_factor = [None, None, None, None, None, None, (3.0, 3.0), None],
+            scale_factor=[None, None, None, None, None, None, (3.0, 3.0), None],
             align_corners=[None, False, None, True, True, False, None, None],
             # recompute_scale_factor=[False, False, False, False, False, False, True, False]
 
