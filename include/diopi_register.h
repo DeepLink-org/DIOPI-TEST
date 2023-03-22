@@ -1,7 +1,9 @@
-/**************************************************************************************************
-* Copyright (c) 2023, SenseTime Inc.
-*
-*************************************************************************************************/
+ /**
+ * @file
+ * @author pjlab
+ * @copyright  (c) 2023, SenseTime Inc.
+ * @brief A reference implemention for DIOPI runtime, which is utilized to support conformance test suite of DIOPI
+ */
 
 #ifndef _PROJECT_DIOPI_CONFORMANCETEST_REGISTER_H_
 #define _PROJECT_DIOPI_CONFORMANCETEST_REGISTER_H_

@@ -1,3 +1,4 @@
+# Copyright (c) 2023, SenseTime Inc.
 import cv_config
 import seg_config
 import os
