@@ -2269,7 +2269,6 @@ def cdist(x1, x2, p, compute_mode=None):
         length -= 1
     sizeO[-1] = sizeX2[-2]
     sizeO[-2] = sizeX1[-2]
-    print(sizeO)
     out = Tensor(sizeO, x1.get_dtype())
     func = check_function("diopiCdist")
     ret = func(x1.context_handle, out.tensor_handle, x1.tensor_handle, x2.tensor_handle, c_double(p), compute_mode)

@@ -2590,7 +2590,7 @@ diopi_configs = {
             ],
         ),
     ),
-    
+
     'cumsum': dict(
         name=["cumsum"],
         interface=['torch'],
@@ -2627,7 +2627,7 @@ diopi_configs = {
                 {
                     "ins": ['x1'],
                     "requires_grad": [True],
-                    "shape": ((100, 4), (2, 256, 256), (4, 256, 256), (1, 128, 256), (3, 10, 128)),
+                    "shape": ((100, 4), (2, 256, 256), (4, 256, 256), (4, 256, 256), (1, 10, 128)),
                     "dtype": [Dtype.float32, Dtype.float64],
                     "gen_fn": Genfunc.randn,
                 },
