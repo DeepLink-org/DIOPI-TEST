@@ -17,6 +17,7 @@ import torchvision
 
 _cur_dir = os.path.dirname(os.path.abspath(__file__))
 
+
 def expand_para(para_dict: dict, paras_list: list):
     r'''
     dict(a = [1,2], b = [11,22])
@@ -301,6 +302,7 @@ def gen_and_dump_data(dir_path: str, cfg_name: str, cfg_expand_list: list, cfg_s
         tensor_list = []
         function_paras['kwargs'] = {}
         function_paras["requires_grad"] = {}
+
 
 class GenInputData(object):
     r'''
