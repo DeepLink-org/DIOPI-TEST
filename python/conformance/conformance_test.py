@@ -9,6 +9,7 @@ from .utils import save_precision, record, write_precision
 from .utils import get_saved_pth_list, get_data_from_file
 from .utils import cfg_file_name
 
+
 def convert_input_tensors(function_paras: dict, test_tag: list, nhwc_list=[], dtype_list=[], filter_dtype_str_list=[]):
     tensor_info = []
     for para in function_paras["kwargs"].keys():
