@@ -111,6 +111,22 @@ diopi_configs = {
         ),
     ),
 
+    'hardswish': dict(
+        name=["hardswish"],
+        is_inplace=True, 
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((2, 4096), (64, 28, 28),
+                              (32, 64, 112, 112), (64, 3, 7, 28, 28)),
+                    "dtype": [Dtype.float32, Dtype.float64],
+                    "gen_fn": Genfunc.randn,
+                },
+            ],
+        ),
+    ),
+
     'threshold': dict(
         name=["threshold"],
         is_inplace=True,
@@ -3660,6 +3676,25 @@ diopi_configs = {
             size=[(32, 8), (32, 2, 3, 3)],
         ),
     ),
+
+    'normal_': dict(
+            name=["normal_"],
+            no_output_ref=True,  
+            para=dict(
+                mean=[0, 0.1],
+                std=[1, 2],
+           ),
+            tensor_para=dict(
+                gen_fn=Genfunc.randn,
+                args=[
+                    {
+                        "ins": ['input'],
+                        "shape": [(32,8 ), (16,64,32)],
+                        "dtype": [Dtype.float32, Dtype.float64],
+                    },
+                ]
+            ),
+        ),  
 
     'normal_std_tensor': dict(
         name=["normal"],
