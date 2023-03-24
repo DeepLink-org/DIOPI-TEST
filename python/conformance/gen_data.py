@@ -547,7 +547,7 @@ class GenOutputData(object):
 
         gen_counter = 0
         func_name_list = []  # make the info log once
-        saved_pth_list = get_saved_pth_list(inputs_dir_path)
+        saved_pth_list = get_saved_pth_list(inputs_dir_path, cfg_file_name)
         for saved_pth in saved_pth_list:
             cfg_func_name = saved_pth.split("::")[1].rsplit("_", 1)[0]
             if not need_process_func(cfg_func_name, func_name, model_name):
