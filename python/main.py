@@ -1,7 +1,6 @@
 import subprocess
 import argparse
 import shlex
-import conformance as cf
 from conformance.utils import is_ci, error_counter, DiopiException, write_report, real_op_list
 from conformance.utils import logger, nhwc_op, dtype_op, dtype_out_op, glob_vars
 from conformance.model_list import model_list, model_op_list
@@ -58,11 +57,13 @@ if __name__ == "__main__":
         glob_vars.set_four_bytes()
 
     if args.mode == 'gen_data':
-        cf.GenInputData.run(args.fname, args.model_name.lower(), args.filter_dtype)
-        cf.GenOutputData.run(args.fname, args.model_name.lower(), args.filter_dtype)
+        import conformance.gen_data as gd
+        gd.GenInputData.run(args.fname, args.model_name.lower(), args.filter_dtype)
+        gd.GenOutputData.run(args.fname, args.model_name.lower(), args.filter_dtype)
         if args.model_name != '':
             logger.info(f"the op list of {args.model_name}: {real_op_list}")
     elif args.mode == 'run_test':
+        import conformance as cf
         cf.ConformanceTest.run(args.fname, args.model_name.lower(), args.filter_dtype)
         write_report()
     elif args.mode == 'utest':

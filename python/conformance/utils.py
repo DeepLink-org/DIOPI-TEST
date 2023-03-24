@@ -18,7 +18,7 @@ default_cfg_dict = dict(
         train=True,
     ),
     # set log_level = "DEBUG" for debug infos
-    log_level="INFO"  # NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICA
+    log_level="DEBUG"  # NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICA
 )
 np.set_printoptions(precision=5,
                     threshold=100,
