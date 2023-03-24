@@ -6,6 +6,7 @@ from conformance.utils import logger, nhwc_op, dtype_op, dtype_out_op, glob_vars
 from conformance.model_list import model_list, model_op_list
 import conformance as cf
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Conformance Test for DIOPI')
     parser.add_argument('--mode', type=str, default='test',
