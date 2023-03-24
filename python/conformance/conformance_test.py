@@ -8,7 +8,7 @@ from .diopi_runtime import Tensor, compute_nhwc_stride
 from .utils import save_precision, record, write_precision
 try:
     from .gen_data import get_saved_pth_list, get_data_from_file
-except:
+except Exception:
     logger.warning("import gen_data error")
 
 
