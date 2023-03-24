@@ -12,7 +12,6 @@ except Exception:
     logger.warning("import gen_data error")
 
 
-
 def convert_input_tensors(function_paras: dict, test_tag: list, nhwc_list=[], dtype_list=[], filter_dtype_str_list=[]):
     tensor_info = []
     for para in function_paras["kwargs"].keys():
