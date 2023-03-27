@@ -1,4 +1,4 @@
-# Copyright (c) 2023, OpenComputeLab.
+# Copyright (c) 2023, DeepLink.
 import os
 import numpy as np
 

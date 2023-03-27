@@ -1,4 +1,4 @@
-# Copyright (c) 2023, OpenComputeLab.
+# Copyright (c) 2023, DeepLink.
 import cv_config
 import seg_config
 import os
