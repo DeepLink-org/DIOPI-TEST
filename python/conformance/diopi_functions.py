@@ -2244,7 +2244,7 @@ def cdist(x1, x2, p, compute_mode=None):
     else:
         compute_mode = c_void_p()
 
-    sizeO = sizeX1 if len(sizeX1) > len(sizeX2) else sizeX2
+    sizeO = sizeX1
     length = len(sizeX2) if len(sizeX1) > len(sizeX2) else len(sizeX1)
     idx = -3
     length -= 2
