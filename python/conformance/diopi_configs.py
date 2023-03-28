@@ -113,7 +113,7 @@ diopi_configs = {
 
     'hardswish': dict(
         name=["hardswish"],
-        is_inplace=True, 
+        is_inplace=True,
         tensor_para=dict(
             args=[
                 {
@@ -3678,23 +3678,23 @@ diopi_configs = {
     ),
 
     'normal_': dict(
-            name=["normal_"],
-            no_output_ref=True,  
-            para=dict(
-                mean=[0, 0.1],
-                std=[1, 2],
-           ),
-            tensor_para=dict(
-                gen_fn=Genfunc.randn,
-                args=[
-                    {
-                        "ins": ['input'],
-                        "shape": [(32,8 ), (16,64,32)],
-                        "dtype": [Dtype.float32, Dtype.float64],
-                    },
-                ]
-            ),
-        ),  
+        name=["normal_"],
+        no_output_ref=True,
+        para=dict(
+            mean=[0, 0.1],
+            std=[1, 2],
+        ),
+        tensor_para=dict(
+            gen_fn=Genfunc.randn,
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": [(32, 8), (16, 64, 32)],
+                    "dtype": [Dtype.float32, Dtype.float64],
+                },
+            ]
+        ),
+    ),
 
     'normal_std_tensor': dict(
         name=["normal"],
