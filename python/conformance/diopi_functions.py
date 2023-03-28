@@ -3425,7 +3425,7 @@ def normal(mean, std, size=None):
     check_returncode(ret)
     return out
 
-def normal_(input, mean, std, shape=None )->Tensor :
+def normal_(input, mean, std, shape=None)->Tensor:
     call = "diopiNormalInp"
     func = check_function(call)
     ret = func(input.context_handle, input.tensor_handle, c_double(mean), c_double(std))
