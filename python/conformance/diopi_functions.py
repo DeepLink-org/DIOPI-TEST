@@ -1309,8 +1309,10 @@ def hardtanh(input, min_val=- 1.0, max_val=1.0, inplace=False) -> Tensor:
     check_returncode(ret)
     return out
 
+
 def hardswish(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiHardswish')
+
 
 def threshold(input, threshold, value, inplace=False) -> Tensor:
     call = "diopiThreshold"
@@ -3425,7 +3427,8 @@ def normal(mean, std, size=None):
     check_returncode(ret)
     return out
 
-def normal_(input, mean, std, shape=None)->Tensor:
+
+def normal_(input, mean, std, shape=None) -> Tensor:
     call = "diopiNormalInp"
     func = check_function(call)
     ret = func(input.context_handle, input.tensor_handle, c_double(mean), c_double(std))
