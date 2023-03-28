@@ -672,7 +672,7 @@ diopi_configs = {
               'lt', 'gt', 'ge', 'logical_and', 'logical_or'],
         interface=['torch'],
         is_inplace=True,
-        dtype=[Dtype.float64, Dtype.float32, Dtype.float16, Dtype.int64, Dtype.int32, Dtype.int16, Dtype.int8,  Dtype.uint8],
+        dtype=[Dtype.float64, Dtype.float32, Dtype.float16, Dtype.int64, Dtype.int32, Dtype.int16, Dtype.int8, Dtype.uint8],
         tensor_para=dict(
             gen_fn=Genfunc.randn,
             args=[
@@ -1358,7 +1358,7 @@ diopi_configs = {
         ),
     ),
 
-    'reduce_partial_op_5': dict(
+    'reduce_partial_op_zeros_input': dict(
         name=['any', 'all'],
         interface=['torch'],
         para=dict(
@@ -1380,7 +1380,7 @@ diopi_configs = {
         ),
     ),
 
-    'reduce_partial_op_6': dict(
+    'reduce_partial_op_ones_input': dict(
         name=['any', 'all'],
         interface=['torch'],
         para=dict(

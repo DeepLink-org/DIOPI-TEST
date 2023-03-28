@@ -2246,17 +2246,14 @@ def cdist(x1, x2, p, compute_mode=None):
         compute_mode = c_void_p()
 
     sizeO = sizeX1
-    length = len(sizeX2) if len(sizeX1) > len(sizeX2) else len(sizeX1)
+    length = len(sizeX1)
     idx = -3
-    length -= 2
-    while length > 0:
+    for i in range(length - 2):
         assert sizeX1[idx] == sizeX2[idx] or sizeX1[idx] == 1 or sizeX2[idx] == 1,\
             "size1 and size2 must be broadcastable"
         sizeO[idx] = sizeX1[idx] if sizeX2[idx] == 1 else sizeX2[idx]
         idx -= 1
-        length -= 1
     sizeO[-1] = sizeX2[-2]
-    sizeO[-2] = sizeX1[-2]
     out = Tensor(sizeO, x1.get_dtype())
     func = check_function("diopiCdist")
     ret = func(x1.context_handle, out.tensor_handle, x1.tensor_handle, x2.tensor_handle, c_double(p), compute_mode)
