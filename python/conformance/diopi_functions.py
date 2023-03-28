@@ -2223,7 +2223,7 @@ def cumsum(input, dim, dtype=None):
     sizeI = list(input.size())
     assert dim < len(sizeI), "dim out of index"
 
-    out = raw_like(input) if dtype is None else Tensor(input.size(), dtype)
+    out = Tensor(input.size(), promote_type(input, Dtype.int64)) if dtype is None else Tensor(input.size(), dtype)
     func = check_function("diopiCumsum")
     ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, c_int64(dim))
     check_returncode(ret)
