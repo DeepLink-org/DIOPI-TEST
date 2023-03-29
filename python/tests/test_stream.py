@@ -4,6 +4,7 @@ from conformance.diopi_runtime import Context, Tensor, Sizes
 from conformance.diopi_runtime import Device
 from conformance.dtype import Dtype
 
+
 class TestStream(object):
     context = Context()
     context1 = Context()
