@@ -39,12 +39,11 @@ static int32_t DIOPIRT_LOG_LEVEL = 0;
 
 static char szVersion[256] = {0};
 
-DIOPI_RT_API const char* diopiGetVersion()
-{
+DIOPI_RT_API const char* diopiGetVersion() {
     static bool inited = false;
     if (!inited) {
         inited = true;
-        sprintf(szVersion, "DIOPI Version: %d.%d.%d", DIOPI_VER_MAJOR, DIOPI_VER_MINOR, DIOPI_VER_PATCH);
+        sprintf(szVersion, "DIOPI Version: %d", DIOPI_VER_MAJOR * 1000 + DIOPI_VER_MINOR * 100 + DIOPI_VER_PATCH);
     }
     return szVersion;
 }
