@@ -1,6 +1,6 @@
 import numpy as np
 from threading import Thread
-from conformance.diopi_runtime import Context, Tensor, Sizes
+from conformance.diopi_runtime import Context, Tensor
 from conformance.diopi_runtime import Device
 from conformance.dtype import Dtype
 
@@ -23,8 +23,8 @@ class TestStream(object):
         self.check_get_device_data(self.stream1)
 
     def test_multi_thread_multi_stream(self):
-        thread_1 = Thread(target=self.check_get_device_data, args=(self.stream, ))
-        thread_2 = Thread(target=self.check_get_device_data, args=(self.stream1, ))
+        thread_1 = Thread(target=self.check_get_device_data, args=(self.stream))
+        thread_2 = Thread(target=self.check_get_device_data, args=(self.stream1))
         thread_1.start()
         thread_2.start()
         thread_1.join()
