@@ -1,10 +1,10 @@
+# Copyright (c) 2023, DeepLink.
 from .diopi_runtime import Tensor, Context, Dtype, Device, raw_like
 from .diopi_runtime import get_last_error, device
 from .diopi_runtime import from_numpy_dtype, to_numpy_dtype
 from .diopi_runtime import diopirt_lib, device_impl_lib
 from .diopi_configs import diopi_configs
 from .config import Config
-from .gen_data import GenInputData, GenOutputData
 from .conformance_test import ConformanceTest
 
 
@@ -29,8 +29,6 @@ __all__ = [
     'diopirt_lib',
     'device_impl_lib',
     'Config',
-    'GenInputData',
-    'GenOutputData',
     'diopi_configs',
     'Tensor',
     'device',

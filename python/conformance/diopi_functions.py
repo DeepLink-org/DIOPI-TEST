@@ -1,7 +1,8 @@
+# Copyright (c) 2023, DeepLink.
 # -*- coding: UTF-8 -*-
 import math
 
-from ctypes import c_float, c_double, c_int64, c_int32, c_bool, c_void_p, byref, pointer
+from ctypes import c_float, c_double, c_int64, c_bool, c_void_p, byref, pointer
 from .diopi_runtime import Sizes, Scalar, Tensor, TensorHandle, compute_nhwc_stride, compute_nhwc_stride_2d, compute_nhwc_stride_3d
 from .utils import check_returncode, check_function, glob_vars
 from . import Dtype, raw_like
@@ -52,7 +53,25 @@ def reduce_op_process(input, dim=None, keepdim=False, dtype=None):
     return dim_list, out
 
 
-def common_dtype(dtype1: Dtype, dtype2: Dtype) -> Dtype:
+def common_dtype(input, other) -> Dtype:
+    if isinstance(input, Tensor):
+        dtype1 = input.get_dtype()
+    elif isinstance(input, int):
+        dtype1 = glob_vars.int_type
+    elif isinstance(input, float):
+        dtype1 = Dtype.float32
+    else:
+        assert 0, "not supported type of input"
+
+    if isinstance(other, Tensor):
+        dtype2 = other.get_dtype()
+    elif isinstance(other, int):
+        dtype2 = glob_vars.int_type
+    elif isinstance(other, float):
+        dtype2 = Dtype.float32
+    else:
+        assert 0, "not supported type of other"
+
     float_types = [Dtype.float16, Dtype.float32, Dtype.float64]
     if dtype1 in float_types and dtype2 not in float_types:
         return dtype1
@@ -67,7 +86,8 @@ def common_dtype(dtype1: Dtype, dtype2: Dtype) -> Dtype:
     return dtype1 if dtype1.value >= dtype2.value else dtype2
 
 
-def promote_type(dtype1: Dtype, promoted_dtype: Dtype) -> Dtype:
+def promote_type(input: Tensor, promoted_dtype: Dtype) -> Dtype:
+    dtype1 = input.get_dtype()
     need_promote_types = [Dtype.int8, Dtype.int16, Dtype.int32, Dtype.int64,
                           Dtype.uint8, Dtype.uint16, Dtype.uint32, Dtype.uint64, Dtype.bool]
     return dtype1 if dtype1 not in need_promote_types else promoted_dtype
@@ -132,7 +152,7 @@ def binary_op(input, other, inplace, call) -> Tensor:
 def binary_op_scalar(input, other, inplace, call, alpha=None, dtype=None) -> Tensor:
     args = "input.context_handle, "
     if dtype is None:
-        dtype = input.get_dtype()
+        dtype = common_dtype(input, other)
 
     if inplace:
         call = call + "Inp"
@@ -170,13 +190,10 @@ def softmax(input, dim, dtype=None):
         dim = 0
     if input.numel() == 0:
         return input
-    if dtype is None:
-        dtype = input.get_dtype()
-    out = raw_like(input)
+    out = raw_like(input) if dtype is None else Tensor(input.size(), dtype)
 
     func = check_function('diopiSoftmax')
-    ret = func(input.context_handle, out.tensor_handle,
-               input.tensor_handle, c_int64(dim), c_int32(dtype.value))
+    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, c_int64(dim))
     check_returncode(ret)
     return out
 
@@ -202,7 +219,7 @@ def sigmoid(input, inplace=False) -> Tensor:
 
 
 def sqrt(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiSqrt', promote_type(input.get_dtype(), Dtype.float32))
+    return unary_op(input, inplace, 'diopiSqrt', promote_type(input, Dtype.float32))
 
 
 def neg(input, inplace=False) -> Tensor:
@@ -210,35 +227,35 @@ def neg(input, inplace=False) -> Tensor:
 
 
 def sin(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiSin', promote_type(input.get_dtype(), Dtype.float32))
+    return unary_op(input, inplace, 'diopiSin', promote_type(input, Dtype.float32))
 
 
 def cos(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiCos', promote_type(input.get_dtype(), Dtype.float32))
+    return unary_op(input, inplace, 'diopiCos', promote_type(input, Dtype.float32))
 
 
 def tanh(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiTanh')
+    return unary_op(input, inplace, 'diopiTanh', promote_type(input, Dtype.float32))
 
 
 def exp(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiExp', promote_type(input.get_dtype(), Dtype.float32))
+    return unary_op(input, inplace, 'diopiExp', promote_type(input, Dtype.float32))
 
 
 def log(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiLog', promote_type(input.get_dtype(), Dtype.float32))
+    return unary_op(input, inplace, 'diopiLog', promote_type(input, Dtype.float32))
 
 
 def log2(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiLog2', promote_type(input.get_dtype(), Dtype.float32))
+    return unary_op(input, inplace, 'diopiLog2', promote_type(input, Dtype.float32))
 
 
 def log10(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiLog10', promote_type(input.get_dtype(), Dtype.float32))
+    return unary_op(input, inplace, 'diopiLog10', promote_type(input, Dtype.float32))
 
 
 def erf(input, inplace=False) -> Tensor:
-    return unary_op(input, inplace, 'diopiErf', promote_type(input.get_dtype(), Dtype.float32))
+    return unary_op(input, inplace, 'diopiErf', promote_type(input, Dtype.float32))
 
 
 def add(input, other, inplace=False, alpha=1) -> Tensor:
@@ -274,7 +291,7 @@ def lt(input, other, inplace=False) -> Tensor:
 
 
 def mul(input, other, inplace=False) -> Tensor:
-    return binary_op_scalar(input, other, inplace, 'diopiMul')
+    return binary_op_scalar(input, other, inplace, 'diopiMul', dtype=promote_type(input, Dtype.float32))
 
 
 def div(input, other, inplace=False, rounding_mode=None) -> Tensor:
@@ -286,7 +303,7 @@ def div(input, other, inplace=False, rounding_mode=None) -> Tensor:
         call = call + "Inp"
         out = input
     else:
-        out_type = promote_type(input.get_dtype(), Dtype.float32)
+        out_type = promote_type(input, Dtype.float32)
         if not isinstance(other, Tensor):
             out = Tensor(sizeI, out_type)
         else:
@@ -498,15 +515,12 @@ def mean(input, dim=None, keepdim=False, dtype=None) -> Tensor:
     dim, out = reduce_op_process(input, dim, keepdim, dtype)
     func = check_function("diopiMean")
     dim1 = Sizes(tuple(dim))
-    if dtype is None:
-        dtype = input.get_dtype()
-    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle,
-               dim1, c_int32(dtype.value))
+    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, dim1)
     check_returncode(ret)
     return out
 
 
-def std(input, unbiased, dim=None, keepdim=False) -> Tensor:
+def std(input, unbiased=True, dim=None, keepdim=False) -> Tensor:
     assert isinstance(dim, (int, list)) or dim is None,\
         "dim should be int or list or None"
 
@@ -1112,7 +1126,7 @@ def one_hot(input, num_classes=- 1):
 
 
 def split(tensor, split_size_or_sections, dim=0):
-    assert isinstance(split_size_or_sections, (int, list)),\
+    assert isinstance(split_size_or_sections, (int, list, tuple)),\
         "split_size_or_sections must be int or list"
     sizeI = list(tensor.size())
     sum = sizeI[dim]
@@ -1181,9 +1195,7 @@ def pow(input=None, self=None, exponent=None, inplace=False) -> Tensor:
         sizeI = list(input.size())
         sizeE = list(exponent.size())
         sizeO = broadcast_out_size(sizeI, sizeE)
-        input_dtype = input.get_dtype()
-        exponent_dtype = exponent.get_dtype()
-        out_dtype = common_dtype(input_dtype, exponent_dtype)
+        out_dtype = common_dtype(input, exponent)
         out = Tensor(sizeO, out_dtype)
         func = check_function("diopiPowTensor")
         ret = func(input.context_handle, out.tensor_handle,
@@ -1266,18 +1278,16 @@ def batch_norm(input, running_mean, running_var, weight, bias,
     return out
 
 
-def log_softmax(input, dim, dtype=None):
+def log_softmax(input, dim=None, dtype=None):
     if dim is None:
         dim = 0
     if input.numel() == 0:
         return input
-    if dtype is None:
-        dtype = input.get_dtype()
-    out = raw_like(input)
+    out = raw_like(input) if dtype is None else Tensor(input.size(), dtype)
 
     func = check_function('diopiLogSoftmax')
     ret = func(input.context_handle, out.tensor_handle,
-               input.tensor_handle, c_int64(dim), c_int32(dtype.value))
+               input.tensor_handle, c_int64(dim))
     check_returncode(ret)
     return out
 
@@ -1374,16 +1384,13 @@ def addmm(input, mat1, mat2, beta=1, alpha=1) -> Tensor:
 
 
 def sum(input, dim=None, keepdim=False, dtype=None) -> Tensor:
-    assert isinstance(dim, (int, list)) or dim is None,\
+    assert isinstance(dim, (int, list, tuple)) or dim is None,\
         "dim should be int or list"
     func = check_function("diopiSum")
-    dtype = promote_type(input.get_dtype(), Dtype.int64)
+    dtype = promote_type(input, Dtype.int64)
     dim, out = reduce_op_process(input, dim, keepdim, dtype)
     dim1 = Sizes(tuple(dim))
-    if dtype is None:
-        dtype = input.get_dtype()
-    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle,
-               dim1, c_int32(dtype.value))
+    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, dim1)
     check_returncode(ret)
     return out
 
@@ -1867,7 +1874,7 @@ def softmax_backward(input, grad_outputs, output, dim, **kwargs) -> Tensor:
 
     func = check_function("diopiSoftmaxBackward")
     ret = func(input.context_handle, grad_input.tensor_handle, grad_outputs[0].tensor_handle,
-               output.tensor_handle, c_int64(dim), c_int32(input.get_dtype().value))
+               output.tensor_handle, c_int64(dim))
     check_returncode(ret)
     return {"input": grad_input}
 
@@ -1878,7 +1885,7 @@ def log_softmax_backward(input, grad_outputs, output, dim, **kwargs) -> Tensor:
 
     func = check_function("diopiLogSoftmaxBackward")
     ret = func(input.context_handle, grad_input.tensor_handle, grad_outputs[0].tensor_handle,
-               output.tensor_handle, c_int64(dim), c_int32(input.get_dtype().value))
+               output.tensor_handle, c_int64(dim))
     check_returncode(ret)
     return {"input": grad_input}
 
@@ -2215,20 +2222,19 @@ def cumsum(input, dim, dtype=None):
 
     sizeI = list(input.size())
     assert dim < len(sizeI), "dim out of index"
-    if dtype is None:
-        dtype = input.get_dtype()
 
-    out = raw_like(input)
+    out = Tensor(input.size(), promote_type(input, Dtype.int64)) if dtype is None else Tensor(input.size(), dtype)
     func = check_function("diopiCumsum")
-    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle,
-               c_int64(dim), c_int32(dtype.value))
+    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, c_int64(dim))
     check_returncode(ret)
     return out
 
 
 def cdist(x1, x2, p, compute_mode=None):
-    assert x1.numel() > 1 and x2.numel() > 1, "cdist only supports at least 2D tensors"
-    assert x1.numel() == x2.numel(), "X1 and X2 must have the same number of columns"
+    sizeX1 = list(x1.size())
+    sizeX2 = list(x2.size())
+    assert len(sizeX1) == len(sizeX2) and len(sizeX1) > 1, "cdist only supports at least 2D tensors"
+    assert sizeX1[-1] == sizeX2[-1], "X1 and X2 must have the same number of elements at the last dimension"
 
     if compute_mode is not None:
         if compute_mode == 'use_mm_for_euclid_dist':
@@ -2239,8 +2245,13 @@ def cdist(x1, x2, p, compute_mode=None):
     else:
         compute_mode = c_void_p()
 
-    sizeO = list(x1.size())
-    sizeO[-1] = list(x2.size())[-2]
+    sizeO = sizeX1
+    length = len(sizeX1)
+    for i in range(length - 2):
+        assert sizeX1[i] == sizeX2[i] or sizeX1[i] == 1 or sizeX2[i] == 1,\
+            "size1 and size2 must be broadcastable"
+        sizeO[i] = sizeX1[i] if sizeX2[i] == 1 else sizeX2[i]
+    sizeO[-1] = sizeX2[-2]
     out = Tensor(sizeO, x1.get_dtype())
     func = check_function("diopiCdist")
     ret = func(x1.context_handle, out.tensor_handle, x1.tensor_handle, x2.tensor_handle, c_double(p), compute_mode)
@@ -2250,8 +2261,10 @@ def cdist(x1, x2, p, compute_mode=None):
 
 def cdist_backward(x1, grad_outputs, output, x2, p, **kwargs):
     assert len(grad_outputs) == 1, "only accept 1 gradient to do backward"
-    assert x1.numel() > 1 and x2.numel() > 1, "cdist only supports at least 2D tensors"
-    assert x1.numel() == x2.numel(), "X1 and X2 must have the same number of columns"
+    sizeX1 = x1.size()
+    sizeX2 = x2.size()
+    assert len(sizeX1) == len(sizeX2) and len(sizeX1) > 1, "cdist only supports at least 2D tensors"
+    assert sizeX1[-1] == sizeX2[-1], "X1 and X2 must have the same number of elements at the last dimension"
 
     grad_x1 = raw_like(x1)
     func = check_function("diopiCdistBackward")
@@ -2271,7 +2284,7 @@ def reciprocal(input, inplace=False) -> Tensor:
         func = check_function(call)
         ret = func(input.context_handle, input.tensor_handle)
     else:
-        out = raw_like(input)
+        out = Tensor(input.size(), promote_type(input, Dtype.float32))
         func = check_function(call)
         ret = func(input.context_handle, out.tensor_handle, input.tensor_handle)
 
@@ -2289,13 +2302,11 @@ def bitwise_and(input, other, inplace=False):
     assert input.get_dtype() in [Dtype.bool, Dtype.int8, Dtype.int16, Dtype.int32, glob_vars.int_type], \
         "input tensor must be of integral or boolean"
     if isinstance(other, Tensor):
-        other_type = other.get_dtype()
-        assert other_type in [Dtype.bool, Dtype.int8, Dtype.int16, Dtype.int32, glob_vars.int_type], \
+        assert other.get_dtype() in [Dtype.bool, Dtype.int8, Dtype.int16, Dtype.int32, glob_vars.int_type], \
             "other tensor must be of integral or boolean"
     else:
         assert isinstance(other, int), "other must be of integral or boolean"
-        other_type = Dtype.int64
-    out_dtype = common_dtype(input.get_dtype(), other_type)
+    out_dtype = common_dtype(input, other)
     return binary_op_scalar(input, other, inplace, "diopiBitwiseAnd", dtype=out_dtype)
 
 
@@ -2303,13 +2314,11 @@ def bitwise_or(input, other, inplace=False):
     assert input.get_dtype() in [Dtype.bool, Dtype.int8, Dtype.int16, Dtype.int32, glob_vars.int_type], \
         "input tensor must be of integral or boolean"
     if isinstance(other, Tensor):
-        other_type = other.get_dtype()
-        assert other_type in [Dtype.bool, Dtype.int8, Dtype.int16, Dtype.int32, glob_vars.int_type], \
+        assert other.get_dtype() in [Dtype.bool, Dtype.int8, Dtype.int16, Dtype.int32, glob_vars.int_type], \
             "other tensor must be of integral or boolean"
     else:
         assert isinstance(other, int), "other must be of integral or boolean"
-        other_type = Dtype.int64
-    out_dtype = common_dtype(input.get_dtype(), other_type)
+    out_dtype = common_dtype(input, other)
     return binary_op_scalar(input, other, inplace, "diopiBitwiseOr", dtype=out_dtype)
 
 
@@ -2367,7 +2376,8 @@ def smooth_l1_loss_backward(input, grad_outputs, target, reduction='mean', beta=
 
 
 def maximum(input, other) -> Tensor:
-    out = Tensor(input.size(), input.get_dtype())
+    size = broadcast_out_size(list(input.size()), list(other.size()))
+    out = Tensor(size, common_dtype(input, other))
 
     func = check_function("diopiMaximum")
     ret = func(input.context_handle, out.tensor_handle,
@@ -2377,7 +2387,8 @@ def maximum(input, other) -> Tensor:
 
 
 def minimum(input, other) -> Tensor:
-    out = Tensor(input.size(), input.get_dtype())
+    size = broadcast_out_size(list(input.size()), list(other.size()))
+    out = Tensor(size, common_dtype(input, other))
 
     func = check_function("diopiMinimum")
     ret = func(input.context_handle, out.tensor_handle,
@@ -2493,7 +2504,7 @@ def conv3d_backward(input, grad_outputs, weight, bias=None, stride=1,
 def expand(input, size) -> Tensor:
     SizeI = input.size()
     size = list(size)
-    for i in (-1, -len(SizeI)):
+    for i in range(-1, -len(SizeI) - 1, -1):
         if size[i] == -1:
             size[i] = SizeI[i]
         else:
@@ -2504,10 +2515,9 @@ def expand(input, size) -> Tensor:
         assert size[0] >= 0, "the size of new dimension can't be negative"
 
     out = Tensor(size, input.get_dtype())
-    size = Sizes(tuple(size))
 
     func = check_function("diopiExpand")
-    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, size)
+    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle)
     check_returncode(ret)
     return out
 
@@ -2626,8 +2636,7 @@ def norm(input, p, dim=None, keepdim=False, dtype=None):
     dim = Sizes(tuple(dim))
 
     func = check_function("diopiNorm")
-    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle,
-               p, dim, c_int32(out.get_dtype().value))
+    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, p, dim)
     check_returncode(ret)
     return out
 
@@ -2918,7 +2927,7 @@ def copy_(input, other) -> Tensor:
 def gather(input, dim, index):
     assert isinstance(dim, int), "dim must be int"
     assert len(input.size()) == len(index.size()), "input and index must have the same number of dimensions"
-    out = raw_like(input)
+    out = Tensor(index.size(), input.get_dtype())
     func = check_function("diopiGather")
     ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, c_int64(dim), index.tensor_handle)
     check_returncode(ret)
@@ -2952,18 +2961,21 @@ def remainder(other, input=None, self=None):
                         "input and other must Supports broadcasting to a common shape"
                     if sizeO[i] == 1:
                         sizeO[i] = sizeOther[i]
-            out = Tensor(sizeO, input.get_dtype())
+            out_dtype = common_dtype(input, other)
+            out = Tensor(sizeO, out_dtype)
             input = input.tensor_handle
             other = other.tensor_handle
         else:
             call += "Scalar"
-            out = raw_like(input)
+            out_dtype = common_dtype(input, other)
+            out = Tensor(input.size(), out_dtype)
             other = byref(Scalar(other))
             input = input.tensor_handle
     else:
         assert isinstance(other, Tensor), "input or other must be tensor"
         context = other.context_handle
-        out = raw_like(other)
+        out_dtype = common_dtype(input, other)
+        out = Tensor(other.size(), out_dtype)
         input = byref(Scalar(input))
         other = other.tensor_handle
     func = check_function(call)
@@ -3076,15 +3088,25 @@ def scatter(input, dim, index, src=None, value=None, reduce=None, inplace=False)
     return out
 
 
-def interpolate(input, size, mode="nearest", align_corners=None) -> Tensor:
+def interpolate(input, size=None, scale_factor=None, mode="nearest", align_corners=False) -> Tensor:
+    assert size is None or scale_factor is None, "only one of size or scale_factor should be defined"
     sizeI = list(input.size())
-    for i in range(len(size)):
-        sizeI[-i - 1] = size[-i - 1]
+    if size is not None:
+        if isinstance(size, int):
+            size = [size for _ in range(len(sizeI) - 2)]
+        for i in range(len(size)):
+            sizeI[-i - 1] = size[-i - 1]
+    else:
+        dim = len(sizeI) - 2
+        if not isinstance(scale_factor, tuple):
+            scale_factor = [scale_factor for _ in range(dim)]
+        for i in range(2, dim + 2):
+            sizeI[i] = int(scale_factor[i - 2] * sizeI[i])
 
     nhwc_stride = compute_nhwc_stride(sizeI) if glob_vars.nhwc else None
     out = Tensor(sizeI, input.get_dtype(), stride=nhwc_stride)
 
-    c_size = Sizes(tuple(size))
+    c_size = Sizes(tuple(sizeI[2:]))
     if mode == "nearest":
         func = check_function("diopiUpsampleNearest")
         ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, c_size)
@@ -3096,9 +3118,9 @@ def interpolate(input, size, mode="nearest", align_corners=None) -> Tensor:
     return out
 
 
-def interpolate_backward(input, grad_outputs, size, mode="nearest", align_corners=None) -> Tensor:
+def interpolate_backward(input, grad_outputs, size, mode="nearest", align_corners=None, **kwargs) -> Tensor:
     in_size = Sizes(input.size())
-    out_size = Sizes(tuple(size))
+    out_size = Sizes(grad_outputs[0].size()[2:])
     grad_input = raw_like(input)
 
     if mode == "nearest":
@@ -3127,6 +3149,8 @@ def pad(input, pad, mode='constant', value=None):
             pad_idx = i + 1
         sizeO[-pad_idx] += (pad[2 * i] + pad[2 * i + 1])
     pad = Sizes(pad)
+    if value is None and mode == 'constant':
+        value = 0
     if value is None:
         value = c_void_p()
     else:
@@ -3179,17 +3203,14 @@ def prod(input, dim=None, keepdim=False, dtype=None) -> Tensor:
     assert isinstance(dim, (int)) or dim is None,\
         "dim should be int"
 
-    _, out = reduce_op_process(input, dim, keepdim, dtype)
+    _, out = reduce_op_process(input, dim, keepdim, promote_type(input, Dtype.int64))
     if dim is None:
         dim = c_void_p()
     else:
         dim = byref(c_int64(dim))
 
-    if dtype is None:
-        dtype = input.get_dtype()
     func = check_function("diopiProd")
-    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle,
-               dim, c_int32(dtype.value))
+    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, dim)
     check_returncode(ret)
     return out
 
@@ -3389,7 +3410,7 @@ def repeat(input, repeats):
     return out
 
 
-def normal(mean, std, shape=None):
+def normal(mean, std, size=None):
     call = "diopiNormal"
     if isinstance(mean, Tensor) and isinstance(std, Tensor):
         assert mean.numel() == std.numel(), 'the total number of elements in each tensor need to be the same.'
@@ -3402,8 +3423,8 @@ def normal(mean, std, shape=None):
         out = Tensor(std.size(), std.get_dtype())
         call += "ScalarTensor"
     else:
-        assert shape is not None, "need the shape of output while both mean and std are scalar"
-        out = Tensor(shape, Dtype.float32)
+        assert size is not None, "need the shape of output while both mean and std are scalar"
+        out = Tensor(size, Dtype.float32)
 
     arg_mean = mean.tensor_handle if isinstance(mean, Tensor) else c_double(mean)
     arg_std = std.tensor_handle if isinstance(std, Tensor) else c_double(std)
