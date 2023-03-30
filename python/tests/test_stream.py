@@ -12,7 +12,7 @@ class TestStream(object):
     stream1 = context1.get_handle()
 
     def check_get_device_data(self, stream):
-        res_tensor = Tensor([], Dtype.float32, context_handle=stream)
+        res_tensor = Tensor([2,2], Dtype.float32, context_handle=stream)
         assert res_tensor.get_device() == Device.AIChip
 
     def test_stream(self):
