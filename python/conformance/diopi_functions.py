@@ -209,6 +209,8 @@ def abs(input, inplace=False) -> Tensor:
 def floor(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiFloor')
 
+def ceil(input, inplace=False) -> Tensor:
+    return unary_op(input, inplace, 'diopiCeil')
 
 def sign(input) -> Tensor:
     return unary_op(input, False, 'diopiSign')
