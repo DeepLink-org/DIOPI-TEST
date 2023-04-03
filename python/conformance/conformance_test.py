@@ -203,6 +203,13 @@ class ManualTest(object):
     def test_normal_(mean, std, size):
         ManualTest.test_normal(mean, std, size)
 
+    def test_randn(size):
+        from scipy import stats
+        out = F.randn(size)
+        out_numpy = out.numpy().flatten()
+        p_value = stats.kstest(out_numpy, 'norm', args=(0, 1))[1]
+        assert p_value > 0.0001, "failed to execute randn"
+
 
 class ConformanceTest(object):
     r'''
