@@ -209,8 +209,8 @@ def floor(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiFloor')
 
 
-def sign(input) -> Tensor:
-    return unary_op(input, False, 'diopiSign')
+def sign(input, inplace=False) -> Tensor:
+    return unary_op(input, inplace, 'diopiSign')
 
 
 def sigmoid(input, inplace=False) -> Tensor:
