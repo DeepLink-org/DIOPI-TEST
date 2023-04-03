@@ -3343,6 +3343,7 @@ diopi_configs = {
         rtol_half=1e-3,
         para=dict(
             dim=[-1, 0, -1, 0],
+            dtype=[Dtype.float64, Dtype.float32, Dtype.int64, Dtype.int64]
         ),
         tensor_para=dict(
             args=[
