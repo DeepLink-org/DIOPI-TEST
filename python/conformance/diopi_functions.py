@@ -3438,22 +3438,21 @@ def normal_(input, mean, std, shape=None) -> Tensor:
 def meshgrid(tensors, shape=None):
     assert isinstance(tensors, (list, tuple)),\
         "tensors must be a list or tuple"
-    # import pdb
-    # pdb.set_trace()
     inputsNum = len(tensors)
-    outsNum = inputsNum
     c_tensors = []
     co_tensors = []
     dims = []
     for tensor in tensors:
+        assert (len(tensor.size()) == 1),\
+            "Expected scalar or 1D tensor in the tensor list"
         c_tensors.append(tensor.tensor_handle)
         dims.append(tensor.size()[0])
     c_tensors = (c_void_p * inputsNum)(*c_tensors)
     out = [Tensor(dims, tensors[0].get_dtype()) for i in range(inputsNum)]
     for tensor in out:
         co_tensors.append(tensor.tensor_handle)
-    co_tensors = (c_void_p * outsNum)(*co_tensors)
+    co_tensors = (c_void_p * inputsNum)(*co_tensors)
     func = check_function("diopiMeshGrid")
-    ret = func(tensors[0].context_handle, pointer(co_tensors), c_int64(outsNum), pointer(c_tensors), c_int64(inputsNum))
+    ret = func(tensors[0].context_handle, pointer(co_tensors), pointer(c_tensors), c_int64(inputsNum))
     check_returncode(ret)
     return out
