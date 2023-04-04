@@ -217,6 +217,9 @@ def sign(input) -> Tensor:
 def sigmoid(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiSigmoid')
 
+def silu(input, inplace=False) -> Tensor:
+    return unary_op(input, inplace, 'diopiSilu')
+
 
 def sqrt(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiSqrt', promote_type(input, Dtype.float32))
