@@ -3763,7 +3763,7 @@ diopi_configs = {
                     "shape": ((8,), (16,), (32,)),
                     "dtype": [Dtype.float32, Dtype.float64, Dtype.int64],
                     "gen_fn": Genfunc.randn,
-                    "gen_num_range": [1,5],
+                    "gen_num_range": [1, 5],
                 },
             ],
             seq_name='tensors',
