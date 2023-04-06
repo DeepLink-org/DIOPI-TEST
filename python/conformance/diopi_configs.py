@@ -707,6 +707,33 @@ diopi_configs = {
             ],
         ),
     ),
+    
+    'pointwise_binary_diff_dtype': dict(
+        name=['logical_and', 'logical_or'],
+        interface=['torch'],
+        tensor_para=dict(
+            gen_fn=Genfunc.randn,
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((1024, ), (384, 128),
+                              (128, 64, 3, 3),
+                              (2, 32, 130, 130)),
+                    "dtype":[Dtype.float64, Dtype.float32, Dtype.float16, 
+                             Dtype.int64, Dtype.int32, Dtype.int16, 
+                             Dtype.int8, Dtype.uint8, Dtype.bool],
+                },
+                {
+                    "ins": ['other'],
+                    "shape": ((1024, ), (384, 128),
+                              (1, ), (2, 32, 1, 1)),
+                    "dtype":[Dtype.int32, Dtype.uint8, Dtype.bool, 
+                             Dtype.int64, Dtype.float64, Dtype.float32, 
+                             Dtype.int16, Dtype.float16, Dtype.int8],
+                },
+            ],
+        ),
+    ),
 
     'pointwise_binary_dtype_bool': dict(
         name=['add', 'mul', 'eq', 'ne', 'le', 'lt', 'gt', 'ge',
