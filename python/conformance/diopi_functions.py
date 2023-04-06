@@ -3432,3 +3432,11 @@ def normal(mean, std, size=None):
     ret = func(out.context_handle, out.tensor_handle, arg_mean, arg_std)
     check_returncode(ret)
     return out
+
+def normalize(input, p, dim, eps):
+    call = "diopiNormalize"
+    func = check_function(call)
+    out = raw_like(input)
+    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, c_double(p), c_int64(dim), c_double(eps))
+    check_returncode(ret)
+    return out

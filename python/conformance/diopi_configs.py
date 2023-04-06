@@ -4092,4 +4092,22 @@ diopi_configs = {
         ),
     ),
 
+    'normalize': dict(
+        name=["normalize"],
+        para=dict(
+            p=[2.0, 1.0, 0, 1.5],
+            dim=[1, 2, -1, 0],
+            eps=[1e-12, 1e-12, 1e-11, 1e-12],
+        ),
+        tensor_para=dict(
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((256, 256, 3, 3), (256, 128, 1, 1), (64, 32, 16), (32, 8)),
+                    "dtype": [Dtype.float32, Dtype.float64],
+                }
+            ]
+        )
+    ),
+
 }
