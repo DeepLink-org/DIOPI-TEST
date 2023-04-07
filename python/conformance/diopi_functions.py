@@ -3433,6 +3433,7 @@ def normal(mean, std, size=None):
     check_returncode(ret)
     return out
 
+
 def normalize(input, p, dim, eps):
     call = "diopiNormalize"
     func = check_function(call)
