@@ -217,6 +217,7 @@ def sign(input) -> Tensor:
 def sigmoid(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiSigmoid')
 
+
 def silu(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiSilu')
 
@@ -2093,8 +2094,6 @@ def randn(size) -> Tensor:
     ret = func(out.context_handle, out.tensor_handle)
     check_returncode(ret)
     return out
-
-
 
 
 def bernoulli(input, inplace=False, p=None) -> Tensor:
