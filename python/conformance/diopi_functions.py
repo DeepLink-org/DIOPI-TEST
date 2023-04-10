@@ -2088,14 +2088,6 @@ def random(input, start=0, end=None) -> Tensor:
     return input
 
 
-def randn(size) -> Tensor:
-    func = check_function("diopiRandn")
-    out = Tensor(size, dtype=Dtype.float32)
-    ret = func(out.context_handle, out.tensor_handle)
-    check_returncode(ret)
-    return out
-
-
 def bernoulli(input, inplace=False, p=None) -> Tensor:
     out = input
 

@@ -4107,12 +4107,4 @@ diopi_configs = {
         ),
     ),
 
-    'randn': dict(
-        name=["randn"],
-        no_output_ref=True,
-        para=dict(
-            size=[(32, 8), (32, 2, 3, 3), (16, )],
-        ),
-    ),
-
 }
