@@ -124,10 +124,8 @@ def expand_cfg_all(paras_list, tensor_paras_list, cfg_dict, filter_dtype_list, d
         for idx, tensor_paras in enumerate(tensor_paras_list):
             for tensor_para in tensor_paras:
                 if tensor_para["ins"] in device_tensor_paras:
-                    if ("value" in tensor_para and "value" in device_tensor_paras[tensor_para["ins"]] and
-                        tensor_para["value"] in device_tensor_paras[tensor_para["ins"]]["value"]
-                        ) or ("shape" in tensor_para and "shape" in device_tensor_paras[tensor_para["ins"]] and
-                              tensor_para["shape"] in device_tensor_paras[tensor_para["ins"]]["shape"]):
+                    if ("value" in tensor_para and "value" in device_tensor_paras[tensor_para["ins"]] and tensor_para["value"] in device_tensor_paras[tensor_para["ins"]]["value"]) or \
+                       ("shape" in tensor_para and "shape" in device_tensor_paras[tensor_para["ins"]] and tensor_para["shape"] in device_tensor_paras[tensor_para["ins"]]["shape"]):
                         if idx not in skipped_index:
                             skipped_index.append(idx)
         paras_list = [paras_list[i] for i in range(len(paras_list)) if i not in skipped_index]
