@@ -114,6 +114,7 @@ diopi_configs = {
 
     'hardswish': dict(
         name=["hardswish"],
+        saved_args=dict(output=0),
         is_inplace=True,
         tensor_para=dict(
             args=[
@@ -121,6 +122,7 @@ diopi_configs = {
                     "ins": ['input'],
                     "shape": ((2, 4096), (64, 28, 28),
                               (32, 64, 112, 112), (64, 3, 7, 28, 28)),
+                    "requires_grad": [True],
                     "dtype": [Dtype.float32, Dtype.float64],
                     "gen_fn": Genfunc.randn,
                 },
