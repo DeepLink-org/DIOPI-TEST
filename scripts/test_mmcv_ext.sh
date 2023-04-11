@@ -36,5 +36,3 @@ for elem in ${MMCV_TEST_LIST[@]}
 do
     python -m pytest $elem
 done
-
-cd ../../../../
