@@ -226,8 +226,7 @@ class Tensor:
             )
 
     @classmethod
-    def from_handle(cls, tensor_handle):
-        ctx_handle = ContextHandle()
+    def from_handle(cls, ctx_handle, tensor_handle):
         diopirt_lib._diopiTensorGetCtxHandle(tensor_handle, byref(ctx_handle))
         return cls(size=None, dtype=None, context_handle=ctx_handle, tensor_handle=tensor_handle)
 
@@ -297,14 +296,14 @@ class Tensor:
         diopirt_lib._diopiTensorResetShape(self.tensor_handle, byref(Sizes(tuple(shape))))
 
     @classmethod
-    def from_numpy(cls, darray):
+    def from_numpy(cls, ctx, darray):
         if not isinstance(darray, (np.generic, np.ndarray)):
             raise TypeError(f"expected np.ndarray (got {type(darray)})")
 
         dtype = from_numpy_dtype(darray.dtype)
         stride = [int(darray.strides[i] / darray.itemsize)
                   for i in range(len(darray.strides))]
-        tr = cls(size=darray.shape, dtype=dtype, stride=stride)
+        tr = cls(size=darray.shape, dtype=dtype, stride=stride, context_handle=ctx.context_handle)
         diopirt_lib._diopiTensorCopyFromBuffer(tr.context_handle,
                                                c_void_p(darray.ctypes.data),
                                                tr.tensor_handle)

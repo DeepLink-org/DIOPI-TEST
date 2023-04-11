@@ -969,7 +969,7 @@ def nonzero(input):
     ret = func(input.context_handle, pointer(out_tensor_handle),
                input.tensor_handle)
     check_returncode(ret)
-    out = Tensor.from_handle(out_tensor_handle)
+    out = Tensor.from_handle(input.context_handle, out_tensor_handle)
     return out
 
 
@@ -1509,7 +1509,7 @@ def nms(boxes, scores, iou_threshold) -> Tensor:
     func = check_function("diopiNms")
     ret = func(boxes.context_handle, pointer(out_tensor_handle), boxes.tensor_handle,
                scores.tensor_handle, c_double(iou_threshold))
-    out = Tensor.from_handle(out_tensor_handle)
+    out = Tensor.from_handle(boxes.context_handle, out_tensor_handle)
     check_returncode(ret)
     return out
 
@@ -1580,7 +1580,7 @@ def index(input, **kwargs) -> Tensor:
     func = check_function("diopiIndex")
     ret = func(input.context_handle, pointer(out_tensor_handle), input.tensor_handle,
                pointer(c_indices), c_int64(nums))
-    out = Tensor.from_handle(out_tensor_handle)
+    out = Tensor.from_handle(input.context_handle, out_tensor_handle)
     check_returncode(ret)
     return out
 
@@ -2558,7 +2558,7 @@ def masked_select(input, mask) -> Tensor:
     ret = func(input.context_handle, pointer(out_tensor_handle), input.tensor_handle,
                mask.tensor_handle)
     check_returncode(ret)
-    out = Tensor.from_handle(out_tensor_handle)
+    out = Tensor.from_handle(input.context_handle, out_tensor_handle)
     return out
 
 
@@ -3190,9 +3190,9 @@ def unique(input, sorted=True, return_inverse=False, return_counts=False, dim=No
     ret = func(input.context_handle, pointer(out_tensor_handle), input.tensor_handle, dim, c_bool(sorted),
                c_bool(return_counts), indices_handle, pointer(counts))
     check_returncode(ret)
-    out = Tensor.from_handle(out_tensor_handle)
+    out = Tensor.from_handle(input.context_handle, out_tensor_handle)
     if return_counts:
-        counts = Tensor.from_handle(counts)
+        counts = Tensor.from_handle(input.context_handle, counts)
     if return_inverse and not return_counts:
         return out, indices
     elif not return_inverse and return_counts:
