@@ -94,7 +94,7 @@ def format_cfg(cases):
             case_v["para"] = {}
 
 
-def remove_unnecessary_paras(cfgs_dict):
+def extract_value_from_skip(cfgs_dict):
     for case_k, case_v in cfgs_dict.items():
         if "dtype" in case_v.keys():
             case_v["dtype"] = [x.value for x in case_v["dtype"]]
@@ -120,5 +120,5 @@ class DeviceConfig(object):
         cfgs_dict = expand_cfg_by_name(cfgs_dict, 'name')
         format_cfg(cfgs_dict)
         expand_tensor_paras_args_by_ins(cfgs_dict)
-        remove_unnecessary_paras(cfgs_dict)
+        extract_value_from_skip(cfgs_dict)
         return cfgs_dict
