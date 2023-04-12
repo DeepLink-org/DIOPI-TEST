@@ -19,6 +19,37 @@ import torchvision
 _cur_dir = os.path.dirname(os.path.abspath(__file__))
 
 
+def check_device_para_and_tensor_para(cfg_dict, device_cfg_dict):
+    para_dict = cfg_dict["para"]
+    device_para_dict = device_cfg_dict["para"]
+    for dk, dv in device_para_dict.items():
+        if dk in para_dict:
+            v = para_dict[dk]
+            for x in dv:
+                if x not in v:
+                    logger.warn(f"No value {x} found in diopi_configs for key {dk}. Skip ignored.")
+
+    args_list = cfg_dict["tensor_para"]["args"]
+    device_tensor_paras_dict = device_cfg_dict["tensor_para"]["args"]
+    for input in device_tensor_paras_dict.keys():
+        for args in args_list:
+            if "ins" in args:
+                ins = args["ins"]
+                if input in ins:
+                    if "dtype" in device_tensor_paras_dict[input] and "dtype" in args:
+                        for dt in device_tensor_paras_dict[input]["dtype"]:
+                            if dt not in args["dtype"]:
+                                logger.warn(f"No dtype {dt} found in diopi_configs for ins {ins}. Skip ignored.")
+                    if "shape" in device_tensor_paras_dict[input] and "shape" in args:
+                        for ds in device_tensor_paras_dict[input]["shape"]:
+                            if ds not in args["shape"]:
+                                logger.warn(f"No shape {ds} found in diopi_configs for ins {ins}. Skip ignored.")
+                    if "value" in device_tensor_paras_dict[input] and "value" in args:
+                        for dv in device_tensor_paras_dict[input]["value"]:
+                            if dv not in args["value"]:
+                                logger.warn(f"No value {dv} found in diopi_configs for ins {ins}. Skip ignored.")
+
+
 def expand_para(para_dict: dict, paras_list: list):
     r'''
     dict(a = [1,2], b = [11,22])
@@ -180,6 +211,8 @@ def expand_cfg_all(paras_list, tensor_paras_list, cfg_dict, filter_dtype_list, d
 
 
 def expand_cfg_by_all_options(cfg_dict: dict, filter_dtype_list: list, device_config: dict = None) -> list:
+    if device_config:
+        check_device_para_and_tensor_para(cfg_dict, device_config)
     paras_list, tensor_paras_list = expand_cfg_by_para(cfg_dict)
     cfg_expand_list = expand_cfg_all(paras_list, tensor_paras_list, cfg_dict, filter_dtype_list, device_config)
     return cfg_expand_list
@@ -350,10 +383,8 @@ class GenInputData(object):
             shutil.copyfile(src_path, dst_path)
             from .device_configs import device_configs
             os.remove(dst_path)
-            from .device_config import DeviceConfig
-            device_configs = DeviceConfig.process_configs(device_configs, diopi_configs)
-        else:
-            device_configs = {}
+            from .device_config_helper import DeviceConfig
+            device_configs = DeviceConfig.process_configs(device_configs)
 
         inputs_dir_path = os.path.join(_cur_dir, "../data/" + model_name + "/inputs")
         if not os.path.exists(inputs_dir_path):

@@ -1,5 +1,5 @@
 import copy
-from .config import _must_be_the_type, _must_exist, check_dtype_not_nested_list_or_tuple, expand_cfg_by_name
+from .config import _must_be_the_type, _must_exist, expand_cfg_by_name
 
 
 class Skip:
@@ -7,55 +7,49 @@ class Skip:
         self.value = value
 
 
-def fix_configs_name(cfgs_dict: dict, base_cfgs_dict: dict):
-    for case_k, case_v in cfgs_dict.items():
-        if case_k in base_cfgs_dict:
-            base_case_v = base_cfgs_dict[case_k]
-            if 'name' not in case_v and 'name' in base_case_v:
-                case_v['name'] = base_case_v['name']
+def _must_be_the_list_or_tuple_of_type(cfg_path: str, cfg_dict: dict, required_type, cfg_keys: list) -> None:
+    if isinstance(required_type, (list, tuple)):
+        types_str = ""
+        for i in required_type:
+            types_str += i.__name__
+            types_str += ' or '
+        types_str = types_str[:-4]
+    else:
+        types_str = required_type.__name__
+
+    err = f"key %s should be the list or tuple of {types_str} in {cfg_path}"
+    for key in cfg_keys:
+        if key in cfg_dict.keys():
+            assert isinstance(cfg_dict[key], (list, tuple)), err % key
+            for v in cfg_dict[key]:
+                assert isinstance(v, required_type), err % key
 
 
 def check_configs_format(cfgs_dict: dict):
     for case_k, case_v in cfgs_dict.items():
-        domain = f"diopi_configs.{case_k}"
-        _must_be_the_type(domain, case_v, list, ["dtype", "pytorch"])
-        # _must_be_list(case_v, ["dtype", "pytorch"], domain)
+        domain = f"device_configs.{case_k}"
+        _must_be_the_type(domain, case_v, list, ["dtype"])
+        if "dtype" in case_v.keys():
+            _must_be_the_list_or_tuple_of_type(domain, case_v, Skip, ["dtype"])
 
         _must_exist(domain, case_v, ['name'])
-        _must_be_the_type(domain, case_v, list, ['name', 'arch'])
+        _must_be_the_type(domain, case_v, list, ['name'])
 
         if "tensor_para" in case_v.keys():
             _must_be_the_type(domain, case_v, dict, ['tensor_para'])
-            if "dtype" in case_v.keys():
-                _must_be_the_type(domain, case_v, list, ["dtype"])
-                check_dtype_not_nested_list_or_tuple(f"{domain}.dtype",
-                                                     case_v["dtype"])
-
             _must_exist(domain + ".tensor_para", case_v["tensor_para"], ["args"])
             _must_be_the_type(domain + ".tensor_para", case_v["tensor_para"],
                               (list, tuple), ['args'])
             domain_tmp = domain + ".tensor_para.args"
-
             for arg in case_v["tensor_para"]['args']:
-                _must_be_the_type(domain_tmp, arg, (list, tuple),
-                                  [i for i in arg.keys() if i != "gen_fn"])
-                for arg_k, arg_v in arg.items():
-                    if arg_k == "dtype":
-                        check_dtype_not_nested_list_or_tuple(
-                            f"{domain_tmp}.{arg_k}.dtype", arg_v)
+                _must_exist(domain_tmp, arg, ["ins"])
+                _must_be_the_list_or_tuple_of_type(domain_tmp, arg, Skip, ['shape', 'value', 'dtype'])
 
         if "para" in case_v.keys():
             _must_be_the_type(domain, case_v, dict, ['para'])
             dict_obj = case_v["para"]
-            _must_be_the_type(domain + ".para", dict_obj, (list, tuple),
-                              [i for i in dict_obj.keys() if i != "gen_fn"])
-
-        if "tensor_para" in case_v.keys():
-            if "args" in case_v["tensor_para"]:
-                args: list = case_v["tensor_para"]["args"]
-                domain_tmp0 = domain_tmp + "tensor_para.args"
-                for arg in args:
-                    _must_be_the_type(domain_tmp0, arg, (list, tuple), ['shape', 'value', 'dtype'])
+            _must_be_the_list_or_tuple_of_type(domain + ".para", dict_obj, Skip,
+                                               [i for i in dict_obj.keys()])
 
 
 def expand_tensor_paras_args_by_ins(cfgs_dict):
@@ -103,16 +97,16 @@ def format_cfg(cases):
 def remove_unnecessary_paras(cfgs_dict):
     for case_k, case_v in cfgs_dict.items():
         if "dtype" in case_v.keys():
-            case_v["dtype"] = [x.value for x in case_v["dtype"] if isinstance(x, Skip)]
+            case_v["dtype"] = [x.value for x in case_v["dtype"]]
         for para_k, para_v in case_v["para"].items():
-            case_v["para"][para_k] = [x.value for x in para_v if isinstance(x, Skip)]
+            case_v["para"][para_k] = [x.value for x in para_v]
         for arg_k, arg_v in case_v["tensor_para"]["args"].items():
             if "shape" in arg_v:
-                arg_v["shape"] = [x.value for x in arg_v["shape"] if isinstance(x, Skip)]
+                arg_v["shape"] = [x.value for x in arg_v["shape"]]
             if "value" in arg_v:
-                arg_v["value"] = [x.value for x in arg_v["value"] if isinstance(x, Skip)]
+                arg_v["value"] = [x.value for x in arg_v["value"]]
             if "dtype" in arg_v:
-                arg_v["dtype"] = [x.value for x in arg_v["dtype"] if isinstance(x, Skip)]
+                arg_v["dtype"] = [x.value for x in arg_v["dtype"]]
 
 
 class DeviceConfig(object):
@@ -121,8 +115,7 @@ class DeviceConfig(object):
     """
 
     @staticmethod
-    def process_configs(cfgs_dict: dict, base_cfgs_dict: dict):
-        fix_configs_name(cfgs_dict, base_cfgs_dict)
+    def process_configs(cfgs_dict: dict):
         check_configs_format(cfgs_dict)
         cfgs_dict = expand_cfg_by_name(cfgs_dict, 'name')
         format_cfg(cfgs_dict)
