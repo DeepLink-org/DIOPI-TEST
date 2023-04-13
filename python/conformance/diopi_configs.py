@@ -2110,7 +2110,7 @@ diopi_configs = {
             ],
         ),
     ),
-    
+
     'dropout': dict(
         name=["dropout"],
         no_output_ref=True,
@@ -2123,7 +2123,7 @@ diopi_configs = {
             args=[
                 {
                     "ins": ['input'],
-                    "shape": ((2, 4096), (32, 49, 256), (2, 16, 64, 64),(1, 2304, 1, 1, 1)),
+                    "shape": ((2, 4096), (32, 49, 256), (2, 16, 64, 64), (1, 2304, 1, 1, 1)),
                     "dtype": [Dtype.float32, Dtype.float64],
                     "gen_fn": Genfunc.randn,
                 },
