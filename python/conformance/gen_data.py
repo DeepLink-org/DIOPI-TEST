@@ -27,27 +27,24 @@ def check_device_para_and_tensor_para(cfg_dict, device_cfg_dict):
             v = para_dict[dk]
             for x in dv:
                 if x not in v:
-                    logger.warn(f"No value {x} found in diopi_configs for key {dk}. Skip ignored.")
+                    logger.warn(f"Para {x} of key {dk} in device_configs not found in diopi_configs. Ignored.")
 
     args_list = cfg_dict["tensor_para"]["args"]
     device_tensor_paras_dict = device_cfg_dict["tensor_para"]["args"]
     for input in device_tensor_paras_dict.keys():
+        in_found = False
         for args in args_list:
             if "ins" in args:
                 ins = args["ins"]
                 if input in ins:
-                    if "dtype" in device_tensor_paras_dict[input] and "dtype" in args:
-                        for dt in device_tensor_paras_dict[input]["dtype"]:
-                            if dt not in args["dtype"]:
-                                logger.warn(f"No dtype {dt} found in diopi_configs for ins {ins}. Skip ignored.")
-                    if "shape" in device_tensor_paras_dict[input] and "shape" in args:
-                        for ds in device_tensor_paras_dict[input]["shape"]:
-                            if ds not in args["shape"]:
-                                logger.warn(f"No shape {ds} found in diopi_configs for ins {ins}. Skip ignored.")
-                    if "value" in device_tensor_paras_dict[input] and "value" in args:
-                        for dv in device_tensor_paras_dict[input]["value"]:
-                            if dv not in args["value"]:
-                                logger.warn(f"No value {dv} found in diopi_configs for ins {ins}. Skip ignored.")
+                    in_found = True
+                    for key in ["dtype", "shape", "value"]:
+                        if key in device_tensor_paras_dict[input] and key in args:
+                            for dv in device_tensor_paras_dict[input][key]:
+                                if dv not in args[key]:
+                                    logger.warn(f"Tensor para {dv} of key {key} in device_configs found in diopi_configs for ins {ins}. Ignored.")
+        if not in_found:
+            logger.warn(f"Input name {input} in device_configs not found in diopi_configs. Ignored.")
 
 
 def expand_para(para_dict: dict, paras_list: list):
