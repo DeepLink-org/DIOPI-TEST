@@ -221,6 +221,7 @@ def sigmoid(input, inplace=False) -> Tensor:
 def silu(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiSilu')
 
+
 def silu_backward(input, grad_outputs, **kwargs) -> Tensor:
     assert len(grad_outputs) == 1, "only accept 1 gradient to do backward"
     grad_input = raw_like(input)
@@ -229,6 +230,7 @@ def silu_backward(input, grad_outputs, **kwargs) -> Tensor:
                input.tensor_handle)
     check_returncode(ret)
     return {"input": grad_input}
+
 
 def sqrt(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiSqrt', promote_type(input, Dtype.float32))
