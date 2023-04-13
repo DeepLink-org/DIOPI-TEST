@@ -114,7 +114,6 @@ diopi_configs = {
 
     'hardswish': dict(
         name=["hardswish"],
-        saved_args=dict(output=0),
         is_inplace=True,
         tensor_para=dict(
             args=[
