@@ -1,9 +1,9 @@
 [submodule "diopirt"]
 	path = diopirt
-	url = https://github.com/OpenComputeLab/DIOPI-PROTO.git
+	url = git@github.com:OpenComputeLab/DIOPI-PROTO.git
 [submodule "impl"]
 	path = impl
-	url = https://github.com/OpenComputeLab/DIOPI-IMPL.git
+	url = git@github.com:OpenComputeLab/DIOPI-IMPL.git
 [submodule "third_party/mmcv_diopi"]
 	path = third_party/mmcv_diopi
-	url = https://github.com/OpenComputeLab/mmcv_diopi.git
+	url = git@github.com:OpenComputeLab/mmcv_diopi.git
