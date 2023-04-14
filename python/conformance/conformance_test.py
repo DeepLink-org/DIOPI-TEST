@@ -214,16 +214,16 @@ def config_to_format_string(data, indent=0):
     yaml_str = ""
     if isinstance(data, dict):
         for key, value in data.items():
-            if value is None or value == [] or value == {} or value=="":
+            if value is None or value == [] or value == {} or value == "":
                 continue
             yaml_str += "\n" + " " * indent + f"{key}: "
             if key not in ["shape", "value"]:
-                yaml_str += config_to_format_string(value, indent+2)
+                yaml_str += config_to_format_string(value, indent + 2)
             else:
-                yaml_str += config_to_format_string(str(value), indent+2)
+                yaml_str += config_to_format_string(str(value), indent + 2)
     elif isinstance(data, (list, tuple)):
         for item in data:
-            yaml_str += "\n" + " " * indent + "- " + config_to_format_string(item, indent+2)
+            yaml_str += "\n" + " " * indent + "- " + config_to_format_string(item, indent + 2)
     else:
         yaml_str += f"{data}"
     return yaml_str
