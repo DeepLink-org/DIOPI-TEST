@@ -446,6 +446,25 @@ diopi_configs = {
             ],
         ),
     ),
+    
+    'log_zero_input': dict(
+        name=['log', 'log2', 'log10'],
+        interface=['torch'],
+        dtype=[Dtype.float16, Dtype.float32, Dtype.float64, 
+               Dtype.int16, Dtype.int32, Dtype.int64,
+               Dtype.uint8, Dtype.int8],
+        tensor_para=dict(
+            gen_fn=Genfunc.zeros,
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": ((1, ), (1024,), (364800, 4), (2, 128, 3072),
+                              (256, 128, 3, 3),
+                              (2, 31, 512, 6, 40)),
+                },
+            ],
+        ),
+    ),
 
     'tanh': dict(
         name=['tanh'],
@@ -1222,7 +1241,6 @@ diopi_configs = {
         atol=1e-4,
         rtol=1e-5,
         tensor_para=dict(
-            dtype=[Dtype.float32, Dtype.float64],
             gen_fn=Genfunc.randn,
             args=[
                 {
@@ -1230,15 +1248,24 @@ diopi_configs = {
                     "shape": ((182, ), (384, 128),
                               (1, 242991, 2),
                               (2, 4, 100, 152)),
+                    "dtype":[Dtype.float32, Dtype.float64, Dtype.float16,
+                             Dtype.int16, Dtype.int32, Dtype.int64,
+                             Dtype.int8, Dtype.uint8, Dtype.float32],
                 },
                 {
                     "ins": ['min'],
                     "shape": ((182, ), (384, 1),
                               None, (2, 4, 100, 152)),
+                    "dtype":[Dtype.bool, Dtype.float32, Dtype.float16,
+                             Dtype.int16, Dtype.int64, Dtype.int32,
+                             Dtype.int8, Dtype.int64, Dtype.uint8],
                 },
                 {
                     "ins": ['max'],
                     "shape": (None, (384, 128), (1, 1, 2), None),
+                    "dtype":[Dtype.float32, Dtype.bool, Dtype.float16,
+                             Dtype.uint8, Dtype.int32, Dtype.int64,
+                             Dtype.int32, Dtype.int8, Dtype.int16],
                 },
             ],
         ),
@@ -1696,7 +1723,8 @@ diopi_configs = {
                 {
                     "ins": ['mask'],
                     "shape": ((16,), (12, 13), (12, 13, 14), (12, 13, 14, 1), (1, 4)),
-                    "dtype": [Dtype.bool],
+                    "dtype": [Dtype.uint8, Dtype.bool, Dtype.uint8, Dtype.bool,
+                              Dtype.uint8, Dtype.bool, Dtype.uint8, Dtype.bool, Dtype.bool],
                     "gen_fn": Genfunc.mask
                 },
                 {
