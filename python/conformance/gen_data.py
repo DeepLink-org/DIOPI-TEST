@@ -375,11 +375,10 @@ class GenInputData(object):
         src_path = os.path.join(impl_folder, "device_configs.py")
         use_device_configs = os.path.isfile(src_path)
         if use_device_configs:
-            import shutil
             dst_path = os.path.join(_cur_dir, "device_configs.py")
-            shutil.copyfile(src_path, dst_path)
+            os.symlink(src_path, dst_path)
             from .device_configs import device_configs
-            os.remove(dst_path)
+            os.unlink(dst_path)
             from .device_config_helper import DeviceConfig
             device_configs = DeviceConfig.process_configs(device_configs)
 
