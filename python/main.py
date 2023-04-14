@@ -24,6 +24,8 @@ def parse_args():
                         help='Whether to use nhwc layout for 3-dim Tensor')
     parser.add_argument('--four_bytes', action='store_true',
                         help='Whether to use 4-bytes data type for partial tests')
+    parser.add_argument('--debug_level', type=int, default=0,
+                        help='Whether to print debug info. 0 for printing nothing, 1 for printing config, 2 for printing config, inputs and outputs')
     args = parser.parse_args()
     return args
 
@@ -64,7 +66,7 @@ if __name__ == "__main__":
             logger.info(f"the op list of {args.model_name}: {real_op_list}")
     elif args.mode == 'run_test':
         import conformance as cf
-        cf.ConformanceTest.run(args.fname, args.model_name.lower(), args.filter_dtype)
+        cf.ConformanceTest.run(args.fname, args.model_name.lower(), args.filter_dtype, args.debug_level)
         write_report()
     elif args.mode == 'utest':
         call = "python3 -m pytest -vx tests"

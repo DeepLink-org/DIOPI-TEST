@@ -215,7 +215,7 @@ class ConformanceTest(object):
     Run all functions by using input, then compare_with_gen_output with saved output
     '''
     @staticmethod
-    def run(func_name, model_name, filter_dtype_str_list):
+    def run(func_name, model_name, filter_dtype_str_list, debug_level):
 
         _cur_dir = os.path.dirname(os.path.abspath(__file__))
         inputs_dir_path = os.path.join(_cur_dir, "../data/" + model_name + "/inputs")
@@ -266,6 +266,18 @@ class ConformanceTest(object):
                         if need_output else True
                     logger.info(f"Run diopi_functions.{cfg_func_name} succeed") \
                         if passed else logger.error(f"Run diopi_functions.{cfg_func_name} failed", tag=test_tag, info=tensor_info)
+                    if not passed and debug_level > 0:
+                        print("failed config: \n", data["cfg"])
+                        if debug_level > 1:
+                            print("failed arguments:")
+                            for key, arg in kwargs.items():
+                                print(f"name:{key}, value:{arg}")
+                            print("failed output:")
+                            print("output_reference:")
+                            print(output_reference)
+                            print("output:")
+                            print(output)
+
                 except FunctionNotImplementedError as e:
                     logger.error(f"NotImplemented: {e}")
                     continue
@@ -304,6 +316,19 @@ class ConformanceTest(object):
                         passed = compare_with_gen_output(grad_input, data['cfg'], backward_out_reference)
                         logger.info(f"Run diopi_functions.{cfg_func_name}_backward succeed") \
                             if passed else logger.error(f"Run diopi_functions.{cfg_func_name}_backward failed", tag=test_tag, info=tensor_info)
+                        if not passed and debug_level > 0:
+                            print("failed config: \n", data["cfg"])
+                            if debug_level > 1:
+                                print("failed arguments:")
+                                for key, arg in kwargs.items():
+                                    print(f"name:{key}, value:{arg}")
+                                for key, arg in backward_para.items():
+                                    print(f"name:{key}, value:{arg}")
+                                print("failed grad:")
+                                print("grad_reference:")
+                                print(backward_out_reference)
+                                print("grad:")
+                                print(grad_input)
                         write_precision(data["cfg"], cfg_func_name + '_bp', passed)
                     except FunctionNotImplementedError as e:
                         logger.error(f"NotImplemented: {e}")
