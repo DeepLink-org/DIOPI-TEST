@@ -1070,20 +1070,33 @@ def sort(input, dim=- 1, descending=False, stable=False):
     vals = raw_like(input)
     sizeI = input.size()
     indices = Tensor(sizeI, glob_vars.int_type)
-
-    stable = c_void_p() if stable is None else pointer(c_bool(stable))
-
+    stable_c = c_void_p() if stable is None else pointer(c_bool(stable))
     func = check_function("diopiSort")
     ret = func(input.context_handle, vals.tensor_handle, indices.tensor_handle,
-               input.tensor_handle, c_int64(dim), c_bool(descending), stable)
+               input.tensor_handle, c_int64(dim), c_bool(descending), stable_c)
     check_returncode(ret)
-    # if not stable, need to use "input[indices]" to check
-    if not stable: 
-        indices_np = indices.numpy()
-        indices_np_flat = indices.numpy().flatten()
-        input_np_flat = input.numpy().flatten()
-        val_tensor_tmp = input_np_flat[indices_np_flat]
-        return vals, val_tensor_tmp
+    # if not stable, need to reconstruct indices and use "input[indices]" to check
+    if not stable:
+        # reconstruct the indices
+        lst = []
+        for dim_size in input.shape:  
+            temp_lst = [i for i in range(dim_size)]
+            lst.append(temp_lst)
+        temp_indices = list(itertools.product(*lst))
+        for i in range(len(temp_indices)):
+            temp_indices[i] = list(temp_indices[i])
+            temp_indices[i][dim] = indices.numpy().flatten()[i]
+
+        # use input[indices] to check
+        temp_vals = []
+        input_np = input.numpy()
+        for idx in temp_indices:
+            res = input_np
+            # use for loop to index since idx is a list
+            for i in idx:
+                res = res[i]
+            temp_vals.append(res)
+        return vals, temp_vals
     return vals, indices
 
 
