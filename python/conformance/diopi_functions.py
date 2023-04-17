@@ -218,6 +218,20 @@ def sigmoid(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiSigmoid')
 
 
+def silu(input, inplace=False) -> Tensor:
+    return unary_op(input, inplace, 'diopiSilu')
+
+
+def silu_backward(input, grad_outputs, **kwargs) -> Tensor:
+    assert len(grad_outputs) == 1, "only accept 1 gradient to do backward"
+    grad_input = raw_like(input)
+    func = check_function("diopiSiluBackward")
+    ret = func(input.context_handle, grad_input.tensor_handle, grad_outputs[0].tensor_handle,
+               input.tensor_handle)
+    check_returncode(ret)
+    return {"input": grad_input}
+
+
 def sqrt(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiSqrt', promote_type(input, Dtype.float32))
 
@@ -372,6 +386,28 @@ def bmm(input, mat2) -> Tensor:
                input.tensor_handle, mat2.tensor_handle)
     check_returncode(ret)
     return out
+
+
+def baddbmm(input, batch1, batch2, beta, alpha, inplace=False) -> Tensor:
+    size1 = list(input.size())
+    assert (len(size1) == 3), 'input must be 3d tensor'
+    size2 = list(batch1.size())
+    assert (len(size2) == 3), 'batch1 must be 3d tensor'
+    size3 = list(batch2.size())
+    assert (len(size3) == 3), 'batch2 must be 3d tensor'
+    assert (size2[2] == size3[1] and size1[0] == size2[0] and size1[0] == size3[0]), 'invalid args'
+    assert (size1[2] == size3[2] or size1[2] == 1 or size3[2] == 1), 'invalid args'
+    if inplace:
+        func = check_function("diopiBaddbmmInp")
+        ret = func(input.context_handle, input.tensor_handle, batch1.tensor_handle, batch2.tensor_handle, c_double(beta), c_double(alpha))
+        check_returncode(ret)
+        return input
+    else:
+        out = raw_like(input)
+        func = check_function("diopiBaddbmm")
+        ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, batch1.tensor_handle, batch2.tensor_handle, c_double(beta), c_double(alpha))
+        check_returncode(ret)
+        return out
 
 
 def addcmul(input, tensor1, tensor2, value=1, inplace=False) -> Tensor:
@@ -1768,6 +1804,16 @@ def hardtanh_backward(input, grad_outputs, min_val=-1.0, max_val=1.0, **kwargs) 
     func = check_function("diopiHardtanhBackward")
     ret = func(input.context_handle, grad_input.tensor_handle, grad_outputs[0].tensor_handle,
                input.tensor_handle, min_val, max_val)
+    check_returncode(ret)
+    return {"input": grad_input}
+
+
+def hardswish_backward(input, grad_outputs, **kwargs) -> Tensor:
+    assert len(grad_outputs) == 1, "only accept 1 gradient to do backward"
+    grad_input = raw_like(input)
+    func = check_function("diopiHardswishBackward")
+    ret = func(input.context_handle, grad_input.tensor_handle, grad_outputs[0].tensor_handle,
+               input.tensor_handle)
     check_returncode(ret)
     return {"input": grad_input}
 
