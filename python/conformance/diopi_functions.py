@@ -1077,6 +1077,13 @@ def sort(input, dim=- 1, descending=False, stable=False):
     ret = func(input.context_handle, vals.tensor_handle, indices.tensor_handle,
                input.tensor_handle, c_int64(dim), c_bool(descending), stable)
     check_returncode(ret)
+    # if not stable, need to use "input[indices]" to check
+    if not stable: 
+        indices_np = indices.numpy()
+        indices_np_flat = indices.numpy().flatten()
+        input_np_flat = input.numpy().flatten()
+        val_tensor_tmp = input_np_flat[indices_np_flat]
+        return vals, val_tensor_tmp
     return vals, indices
 
 
