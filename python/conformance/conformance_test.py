@@ -329,7 +329,6 @@ class ConformanceTest(object):
 
                     try:
                         grad_input = eval(f"F.{cfg_func_name}_backward(**kwargs, **backward_para)")
-                        # import pdb;pdb.set_trace()
                         passed = compare_with_gen_output(grad_input, data['cfg'], backward_out_reference)
                         if passed:
                             logger.info(f"Run diopi_functions.{cfg_func_name}_backward succeed")
