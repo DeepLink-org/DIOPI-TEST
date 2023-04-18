@@ -1080,7 +1080,7 @@ def sort(input, dim=- 1, descending=False, stable=False):
     if not stable:
         # reconstruct the indices
         lst = []
-        for dim_size in input.shape:  
+        for dim_size in input.shape:
             temp_lst = [i for i in range(dim_size)]
             lst.append(temp_lst)
         temp_indices = list(itertools.product(*lst))
