@@ -1,6 +1,7 @@
 # Copyright (c) 2023, DeepLink.
 # -*- coding: UTF-8 -*-
 import math
+import itertools
 
 from ctypes import c_float, c_double, c_int64, c_bool, c_void_p, byref, pointer
 from .diopi_runtime import Sizes, Scalar, Tensor, TensorHandle, compute_nhwc_stride, compute_nhwc_stride_2d, compute_nhwc_stride_3d
