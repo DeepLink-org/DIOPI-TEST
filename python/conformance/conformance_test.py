@@ -5,7 +5,8 @@ import numpy as np
 from . import diopi_functions as F
 from .utils import logger, FunctionNotImplementedError, DiopiException
 from .utils import need_process_func, glob_vars, nhwc_op, dtype_op
-from .diopi_runtime import Tensor, compute_nhwc_stride, Context, default_context
+from . import diopi_runtime
+from .diopi_runtime import Tensor, compute_nhwc_stride, Context
 from .utils import save_precision, record, write_precision
 from .utils import get_saved_pth_list, get_data_from_file
 from .utils import cfg_file_name
@@ -251,9 +252,8 @@ class ConformanceTest(object):
             if data["cfg"].get("is_inplace", False):
                 func_call_list.append(f"{module}.{test_func_name}(**kwargs, inplace=True)")
 
+            ctx = Context()
             for func_call in func_call_list:
-                ctx = Context()
-                ctx = default_context
                 if "inplace=True" in func_call:
                     if test_tag and test_tag[-1] == 'backward':
                         test_tag.pop()
@@ -261,20 +261,23 @@ class ConformanceTest(object):
                 try:
                     info = convert_input_tensors(ctx, function_paras, test_tag, nhwc_list, dtype_list, filter_dtype_str_list)
                     tensor_info = info if info else tensor_info
+                    # import pdb;pdb.set_trace()
                     output = eval(func_call)
+                    ctx.streamSync()
                     sum_to_compare = True if 'sorted' in kwargs and ~kwargs['sorted'] else False
                     passed = compare_with_gen_output(output, data['cfg'], output_reference, sum_to_compare) \
                         if need_output else True
                     logger.info(f"Run diopi_functions.{cfg_func_name} succeed") \
                         if passed else logger.error(f"Run diopi_functions.{cfg_func_name} failed", tag=test_tag, info=tensor_info)
                 except FunctionNotImplementedError as e:
-                    logger.error(f"NotImplemented: {e}")
+                    ctx.streamSync()
+                    logger.error(f"NotImplemented: {e} in {func_call}")
                     continue
                 except AttributeError as e:
-                    logger.error(f"AttributeError: {e}")
-                    continue
+                    ctx.streamSync()
                 except Exception as e:
-                    logger.error(f"{e}")
+                    ctx.streamSync()
+                    logger.error(f"{e} in {func_call}")
                     continue
 
                 write_precision(data["cfg"], cfg_func_name, passed)
@@ -285,6 +288,7 @@ class ConformanceTest(object):
                     saved_backward_pth = os.path.join(outputs_dir_path, saved_backward_pth)
                     backward_out_reference = get_data_from_file(saved_backward_pth, saved_pth, "backward output")
                     if backward_out_reference is None:
+                        ctx.streamSync()
                         continue
                     if not isinstance(output, (list, tuple)):
                         output = [output]
@@ -306,9 +310,14 @@ class ConformanceTest(object):
                             if passed else logger.error(f"Run diopi_functions.{cfg_func_name}_backward failed", tag=test_tag, info=tensor_info)
                         write_precision(data["cfg"], cfg_func_name + '_bp', passed)
                     except FunctionNotImplementedError as e:
+                        ctx.streamSync()
                         logger.error(f"NotImplemented: {e}")
                     except AttributeError as e:
+                        ctx.streamSync()
                         logger.error(f"AttributeError: {e}")
                     except Exception as e:
+                        ctx.streamSync()
                         logger.error(f"Failed: {e}")
-                    del ctx
+                    else:
+                        ctx.streamSync()
+            ctx.clear()

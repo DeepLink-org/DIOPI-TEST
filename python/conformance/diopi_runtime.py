@@ -153,19 +153,30 @@ def get_last_error():
 ContextHandle = c_void_p
 TensorHandle = c_void_p
 
-
+cnt = 0
+cnt_del = 0
 class Context:
     _c_lib = diopirt_lib
 
     def __init__(self):
         self.context_handle = ContextHandle()
-        self.__class__._c_lib._diopiCreateContext(byref(self.context_handle))
+        self._c_lib._diopiCreateContext(byref(self.context_handle))
 
-    def __del__(self):
-        self.__class__._c_lib._diopiDestroyContext(self.context_handle)
-
+    # def __del__(self):
+    #     if self.context_handle.value is not None and self._c_lib is not None:
+    #         try:
+    #             self._c_lib._diopiDestroyContext(byref(self.context_handle))
+    #         except :
+    #             import pdb;pdb.set_trace()
+    #             print("=========")
+    def clear(self):
+        if self.context_handle.value is not None and self._c_lib is not None:
+            self._c_lib._diopiDestroyContext(byref(self.context_handle))
     def get_handle(self):
         return self.context_handle
+
+    def streamSync(self):
+        self._c_lib._diopiDeviceStreamSync(self.context_handle)
 
 
 default_context = Context()
@@ -226,13 +237,15 @@ class Tensor:
             )
 
     @classmethod
-    def from_handle(cls, ctx_handle, tensor_handle):
+    def from_handle(cls, tensor_handle):
+        ctx_handle = ContextHandle()
         diopirt_lib._diopiTensorGetCtxHandle(tensor_handle, byref(ctx_handle))
         return cls(size=None, dtype=None, context_handle=ctx_handle, tensor_handle=tensor_handle)
 
     def __del__(self):
-        diopirt_lib._diopiDestoryTensor(self.context_handle,
-                                        self.tensor_handle)
+        if self.context_handle.value is not None:
+            diopirt_lib._diopiDestoryTensor(self.context_handle,
+                                            self.tensor_handle)
 
     def __str__(self):
         array = self.numpy()
@@ -299,7 +312,6 @@ class Tensor:
     def from_numpy(cls, ctx, darray):
         if not isinstance(darray, (np.generic, np.ndarray)):
             raise TypeError(f"expected np.ndarray (got {type(darray)})")
-
         dtype = from_numpy_dtype(darray.dtype)
         stride = [int(darray.strides[i] / darray.itemsize)
                   for i in range(len(darray.strides))]

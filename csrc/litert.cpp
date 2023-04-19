@@ -472,9 +472,10 @@ DIOPI_RT_API diopiError_t _diopiCreateContext(diopiContextHandle_t* ctx) {
     return diopiSuccess;
 }
 
-DIOPI_RT_API diopiError_t _diopiDestroyContext(diopiContextHandle_t ctx) {
+DIOPI_RT_API diopiError_t _diopiDestroyContext(diopiContextHandle_t* ctx) {
     diopi_log("destroy a Context instance: %16p", ctx);
-    delete ctx;
+    delete *ctx;
+    *ctx = nullptr;
     return diopiSuccess;
 }
 
@@ -534,6 +535,12 @@ DIOPI_RT_API diopiError_t diopiFinalize() {
     finalized = 1;
 
     return diopiSuccess;
+}
+
+DIOPI_RT_API diopiError_t _diopiDeviceStreamSync(diopiContextHandle_t ctx) {
+    diopiStreamHandle_t stream;
+    diopiGetStream(ctx, &stream);
+    synchronize_stream_func(stream);
 }
 
 DIOPI_RT_API diopiError_t _diopiTensorCopyFromBuffer(diopiContextHandle_t ctx,
