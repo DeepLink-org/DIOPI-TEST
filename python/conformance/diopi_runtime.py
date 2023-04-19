@@ -153,8 +153,7 @@ def get_last_error():
 ContextHandle = c_void_p
 TensorHandle = c_void_p
 
-cnt = 0
-cnt_del = 0
+
 class Context:
     _c_lib = diopirt_lib
 
