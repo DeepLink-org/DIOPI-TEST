@@ -118,7 +118,7 @@ class ManualTest(object):
 
         if training:
             # compute ratio
-            real_ratio = np.sum(mask_numpy) / mask.numel() #真实丢弃的比例
+            real_ratio = np.sum(mask_numpy) / mask.numel()
             # check data
             if func == F.dropout2d:
                 tmp = np.ones(input.shape)
@@ -208,7 +208,7 @@ class ManualTest(object):
         out_numpy = out_numpy.flatten()
         p_value = stats.kstest(out_numpy, 'norm', args=(mean, std))[1]
         assert p_value > 0.05, "failed to execute normal_"
-    
+
     def test_multinomial(input, num_samples, replacement):
         out = F.multinomial(input, num_samples, replacement)
         out_numpy = out.numpy()
@@ -218,7 +218,7 @@ class ManualTest(object):
         else:
             has_duplicates = len(out_numpy) != len(set(out_numpy))
         if not replacement:
-            assert has_duplicates == False, "failed to execute multinomial"
+            assert has_duplicates is False, "failed to execute multinomial"
         out_numpy = out_numpy.flatten()
         assert len(out_numpy) % num_samples == 0, "failed to execute multinomial"
 
