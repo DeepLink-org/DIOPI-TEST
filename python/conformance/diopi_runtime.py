@@ -162,16 +162,10 @@ class Context:
         self.context_handle = ContextHandle()
         self._c_lib._diopiCreateContext(byref(self.context_handle))
 
-    # def __del__(self):
-    #     if self.context_handle.value is not None and self._c_lib is not None:
-    #         try:
-    #             self._c_lib._diopiDestroyContext(byref(self.context_handle))
-    #         except :
-    #             import pdb;pdb.set_trace()
-    #             print("=========")
     def clear(self):
         if self.context_handle.value is not None and self._c_lib is not None:
             self._c_lib._diopiDestroyContext(byref(self.context_handle))
+
     def get_handle(self):
         return self.context_handle
 
