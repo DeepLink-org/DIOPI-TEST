@@ -159,17 +159,17 @@ class Context:
 
     def __init__(self):
         self.context_handle = ContextHandle()
-        self._c_lib._diopiCreateContext(byref(self.context_handle))
+        self.__class__._c_lib._diopiCreateContext(byref(self.context_handle))
 
     def clear(self):
         if self.context_handle.value is not None:
-            self._c_lib._diopiDestroyContext(byref(self.context_handle))
+            self.__class__._c_lib._diopiDestroyContext(byref(self.context_handle))
 
     def get_handle(self):
         return self.context_handle
 
     def streamSync(self):
-        self._c_lib._diopiDeviceStreamSync(self.context_handle)
+        self.__class__._c_lib._diopiDeviceStreamSync(self.context_handle)
 
 
 default_context = Context()
