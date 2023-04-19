@@ -541,6 +541,7 @@ DIOPI_RT_API diopiError_t _diopiDeviceStreamSync(diopiContextHandle_t ctx) {
     diopiStreamHandle_t stream;
     diopiGetStream(ctx, &stream);
     synchronize_stream_func(stream);
+    return diopiSuccess;
 }
 
 DIOPI_RT_API diopiError_t _diopiTensorCopyFromBuffer(diopiContextHandle_t ctx,
