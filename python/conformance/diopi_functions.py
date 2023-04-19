@@ -3529,3 +3529,11 @@ def multinomial(input, num_samples, replacement) -> Tensor:
         ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, c_int64(num_samples), c_bool(replacement))
         check_returncode(ret)
         return out
+
+
+def cast_dtype(input, out) -> Tensor:
+    call = "diopiCastDtype"
+    func = check_function(call)
+    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle)
+    check_returncode(ret)
+    return out
