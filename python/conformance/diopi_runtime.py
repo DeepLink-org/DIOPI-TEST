@@ -162,7 +162,7 @@ class Context:
         self._c_lib._diopiCreateContext(byref(self.context_handle))
 
     def clear(self):
-        if self.context_handle.value is not None and self._c_lib is not None:
+        if self.context_handle.value is not None:
             self._c_lib._diopiDestroyContext(byref(self.context_handle))
 
     def get_handle(self):
