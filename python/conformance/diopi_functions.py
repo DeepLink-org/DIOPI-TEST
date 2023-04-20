@@ -3193,10 +3193,7 @@ def pad(input, pad, mode='constant', value=None):
         "Padding length must be equal or more than length of input"
     paded_length = len(pad) // 2
     for i in range(paded_length):
-        if len(pad) <= len(sizeO):
-            pad_idx = paded_length - i
-        else:
-            pad_idx = i + 1
+        pad_idx = i + 1
         sizeO[-pad_idx] += (pad[2 * i] + pad[2 * i + 1])
     pad = Sizes(pad)
     if value is None and mode == 'constant':
