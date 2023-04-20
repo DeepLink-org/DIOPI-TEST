@@ -270,7 +270,7 @@ class ConformanceTest(object):
                     logger.error(f"NotImplemented: {e} in {func_call}")
                     continue
                 except AttributeError as e:
-                    logger.error(f"{e} in {func_call}")
+                    logger.error(f"AttributeError: {e} in {func_call}")
                     continue
                 except Exception as e:
                     logger.error(f"{e} in {func_call}")
