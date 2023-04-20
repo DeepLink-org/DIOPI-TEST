@@ -386,6 +386,9 @@ class GenInputData(object):
             from .device_configs import device_configs
             from .device_config_helper import DeviceConfig
             device_configs = DeviceConfig.process_configs(device_configs)
+        elif impl_folder != '':
+                logger.error(f"device_configs.py not found in folder: {impl_folder} !")
+                sys.exit(0)
 
         inputs_dir_path = os.path.join(_cur_dir, "../data/" + model_name + "/inputs")
         if not os.path.exists(inputs_dir_path):
