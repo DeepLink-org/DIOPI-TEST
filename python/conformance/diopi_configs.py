@@ -80,7 +80,7 @@ diopi_configs = {
         dtype=[Dtype.float32, Dtype.float16, Dtype.float64],
         para=dict(
             stride=[2, 1, 1, (2, 2)],
-            padding=[0, 12, 0, (0, 0)],
+            padding=[0, 12, (2, 1), (0, 0)],
             dilation=[1, 12, 1, (1, 1)],
             groups=[1, 2048, 1, 1],
         ),
