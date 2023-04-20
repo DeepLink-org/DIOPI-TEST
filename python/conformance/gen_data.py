@@ -376,9 +376,14 @@ class GenInputData(object):
         use_device_configs = os.path.isfile(src_path)
         if use_device_configs:
             dst_path = os.path.join(_cur_dir, "device_configs.py")
+            def unlink_device_configs():
+                if os.path.islink(dst_path):
+                    os.unlink(dst_path)
+            unlink_device_configs()
             os.symlink(src_path, dst_path)
+            import atexit
+            atexit.register(unlink_device_configs)
             from .device_configs import device_configs
-            os.unlink(dst_path)
             from .device_config_helper import DeviceConfig
             device_configs = DeviceConfig.process_configs(device_configs)
 
