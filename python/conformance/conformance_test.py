@@ -261,6 +261,7 @@ class ConformanceTest(object):
                     info = convert_input_tensors(ctx, function_paras, test_tag, nhwc_list, dtype_list, filter_dtype_str_list)
                     tensor_info = info if info else tensor_info
                     output = eval(func_call)
+                    ctx.streamSync()
                     sum_to_compare = True if 'sorted' in kwargs and ~kwargs['sorted'] else False
                     passed = compare_with_gen_output(output, data['cfg'], output_reference, sum_to_compare) \
                         if need_output else True
@@ -300,6 +301,7 @@ class ConformanceTest(object):
 
                     try:
                         grad_input = eval(f"F.{cfg_func_name}_backward(**kwargs, **backward_para)")
+                        ctx.streamSync()
                         passed = compare_with_gen_output(grad_input, data['cfg'], backward_out_reference)
                         logger.info(f"Run diopi_functions.{cfg_func_name}_backward succeed") \
                             if passed else logger.error(f"Run diopi_functions.{cfg_func_name}_backward failed", tag=test_tag, info=tensor_info)
