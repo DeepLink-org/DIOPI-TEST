@@ -372,7 +372,7 @@ diopi_configs = {
 
     'pointwise_op': dict(
         name=['abs', 'cos', 'erf', 'exp', 'floor',
-              'neg', 'sin', 'sqrt', 'logical_not'],
+              'neg', 'sin', 'sqrt', 'logical_not', 'rsqrt'],
         interface=['torch'],
         is_inplace=True,
         dtype=[Dtype.float16, Dtype.float32, Dtype.float64],
@@ -391,7 +391,7 @@ diopi_configs = {
 
     'pointwise_op_int_without_inplace': dict(
         name=['abs', 'cos', 'erf', 'exp',
-              'neg', 'sin', 'sqrt', 'logical_not'],
+              'neg', 'sin', 'sqrt', 'logical_not', 'rsqrt'],
         interface=['torch'],
         dtype=[Dtype.int16, Dtype.int32, Dtype.int64, Dtype.uint8, Dtype.int8],
         tensor_para=dict(
@@ -425,7 +425,7 @@ diopi_configs = {
     ),
 
     'pointwise_op_bool': dict(
-        name=['cos', 'erf', 'exp', 'sin', 'sqrt'],
+        name=['cos', 'erf', 'exp', 'sin', 'sqrt', 'rsqrt'],
         interface=['torch'],
         dtype=[Dtype.bool],
         tensor_para=dict(
@@ -460,7 +460,7 @@ diopi_configs = {
     ),
 
     'pointwise_op_abs_input': dict(
-        name=['log', 'log2', 'log10', 'sqrt'],
+        name=['log', 'log2', 'log10', 'sqrt', 'rsqrt'],
         interface=['torch'],
         is_inplace=True,
         dtype=[Dtype.float16, Dtype.float32, Dtype.float64],
@@ -4361,6 +4361,7 @@ diopi_configs = {
         ),
     ),
 
+<<<<<<< HEAD
     'cast_dtype': dict(
         name=["cast_dtype"],
         interface=['CustomizedTest'],
@@ -4381,4 +4382,6 @@ diopi_configs = {
         ),
     ),
 
+=======
+>>>>>>> 0712a112351f3a82d9025f5d565c3f62cb5135b6
 }

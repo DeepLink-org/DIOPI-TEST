@@ -1,6 +1,7 @@
 # Copyright (c) 2023, DeepLink.
 # -*- coding: UTF-8 -*-
 import math
+import itertools
 
 from ctypes import c_float, c_double, c_int64, c_bool, c_void_p, byref, pointer
 from .diopi_runtime import Sizes, Scalar, Tensor, TensorHandle, compute_nhwc_stride, compute_nhwc_stride_2d, compute_nhwc_stride_3d
@@ -234,6 +235,10 @@ def silu_backward(input, grad_outputs, **kwargs) -> Tensor:
 
 def sqrt(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiSqrt', promote_type(input, Dtype.float32))
+
+
+def rsqrt(input, inplace=False) -> Tensor:
+    return unary_op(input, inplace, 'diopiRsqrt', promote_type(input, Dtype.float32))
 
 
 def neg(input, inplace=False) -> Tensor:
@@ -1106,13 +1111,33 @@ def sort(input, dim=- 1, descending=False, stable=False):
     vals = raw_like(input)
     sizeI = input.size()
     indices = Tensor(sizeI, glob_vars.int_type)
-
-    stable = c_void_p() if stable is None else pointer(c_bool(stable))
-
+    stable_c = c_void_p() if stable is None else pointer(c_bool(stable))
     func = check_function("diopiSort")
     ret = func(input.context_handle, vals.tensor_handle, indices.tensor_handle,
-               input.tensor_handle, c_int64(dim), c_bool(descending), stable)
+               input.tensor_handle, c_int64(dim), c_bool(descending), stable_c)
     check_returncode(ret)
+    # if not stable, need to reconstruct indices and use "input[indices]" to check
+    if not stable:
+        # reconstruct the indices
+        lst = []
+        for dim_size in input.shape:
+            temp_lst = [i for i in range(dim_size)]
+            lst.append(temp_lst)
+        temp_indices = list(itertools.product(*lst))
+        for i in range(len(temp_indices)):
+            temp_indices[i] = list(temp_indices[i])
+            temp_indices[i][dim] = indices.numpy().flatten()[i]
+
+        # use input[indices] to check
+        temp_vals = []
+        input_np = input.numpy()
+        for idx in temp_indices:
+            res = input_np
+            # use for loop to index since idx is a list
+            for i in idx:
+                res = res[i]
+            temp_vals.append(res)
+        return vals, temp_vals
     return vals, indices
 
 
@@ -3516,24 +3541,21 @@ def meshgrid(tensors, shape=None):
     return out
 
 
+def cast_dtype(input, out) -> Tensor:
+    call = "diopiCastDtype"
+    func = check_function(call)
+    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle)
+    check_returncode(ret)
+    return out
+
+
 def multinomial(input, num_samples, replacement) -> Tensor:
     call = "diopiMultinomial"
     func = check_function(call)
     if len(input.size()) == 2:
         out = Tensor(size=(input.size()[0], num_samples), dtype=Dtype.int64)
-        ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, c_int64(num_samples), c_bool(replacement))
-        check_returncode(ret)
-        return out
     if len(input.size()) == 1:
         out = Tensor(size=(num_samples,), dtype=Dtype.int64)
-        ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, c_int64(num_samples), c_bool(replacement))
-        check_returncode(ret)
-        return out
-
-
-def cast_dtype(input, out) -> Tensor:
-    call = "diopiCastDtype"
-    func = check_function(call)
-    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle)
+    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle, c_int64(num_samples), c_bool(replacement))
     check_returncode(ret)
     return out
