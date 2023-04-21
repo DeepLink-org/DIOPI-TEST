@@ -4361,7 +4361,6 @@ diopi_configs = {
         ),
     ),
 
-<<<<<<< HEAD
     'cast_dtype': dict(
         name=["cast_dtype"],
         interface=['CustomizedTest'],
@@ -4382,6 +4381,4 @@ diopi_configs = {
         ),
     ),
 
-=======
->>>>>>> 0712a112351f3a82d9025f5d565c3f62cb5135b6
 }
