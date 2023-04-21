@@ -425,7 +425,7 @@ diopi_configs = {
     ),
 
     'pointwise_op_bool': dict(
-        name=['cos', 'erf', 'exp', 'sin', 'sqrt'],
+        name=['abs', 'cos', 'erf', 'exp', 'sin', 'sqrt'],
         interface=['torch'],
         dtype=[Dtype.bool],
         tensor_para=dict(
@@ -1244,7 +1244,7 @@ diopi_configs = {
                 {
                     "ins": ['other'],
                     "shape": ((128, 384), (5,), (128, 4, 32, 49),
-                              (2, 1, 3136, 64), (2, 64, 784), (512, 1)),
+                              (2, 3, 3136, 64), (2, 64, 784), (512, 1)),
                 },
             ],
         ),
@@ -4338,15 +4338,15 @@ diopi_configs = {
         name=['cholesky_ex'],
         interface=['torch.linalg'],
         para=dict(
-            upper=[True, False],
-            check_errors=[True, False],
+            upper=[True, False, True, False],
+            check_errors=[True, False, True, False],
         ),
         tensor_para=dict(
             args=[
                 {
                     "ins": ['input'],
                     "requires_grad": [True],
-                    "shape": ((2, 3, 3), (2, 3, 3)),
+                    "shape": ((3,4), (2, 3, 3), (2, 3, 4), (6,3,4,5)),
                     "dtype": [Dtype.float32, Dtype.float64],
                     "gen_fn": Genfunc.sym_mat,
                 },
