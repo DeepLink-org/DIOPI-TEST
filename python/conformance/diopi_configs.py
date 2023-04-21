@@ -2822,27 +2822,27 @@ diopi_configs = {
         interface=['torch'],
         saved_args=dict(output=0),
         para=dict(
-            p=[2,2,2,2,2,2,2,2,2],
-            compute_mode=['use_mm_for_euclid_dist', 'use_mm_for_euclid_dist', 'use_mm_for_euclid_dist',
-                          'use_mm_for_euclid_dist_if_necessary', 'use_mm_for_euclid_dist_if_necessary', 'use_mm_for_euclid_dist_if_necessary',
-                          'donot_use_mm_for_euclid_dist', 'donot_use_mm_for_euclid_dist', 'donot_use_mm_for_euclid_dist']
+            p=[2,2,2,2,2,2,2,2,2,2,2,2],
+            compute_mode=['use_mm_for_euclid_dist', 'use_mm_for_euclid_dist', 'use_mm_for_euclid_dist', 'use_mm_for_euclid_dist',
+                          'use_mm_for_euclid_dist_if_necessary', 'use_mm_for_euclid_dist_if_necessary', 'use_mm_for_euclid_dist_if_necessary', 'use_mm_for_euclid_dist_if_necessary',
+                          'donot_use_mm_for_euclid_dist', 'donot_use_mm_for_euclid_dist', 'donot_use_mm_for_euclid_dist', 'donot_use_mm_for_euclid_dist']
         ),
         tensor_para=dict(
             args=[
                 {
                     "ins": ['x1'],
                     "requires_grad": [True],
-                    "shape": ((5, 4), (2, 256, 256), (5, 4, 256, 256), 
-                              (3, 5, 4), (2, 256, 256), (5, 4, 256, 256),
-                              (5, 4), (2, 256, 256), (5, 4, 256, 256),),
+                    "shape": ((5, 4), (2, 256, 256), (2, 16, 256), (5, 4, 256, 256), 
+                              (3, 5, 4), (2, 256, 256), (3,2, 16, 256), (5, 4, 26, 256),
+                              (5, 4), (2, 256, 256), (2, 16, 256), (5, 4, 256, 256),),
                     "dtype": [Dtype.float32, Dtype.float64],
                     "gen_fn": Genfunc.randn,
                 },
                 {
                     "ins": ['x2'],
-                    "shape": ((3, 4), (2, 16, 256), (2,5,4, 256, 256),
-                              (3, 4), (2, 16, 256), (2,5,4, 256, 256),
-                              (4, 3, 4), (2, 16, 256), (2,5,4, 256, 256),),
+                    "shape": ((3, 4), (2, 16, 256), (2, 26, 256), (2,5,4, 256, 256),
+                              (3, 4), (2, 16, 256), (2, 26, 256), (2,5,4, 256, 256),
+                              (4, 3, 4), (2, 16, 256),(4,2, 26, 256), (2,5,4, 256, 256),),
                     "dtype": [Dtype.float32, Dtype.float64],
                     "gen_fn": Genfunc.randn,
                 },
@@ -3449,6 +3449,30 @@ diopi_configs = {
                 {
                     "shape": ((128, ), (384, 128), (256, 512, 1, 1), (384, 128), (384, 128)),
                     "dtype": [Dtype.float32, Dtype.float64, Dtype.float16],
+                    "gen_fn": Genfunc.randn,
+                },
+            ],
+        ),
+    ),
+    
+    'norm_p': dict(
+        name=['norm'],
+        interface=['torch'],
+        para=dict(
+            p=['fro', 0., 2, -1, None,
+                0.231, -1.234, 'fro', 'fro', 'fro',
+                'nuc', 'nuc', 'nuc', float('inf'), float('-inf'),],
+            dim=[None, None, None, [1, -1, 0], None,
+                0, None, None, 0, [0, 1],
+                None, [0, 1], [-1, 1], None, [0,1,2,3]],
+        ),
+        tensor_para=dict(
+            args=[
+                {
+                    "shape": ((), (3,), (3,4), (3,4,5), (6,3,4,5),
+                                (3,4,5,6), (3,4,5), (), (3,), (6,3,),
+                                (6,3,), (3,4), (3,4,5), (), (6,3,4,5)),
+                    "dtype": [Dtype.float32, Dtype.float64],
                     "gen_fn": Genfunc.randn,
                 },
             ],
@@ -4391,16 +4415,6 @@ diopi_configs = {
             mean=[-1, -0.5, 0, 0.1, 2],
             std=[0, 0.5, 1, 2.3, 3],
             size=[(), (2,), (32, 8), (2, 2, 2, 16), (32, 2, 3, 3)],
-        ),
-        tensor_para=dict(
-            gen_fn=Genfunc.randn,
-            args=[
-                {
-                    "ins": ['input'],
-                    "shape": [(32, 8), (16, 64, 32)],
-                    "dtype": [Dtype.float32, Dtype.float64],
-                },
-            ]
         ),
     ),
 
