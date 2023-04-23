@@ -307,10 +307,10 @@ class ConformanceTest(object):
                             if passed else logger.error(f"Run diopi_functions.{cfg_func_name}_backward failed", tag=test_tag, info=tensor_info)
                         write_precision(data["cfg"], cfg_func_name + '_bp', passed)
                     except FunctionNotImplementedError as e:
-                        logger.error(f"NotImplemented: {e}")
+                        logger.error(f"NotImplemented: {e} in {func_call}")
                     except AttributeError as e:
-                        logger.error(f"AttributeError: {e}")
+                        logger.error(f"AttributeError: {e} in {func_call}")
                     except Exception as e:
-                        logger.error(f"Failed: {e}")
+                        logger.error(f"Failed: {e} in {func_call}")
             # do not forget to clear the ctx.
             ctx.clear()

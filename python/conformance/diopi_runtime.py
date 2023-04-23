@@ -209,8 +209,8 @@ class Tensor:
         self,
         size,
         dtype,
-        stride=None,
-        context_handle=default_context.get_handle(),
+        stride,
+        context_handle,
         tensor_handle=None,
     ):
         if tensor_handle is not None and size is None:
@@ -237,7 +237,7 @@ class Tensor:
         ctx_handle = ContextHandle()
         diopirt_lib._diopiTensorGetCtxHandle(tensor_handle, byref(ctx_handle))
         skip_tensors_for_del_in_ctx.add(ctx_handle.value)
-        return cls(size=None, dtype=None, context_handle=ctx_handle, tensor_handle=tensor_handle)
+        return cls(size=None, dtype=None, stride=None, context_handle=ctx_handle, tensor_handle=tensor_handle)
 
     def __del__(self):
         # skip the deletion because of maybe causing double destructions
