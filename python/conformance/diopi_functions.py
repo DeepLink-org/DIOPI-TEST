@@ -2868,7 +2868,7 @@ def max_pool3d(input, kernel_size, stride=None, padding=0, dilation=1,
         return out
     else:
         func = check_function("diopiMaxPool3dWithIndices")
-        indices = Tensor(sizeO, glob_vars.int_type)
+        indices = Tensor(sizeO, glob_vars.int_type, None, default_context.context_handle)
         ret = func(input.context_handle, out.tensor_handle,
                    indices.tensor_handle, input.tensor_handle,
                    kernel_size, stride, padding, dilation, c_bool(ceil_mode))
@@ -2998,7 +2998,7 @@ def ctc_loss(log_probs, targets, input_lengths, target_lengths, blank=0, reducti
         sizeO = (sizeI[1], )
     neg_log_likelihood = Tensor((sizeI[1], ), log_probs.get_dtype(), None, default_context.context_handle)
     log_alpha = Tensor((sizeI[1], sizeI[0], max_target_length, None, default_context.context_handle), log_probs.get_dtype())
-    out = Tensor(sizeO, log_probs.get_dtype())
+    out = Tensor(sizeO, log_probs.get_dtype(), None, default_context.context_handle)
 
     func = check_function("diopiCTCLoss")
     ret = func(log_probs.context_handle, out.tensor_handle, neg_log_likelihood.tensor_handle,
