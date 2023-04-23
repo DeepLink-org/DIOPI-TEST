@@ -3068,7 +3068,7 @@ def ctc_loss(log_probs, targets, input_lengths, target_lengths, blank=0, reducti
     if reduction == 'none':
         sizeO = (sizeI[1], )
     neg_log_likelihood = Tensor((sizeI[1], ), log_probs.get_dtype(), None, default_context.context_handle)
-    log_alpha = Tensor((sizeI[1], sizeI[0], max_target_length, None, default_context.context_handle), log_probs.get_dtype())
+    log_alpha = Tensor((sizeI[1], sizeI[0], max_target_length), log_probs.get_dtype(), None, default_context.context_handle)
     out = Tensor(sizeO, log_probs.get_dtype(), None, default_context.context_handle)
 
     func = check_function("diopiCTCLoss")
