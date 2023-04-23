@@ -4370,12 +4370,12 @@ diopi_configs = {
                 {
                     "ins": ['input'],
                     "shape": [(32, 64,), (128, 24, 32), (16, 8,), (24, 12,)],
-                    "dtype": [Dtype.float32, Dtype.int64, Dtype.int8, Dtype.uint8,],
+                    "dtype": [Dtype.float32, Dtype.int64, Dtype.int8, Dtype.uint8],
                 },
                 {
                     "ins": ['out'],
                     "shape": [(32, 64,), (128, 24, 32), (16, 8,), (24, 12,)],
-                    "dtype": [Dtype.int64, Dtype.float64, Dtype.bool, Dtype.float16,],
+                    "dtype": [Dtype.int64, Dtype.float64, Dtype.bool, Dtype.float16],
                 },
             ]
         ),
