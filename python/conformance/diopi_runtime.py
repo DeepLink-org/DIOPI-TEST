@@ -174,6 +174,9 @@ class Context:
 
 default_context = Context()
 
+# store the context_hanlde.value where tensor maybe deconstruct twice
+skip_tensors_for_del_in_ctx = set()
+
 
 class Sizes(Structure):
     _fields_ = [("data", POINTER(c_int64)), ("len", c_int64)]
@@ -236,9 +239,13 @@ class Tensor:
         return cls(size=None, dtype=None, context_handle=ctx_handle, tensor_handle=tensor_handle)
 
     def __del__(self):
-        if self.context_handle.value is not None:
-            diopirt_lib._diopiDestoryTensor(self.context_handle,
-                                            self.tensor_handle)
+        # skip the deletion because of maybe causing double destructions
+        if skip_tensors_for_del_in_ctx is not None and self.context_handle.value in skip_tensors_for_del_in_ctx:
+            pass
+        else:
+            if self.context_handle.value is not None and self.tensor_handle.value is not None and diopirt_lib is not None:
+                diopirt_lib._diopiDestoryTensor(self.context_handle,
+                                                self.tensor_handle)
 
     def __str__(self):
         array = self.numpy()
