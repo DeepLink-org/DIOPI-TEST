@@ -293,10 +293,9 @@ class ConformanceTest(object):
         else:
             configs = Config.process_configs(diopi_configs)
 
-        src_path = os.path.join(impl_folder, "device_configs.py")
-        use_device_configs = False
-
-        if impl_folder != '':
+        use_device_configs = impl_folder != ''
+        if use_device_configs:
+            src_path = os.path.join(impl_folder, "device_configs.py")
             if os.path.isfile(src_path):
                 dst_path = os.path.join(_cur_dir, "device_configs.py")
 
@@ -316,7 +315,6 @@ class ConformanceTest(object):
                         continue
                     if cfg_name in device_configs:
                         check_device_para_and_tensor_para(configs, device_configs, cfg_name)
-                use_device_configs = True
             else:
                 logger.error(f"device_configs.py not found in directory: {impl_folder} !")
                 import sys
