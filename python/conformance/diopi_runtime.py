@@ -161,14 +161,21 @@ class Context:
         self.context_handle = ContextHandle()
         self.__class__._c_lib._diopiCreateContext(byref(self.context_handle))
 
-    def __del__(self):
-        self.__class__._c_lib._diopiDestroyContext(self.context_handle)
+    def clear(self):
+        if self.context_handle.value is not None:
+            self.__class__._c_lib._diopiDestroyContext(byref(self.context_handle))
 
     def get_handle(self):
         return self.context_handle
 
+    def streamSync(self):
+        self.__class__._c_lib._diopiDeviceStreamSync(self.context_handle)
+
 
 default_context = Context()
+
+# store the context_hanlde.value where tensor maybe deconstruct twice
+skip_tensors_for_del_in_ctx = set()
 
 
 class Sizes(Structure):
@@ -202,8 +209,8 @@ class Tensor:
         self,
         size,
         dtype,
-        stride=None,
-        context_handle=default_context.get_handle(),
+        stride,
+        context_handle,
         tensor_handle=None,
     ):
         if tensor_handle is not None and size is None:
@@ -229,11 +236,17 @@ class Tensor:
     def from_handle(cls, tensor_handle):
         ctx_handle = ContextHandle()
         diopirt_lib._diopiTensorGetCtxHandle(tensor_handle, byref(ctx_handle))
-        return cls(size=None, dtype=None, context_handle=ctx_handle, tensor_handle=tensor_handle)
+        skip_tensors_for_del_in_ctx.add(ctx_handle.value)
+        return cls(size=None, dtype=None, stride=None, context_handle=ctx_handle, tensor_handle=tensor_handle)
 
     def __del__(self):
-        diopirt_lib._diopiDestoryTensor(self.context_handle,
-                                        self.tensor_handle)
+        # skip the deletion because of maybe causing double destructions
+        if skip_tensors_for_del_in_ctx is not None and self.context_handle.value in skip_tensors_for_del_in_ctx:
+            pass
+        else:
+            if self.context_handle.value is not None and self.tensor_handle.value is not None and diopirt_lib is not None:
+                diopirt_lib._diopiDestoryTensor(self.context_handle,
+                                                self.tensor_handle)
 
     def __str__(self):
         array = self.numpy()
@@ -297,14 +310,13 @@ class Tensor:
         diopirt_lib._diopiTensorResetShape(self.tensor_handle, byref(Sizes(tuple(shape))))
 
     @classmethod
-    def from_numpy(cls, darray):
+    def from_numpy(cls, ctx, darray):
         if not isinstance(darray, (np.generic, np.ndarray)):
             raise TypeError(f"expected np.ndarray (got {type(darray)})")
-
         dtype = from_numpy_dtype(darray.dtype)
         stride = [int(darray.strides[i] / darray.itemsize)
                   for i in range(len(darray.strides))]
-        tr = cls(size=darray.shape, dtype=dtype, stride=stride)
+        tr = cls(size=darray.shape, dtype=dtype, stride=stride, context_handle=ctx.context_handle)
         diopirt_lib._diopiTensorCopyFromBuffer(tr.context_handle,
                                                c_void_p(darray.ctypes.data),
                                                tr.tensor_handle)
