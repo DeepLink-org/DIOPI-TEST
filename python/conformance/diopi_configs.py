@@ -411,7 +411,7 @@ diopi_configs = {
 
     'pointwise_op': dict(
         name=['abs', 'cos', 'erf', 'exp', 'floor',
-              'neg', 'sin', 'sqrt', 'logical_not'],
+              'neg', 'sin', 'sqrt', 'logical_not', 'rsqrt'],
         interface=['torch'],
         is_inplace=True,
         dtype=[Dtype.float16, Dtype.float32, Dtype.float64],
@@ -430,7 +430,7 @@ diopi_configs = {
 
     'pointwise_op_int_without_inplace': dict(
         name=['abs', 'cos', 'erf', 'exp',
-              'neg', 'sin', 'sqrt', 'logical_not'],
+              'neg', 'sin', 'sqrt', 'logical_not', 'rsqrt'],
         interface=['torch'],
         dtype=[Dtype.int16, Dtype.int32, Dtype.int64, Dtype.uint8, Dtype.int8],
         tensor_para=dict(
@@ -464,7 +464,7 @@ diopi_configs = {
     ),
 
     'pointwise_op_bool': dict(
-        name=['abs', 'cos', 'erf', 'exp', 'sin', 'sqrt'],
+        name=['abs', 'cos', 'erf', 'exp', 'sin', 'sqrt', 'rsqrt'],
         interface=['torch'],
         dtype=[Dtype.bool],
         tensor_para=dict(
@@ -499,7 +499,7 @@ diopi_configs = {
     ),
 
     'pointwise_op_abs_input': dict(
-        name=['log', 'log2', 'log10', 'sqrt'],
+        name=['log', 'log2', 'log10', 'sqrt', 'rsqrt'],
         interface=['torch'],
         is_inplace=True,
         dtype=[Dtype.float16, Dtype.float32, Dtype.float64],
@@ -4571,6 +4571,26 @@ diopi_configs = {
                     "dtype": [Dtype.float32, Dtype.float64, Dtype.float64, Dtype.float64],
                 },
             ],
+        ),
+    ),
+
+    'cast_dtype': dict(
+        name=["cast_dtype"],
+        interface=['CustomizedTest'],
+        tensor_para=dict(
+            gen_fn=Genfunc.randn,
+            args=[
+                {
+                    "ins": ['input'],
+                    "shape": [(32, 64,), (128, 24, 32), (16, 8,), (24, 12,)],
+                    "dtype": [Dtype.float32, Dtype.int64, Dtype.int8, Dtype.uint8],
+                },
+                {
+                    "ins": ['out'],
+                    "shape": [(32, 64,), (128, 24, 32), (16, 8,), (24, 12,)],
+                    "dtype": [Dtype.int64, Dtype.float64, Dtype.bool, Dtype.float16],
+                },
+            ]
         ),
     ),
 

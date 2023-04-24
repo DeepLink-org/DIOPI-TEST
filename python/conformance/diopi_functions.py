@@ -237,6 +237,10 @@ def sqrt(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiSqrt', promote_type(input, Dtype.float32))
 
 
+def rsqrt(input, inplace=False) -> Tensor:
+    return unary_op(input, inplace, 'diopiRsqrt', promote_type(input, Dtype.float32))
+
+
 def neg(input, inplace=False) -> Tensor:
     return unary_op(input, inplace, 'diopiNeg')
 
@@ -3533,6 +3537,14 @@ def meshgrid(tensors, shape=None):
     co_tensors = (c_void_p * inputsNum)(*co_tensors)
     func = check_function("diopiMeshGrid")
     ret = func(tensors[0].context_handle, pointer(co_tensors), pointer(c_tensors), c_int64(inputsNum))
+    check_returncode(ret)
+    return out
+
+
+def cast_dtype(input, out) -> Tensor:
+    call = "diopiCastDtype"
+    func = check_function(call)
+    ret = func(input.context_handle, out.tensor_handle, input.tensor_handle)
     check_returncode(ret)
     return out
 
