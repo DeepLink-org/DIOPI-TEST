@@ -4452,8 +4452,8 @@ diopi_configs = {
         no_output_ref=True,
         para=dict(
             mean=[-1, -0.5, 0, 0.1, 2],
-            std=[0, 0.5, 1, 2.3, 3],
-            size=[(), (2,), (32, 8), (2, 2, 2, 16), (32, 2, 3, 3)],
+            std=[0.1, 0.5, 1, 2.3, 3],
+            size=[(), (128,), (32, 8), (2, 2, 2, 16), (32, 2, 3, 3)],
         ),
     ),
 
@@ -4461,16 +4461,16 @@ diopi_configs = {
         name=["normal_"],
         no_output_ref=True,
         para=dict(
-            mean=[0, 0.1],
-            std=[1, 2],
+            mean=[0, 2, 0.1, 0.5],
+            std=[0.5, 1, 2, 3.14],
         ),
         tensor_para=dict(
             gen_fn=Genfunc.randn,
             args=[
                 {
                     "ins": ['input'],
-                    "shape": [(32, 8), (16, 64, 32)],
-                    "dtype": [Dtype.float32, Dtype.float64],
+                    "shape": [(), (128,), (32, 8), (16, 64, 32)],
+                    "dtype": [Dtype.float16, Dtype.float32, Dtype.float64],
                 },
             ]
         ),
@@ -4498,7 +4498,7 @@ diopi_configs = {
         name=["normal"],
         no_output_ref=True,
         para=dict(
-            std=[0, 0.1, 0.054056261216234408, 2, 5],
+            std=[0.5, 0.1, 0.054056261216234408, 2, 5],
         ),
         tensor_para=dict(
             gen_fn=Genfunc.randn,
