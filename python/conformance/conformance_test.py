@@ -321,7 +321,7 @@ class ConformanceTest(object):
                 sys.exit(0)
 
         for saved_pth in saved_pth_list:
-            cfg_name = saved_pth.split("_")[0]
+            cfg_name = saved_pth.rsplit("_", 1)[0]
             cfg_func_name = saved_pth.split("::")[1].rsplit("_", 1)[0]
             if not need_process_func(cfg_func_name, func_name, model_name):
                 continue
@@ -354,8 +354,8 @@ class ConformanceTest(object):
                                 if ck in tensor_para and ck in device_tensor_para:
                                     if tensor_para[ck] in device_tensor_para[ck]:
                                         skipped = True
-                            if 'dtype' in device_cfg and tensor_para['dtype'] in device_cfg['dtype']:
-                                skipped = True
+                        if 'dtype' in device_cfg and tensor_para['dtype'] in device_cfg['dtype']:
+                            skipped = True
 
                     tol_keys_list = ['atol', 'rtol', 'atol_half', 'rtol_half']
                     for key in tol_keys_list:
