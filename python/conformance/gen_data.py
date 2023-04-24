@@ -227,7 +227,7 @@ def gen_tensor(arg: dict, cfg_dict: dict) -> np.ndarray:
         elif gen_fn == Genfunc.positive:
             value = np.abs(np.array(np.random.randn(*shape)).astype(dtype))
         elif gen_fn == Genfunc.sym_mat:
-            axis = (0, 2, 1) if len(shape) == 3 else (0, 1)
+            axis = [i for i in range(len(shape)-2)] + [-1, -2]
             mat = np.random.randn(*shape).astype(dtype)
             value = mat @ mat.transpose(axis)
         else:
@@ -312,7 +312,6 @@ class GenInputData(object):
 
     @staticmethod
     def run(func_name, model_name, filter_dtype_str_list):
-
         if model_name != "":
             diopi_config = "model_config." + model_name + "_config"
             configs = Config.process_configs(eval(diopi_config))
@@ -347,6 +346,13 @@ class GenInputData(object):
 
 
 class CustomizedTest(object):
+    def cast_dtype(input, out):
+        out = input.to(out.dtype, copy=True)
+        return out
+
+    def meshgrid(tensors, shape=None):
+        return torch.meshgrid(tensors)
+
     def slice_op(input, dim, index):
         sizeI = input.size()
         slice_args = []
@@ -586,7 +592,7 @@ class GenOutputData(object):
                     gen_counter += 1
 
             if function_paras["requires_grad"]:
-                if module == "torch.Tensor":
+                if module == "input":
                     kwargs['input'] = input
                 saved_backward_pth = saved_pth.split(".pth")[0] + "_backward.pth"
                 if not isinstance(outputs, (list, tuple)):
