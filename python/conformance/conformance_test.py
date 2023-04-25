@@ -223,6 +223,7 @@ class ManualTest(object):
             assert has_duplicates is False, "failed to execute multinomial"
         out_numpy = out_numpy.flatten()
         assert len(out_numpy) % num_samples == 0, "failed to execute multinomial"
+        assert np.all(out_numpy < input.shape[-1]), "failed to execute multinomial"
 
 
 def config_to_format_string(data, indent=0):
